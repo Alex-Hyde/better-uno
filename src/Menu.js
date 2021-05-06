@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import LobbyBanner from './Banner.js';
 import MenuButton from "./Buttons.js";
 import firebase from "./firebase.js";
 
@@ -27,9 +28,34 @@ class MenuPage extends React.Component {
         })
         var firestore = firebase.firestore();  
         var docRef = firestore.doc("Games/Game " + document.querySelector("#game_input").value);
-        docRef.update({
-            players : firebase.firestore.FieldValue.arrayUnion(document.querySelector("#name").value)
-        })   
+        console.log(docRef.get().PromiseResult)
+        docRef.get()
+        .then((docSnapshot) => {
+          if (docSnapshot.exists) {
+            docRef.onSnapshot((doc) => {
+                docRef.update({
+                    players : firebase.firestore.FieldValue.arrayUnion(document.querySelector("#name").value)
+                }) 
+            });
+          } else {
+            this.setState({
+                Name: this.state.Name,
+                Game_Key: "Not found"
+            })
+          }
+      });
+
+
+        /*if (docRef.get().exists()) {
+            docRef.update({
+                players : firebase.firestore.FieldValue.arrayUnion(document.querySelector("#name").value)
+            })   
+        } else {
+            this.setState({
+                Name: this.state.Name,
+                Game_Key: "Not found"
+            })
+        }*/
     }
 
     createLobby() {
