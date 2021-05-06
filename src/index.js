@@ -7,18 +7,47 @@ class MenuPage extends React.Component {
     constructor(){
         super();
         this.state = {
-            Name: "Sebastian"
+            Name: "Sebastian",
+            Game_Key: "2"
         }
         this.setName = this.setName.bind(this)
+        this.setLobby = this.setLobby.bind(this)
+        this.createLobby = this.createLobby.bind(this)
     }
 
     setName(){
-        this.setState({Name: document.querySelector("#name").value})
+        this.setState({
+            Name: document.querySelector("#name").value,
+            Game_Key: this.state.Game_Key
+        })
         var firestore = firebase.firestore();  
-        var docRef = firestore.doc("Games/Game 2");
+        var docRef = firestore.doc("Games/Game " + this.state.Game_Key);
         docRef.set({
-        currentcard : document.querySelector("#name").value
-        })    
+            currentcard : document.querySelector("#name").value
+        })
+    }
+
+    setLobby() {
+        this.setState({
+            Name: this.state.Name,
+            Game_Key: document.querySelector("#game_input").value
+        })
+    }
+
+    createLobby() {
+        var random_num = Math.floor(Math.random() * 1000000);
+        this.setState({
+            Name: this.state.Name,
+            Game_Key: random_num
+        })
+        var firestore = firebase.firestore();  
+        var docRef = firestore.doc("Games/Game " + this.state.Game_Key);
+        docRef.set({
+            PlayerAmnt: 1
+        })
+        docRef.update({
+            players : firebase.firestore.FieldValue.arrayUnion(this.state.Name)
+        })
     }
 
     render(){
@@ -38,8 +67,17 @@ class MenuPage extends React.Component {
                 </div>
                 <br/>
                 <div style={{display: "flex", justifyContent: "center"}}>
-                    <MenuButton style={{fontSize: "30px"}} text="Join game"/>
-                    <MenuButton style={{fontSize: "30px"}} text="Host Game"/>
+                    <input type="textfield" id="game_input"></input>
+                    <MenuButton 
+                        style={{fontSize: "30px"}} 
+                        text="Join game"
+                        onClick={this.setLobby}
+                    />
+                    <MenuButton 
+                        style={{fontSize: "30px"}} 
+                        text="Host Game"
+                        onClick={this.createLobby}
+                    />
                 </div>
             </div>
         )
