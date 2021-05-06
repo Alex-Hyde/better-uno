@@ -1,17 +1,50 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import MenuButton from "./Buttons.js";
+import firebase from "./firebase.js";
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
-);
+class MenuPage extends React.Component {
+    constructor(){
+        super();
+        this.state = {
+            Name: "Sebastian"
+        }
+        this.setName = this.setName.bind(this)
+    }
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+    setName(){
+        this.setState({Name: document.querySelector("#name").value})
+        var firestore = firebase.firestore();  
+        var docRef = firestore.doc("Games/Game 2");
+        docRef.set({
+        currentcard : document.querySelector("#name").value
+        })    
+    }
+
+    render(){
+        return (
+            <div>
+                <div style={{display: "flex", justifyContent: "center"}}>
+                <h1>{this.state.Name}</h1>
+                </div>
+                <br/>
+                <div style={{display: "flex", justifyContent: "center"}}>
+                    <input type="textfield" id="name"></input>
+                    <MenuButton 
+                        style={{fontSize: "30px"}} 
+                        text="Name" 
+                        onClick={this.setName}
+                    />
+                </div>
+                <br/>
+                <div style={{display: "flex", justifyContent: "center"}}>
+                    <MenuButton style={{fontSize: "30px"}} text="Join game"/>
+                    <MenuButton style={{fontSize: "30px"}} text="Host Game"/>
+                </div>
+            </div>
+        )
+    }
+}
+
+
+ReactDOM.render(<MenuPage/>, document.getElementById('root'));
