@@ -16,22 +16,20 @@ class MenuPage extends React.Component {
     }
 
     setName(){
-        console.log(document.querySelector("#name").value);
         this.setState({Name: document.querySelector("#name").value})
-        var firestore = firebase.firestore();  
-        var docRef = firestore.doc("Games/Game " + this.state.Game_Key);
-        console.log(this.state.Name);
-        console.log(document.querySelector("#name").value);
-        docRef.update({
-        players : firebase.firestore.FieldValue.arrayUnion(document.querySelector("#name").value)
-        })   
     }
 
     setLobby() {
+        var lobby = document.querySelector("#game_input").value
         this.setState({
             Name: this.state.Name,
             Game_Key: document.querySelector("#game_input").value
         })
+        var firestore = firebase.firestore();  
+        var docRef = firestore.doc("Games/Game " + document.querySelector("#game_input").value);
+        docRef.update({
+            players : firebase.firestore.FieldValue.arrayUnion(document.querySelector("#name").value)
+        })   
     }
 
     createLobby() {
@@ -41,7 +39,7 @@ class MenuPage extends React.Component {
             Game_Key: random_num
         })
         var firestore = firebase.firestore();  
-        var docRef = firestore.doc("Games/Game " + this.state.Game_Key);
+        var docRef = firestore.doc("Games/Game " + random_num);
         docRef.set({
             PlayerAmnt: 1
         })
@@ -55,6 +53,9 @@ class MenuPage extends React.Component {
             <div>
                 <div style={{display: "flex", justifyContent: "center"}}>
                 <h1>{this.state.Name}</h1>
+                </div>
+                <div style={{display: "flex", justifyContent: "center"}}>
+                <h1>Lobby: {this.state.Game_Key}</h1>
                 </div>
                 <br/>
                 <div style={{display: "flex", justifyContent: "center"}}>
