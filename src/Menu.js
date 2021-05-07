@@ -5,64 +5,62 @@ import MenuButton from "./Buttons.js";
 import firebase from "./firebase.js";
 
 class MenuPage extends React.Component {
-    constructor(){
+    constructor(props){
+        console.log(props);
         super();
         this.state = {
-            Name: "Sebastian",
-            Game_Key: "2"
+            Name: "",
+            Game_Key: "",
         }
         this.setName = this.setName.bind(this)
         this.setLobby = this.setLobby.bind(this)
         this.createLobby = this.createLobby.bind(this)
+        this.setCode = this.setCode.bind(this)
     }
 
-    setName(){
-        this.setState({Name: document.querySelector("#name").value})
+    setName(event){
+        this.setState({
+            Name: event.target.value,
+            Game_Key: this.state.Game_Key
+        })
     }
 
-    setLobby() {
-        var lobby = document.querySelector("#game_input").value
+    setCode(event){
         this.setState({
             Name: this.state.Name,
-            Game_Key: document.querySelector("#game_input").value
+            Game_Key: event.target.value
         })
+    }
+
+    setLobby(e) {
+        e.preventDefault();
         var firestore = firebase.firestore();  
-        var docRef = firestore.doc("Games/Game " + document.querySelector("#game_input").value);
-        console.log(docRef.get().PromiseResult)
+        var docRef = firestore.doc("Games/Game " + this.state.Game_Key);
         docRef.get()
         .then((docSnapshot) => {
-          if (docSnapshot.exists) {
-            docRef.onSnapshot((doc) => {
-                docRef.update({
-                    players : firebase.firestore.FieldValue.arrayUnion(document.querySelector("#name").value)
-                }) 
-            });
-          } else {
+          if ((docSnapshot.exists)){
+                docRef.onSnapshot((doc) => {
+                    docRef.update({
+                        players : firebase.firestore.FieldValue.arrayUnion(this.state.Name)
+                    }) 
+                });
+                this.props.setInLobby(true, this.state.Game_Key, this.state.Name);
+            } 
+          else {
             this.setState({
                 Name: this.state.Name,
-                Game_Key: "Not found"
+                Game_Key: "Not found",
             })
+            return;
           }
       });
-
-
-        /*if (docRef.get().exists()) {
-            docRef.update({
-                players : firebase.firestore.FieldValue.arrayUnion(document.querySelector("#name").value)
-            })   
-        } else {
-            this.setState({
-                Name: this.state.Name,
-                Game_Key: "Not found"
-            })
-        }*/
     }
 
     createLobby() {
         var random_num = Math.floor(Math.random() * 1000000);
         this.setState({
             Name: this.state.Name,
-            Game_Key: random_num
+            Game_Key: random_num,
         })
         var firestore = firebase.firestore();  
         var docRef = firestore.doc("Games/Game " + random_num);
@@ -73,6 +71,7 @@ class MenuPage extends React.Component {
             players : firebase.firestore.FieldValue.arrayUnion(this.state.Name)
         })
     }
+    
 
     render(){
         return (
@@ -84,30 +83,29 @@ class MenuPage extends React.Component {
                 <h1>Lobby: {this.state.Game_Key}</h1>
                 </div>
                 <br/>
-                <div style={{display: "flex", justifyContent: "center"}}>
-                    <input type="textfield" id="name"></input>
-                    <MenuButton 
-                        style={{fontSize: "30px"}} 
-                        text="Name" 
-                        onClick={this.setName}
-                    />
-                </div>
-                <br/>
-                <div style={{display: "flex", justifyContent: "center"}}>
-                    <input type="textfield" id="game_input"></input>
-                    <MenuButton 
-                        style={{fontSize: "30px"}} 
-                        text="Join game"
-                        onClick={this.setLobby}
-                    />
-                    <MenuButton 
-                        style={{fontSize: "30px"}} 
-                        text="Host Game"
-                        onClick={this.createLobby}
-                    />
-                </div>
+                <form>
+                    <div style={{display: "flex", justifyContent: "center"}}>
+                        <h1 style={{fontSize: "30px"}}> Enter Your Name:</h1>
+                        <input type="textfield" placeholder="Player Name" onChange={this.setName}></input>                 
+                    </div>
+                    <br/>
+                    <div style={{display: "flex", justifyContent: "center"}}>
+                        <input type="textfield" placeholder="Enter Game Code" onChange={this.setCode}></input>
+                        <MenuButton 
+                            style={{fontSize: "30px"}} 
+                            text="Join game"
+                            onClick={this.setLobby}
+                        />
+                        <MenuButton 
+                            style={{fontSize: "30px"}} 
+                            text="Host Game"
+                            onClick={this.createLobby}
+                        />
+                    </div>
+                </form>
             </div>
         )
+
     }
 }
 
