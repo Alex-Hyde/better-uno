@@ -34,7 +34,7 @@ class MenuPage extends React.Component {
           if (docSnapshot.exists) {
             docRef.onSnapshot((doc) => {
                 docRef.update({
-                    players : firebase.firestore.FieldValue.arrayUnion(document.querySelector("#name").value)
+                    players : firebase.firestore.FieldValue.arrayUnion(this.state.Name)
                 }) 
             });
           } else {
@@ -101,7 +101,7 @@ class MenuPage extends React.Component {
                         onClick={this.setLobby}
                     />
                     <MenuButton 
-                        style={{fontSize: "30px"}} 
+                        style={{fontSize: "30px", "margin-left": "10px"}} 
                         text="Host Game"
                         onClick={this.createLobby}
                     />
