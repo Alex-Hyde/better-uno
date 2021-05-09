@@ -1,6 +1,7 @@
 import React from "react";
-import MenuPage from './Menu.js'
-import Lobby from "./Lobby.js"
+import MenuPage from './Menu.js';
+import Lobby from "./Lobby.js";
+import firebase from "./firebase.js";
 
 class GamePage extends React.Component {
 
@@ -9,10 +10,12 @@ class GamePage extends React.Component {
         this.state = {
             inLobby: false,
             Game_Key: "",
-            name: ""
+            name: "",
+            players : []
         }
         this.setInLobby = this.setInLobby.bind(this)
         this.onBackClick = this.onBackClick.bind(this)
+        this.updatePlayers = this.updatePlayers.bind(this)
     }
 
     onBackClick(){
@@ -20,7 +23,8 @@ class GamePage extends React.Component {
             {
                 inLobby : false,
                 Game_Key : this.state.Game_Key,
-                name : this.state.name
+                name : this.state.name,
+                players: []
             })
     }
 
@@ -28,17 +32,35 @@ class GamePage extends React.Component {
         this.setState({
             inLobby : status,
             Game_Key : gamekey,
-            name : playername
+            name : playername,
+            players: this.state.players
         });
     }
 
-    render(){
-        console.log(this.state.inLobby)
+    updatePlayers(){
+        firebase.firestore().collection("Games").doc("Game 3").onSnapshot(snapshot => {
+            if (snapshot.data()){
+                this.setState({
+                    inLobby : this.state.inLobby,
+                    Game_Key : this.state.Game_Key,
+                    name : this.state.name,
+                    players: snapshot.data().players
+                })
+            }
+        })
+    }
+
+    componentDidMount (){   
+        this.updatePlayers();    
+    }     
+
+
+    render(){     
         return (
             <div>
              {this.state.inLobby === true && 
              (
-                <Lobby Lobbycode = {this.state.Game_Key} players = {["john","Monica","Steve","Abby"]}/>
+                <Lobby Lobbycode = {this.state.Game_Key} playerlist={this.state.players}/>
              )}
              {this.state.inLobby === false && (<MenuPage setInLobby = {this.setInLobby}/>)}
              </div>

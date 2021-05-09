@@ -39,11 +39,10 @@ class MenuPage extends React.Component {
         docRef.get()
         .then((docSnapshot) => {
           if ((docSnapshot.exists)){
-                docRef.onSnapshot((doc) => {
+                    console.log("peepoo")
                     docRef.update({
                         players : firebase.firestore.FieldValue.arrayUnion(this.state.Name)
                     }) 
-                });
                 this.props.setInLobby(true, this.state.Game_Key, this.state.Name);
             } 
           else {
@@ -70,6 +69,7 @@ class MenuPage extends React.Component {
         docRef.update({
             players : firebase.firestore.FieldValue.arrayUnion(this.state.Name)
         })
+        this.props.setInLobby(true, this.state.Game_Key, this.state.Name);
     }
     
 
