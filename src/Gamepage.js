@@ -38,7 +38,7 @@ class GamePage extends React.Component {
     }
 
     updatePlayers(){
-        firebase.firestore().collection("Games").doc("Game 3").onSnapshot(snapshot => {
+        firebase.firestore().collection("Games").doc("Game " + this.state.Game_Key).onSnapshot(snapshot => {
             if (snapshot.data()){
                 this.setState({
                     inLobby : this.state.inLobby,
