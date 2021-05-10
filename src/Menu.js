@@ -6,7 +6,6 @@ import firebase from "./firebase.js";
 
 class MenuPage extends React.Component {
     constructor(props){
-        console.log(props);
         super();
         this.state = {
             Name: "",
@@ -39,12 +38,11 @@ class MenuPage extends React.Component {
         docRef.get()
         .then((docSnapshot) => {
           if ((docSnapshot.exists)){
-                docRef.onSnapshot((doc) => {
                     docRef.update({
-                        players : firebase.firestore.FieldValue.arrayUnion(this.state.Name)
+                        players : firebase.firestore.FieldValue.arrayUnion(this.state.Name),
+                        PlayerAmnt : firebase.firestore.FieldValue.increment(1)
                     }) 
-                });
-                this.props.setInLobby(true, this.state.Game_Key, this.state.Name);
+                this.props.setInLobby(true, parseInt(this.state.Game_Key), this.state.Name);
             } 
           else {
             this.setState({
