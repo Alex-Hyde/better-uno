@@ -6,6 +6,7 @@ import firebase from "./firebase.js";
 class Lobby extends React.Component {
 
     render(){
+        console.log(this.props.playerlist)
         return(
             <div>
                 <div style = {{display: "flex", justifyContent: "center"}}>

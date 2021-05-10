@@ -28,18 +28,13 @@ class GamePage extends React.Component {
             })
     }
 
-    setInLobby(status, gamekey, playername) {
-        this.setState({
-            inLobby : status,
-            Game_Key : gamekey,
-            name : playername,
-            players: this.state.players
-        });
-    }
-
     updatePlayers(){
+        console.log("penano");
+        console.log("gamekey:", "Game " + this.state.Game_Key);
         firebase.firestore().collection("Games").doc("Game " + this.state.Game_Key).onSnapshot(snapshot => {
+            console.log(snapshot.data())
             if (snapshot.data()){
+                console.log("hero")
                 this.setState({
                     inLobby : this.state.inLobby,
                     Game_Key : this.state.Game_Key,
@@ -50,12 +45,20 @@ class GamePage extends React.Component {
         })
     }
 
-    componentDidMount (){   
-        this.updatePlayers();    
-    }     
+    setInLobby(status, gamekey, playername) {
+        this.setState({
+            inLobby : status,
+            Game_Key : gamekey,
+            name : playername,
+            players: this.state.players
+        }, () => {
+        this.updatePlayers();
+        });
+    }
 
 
     render(){     
+        console.log(this.state.Game_Key)
         return (
             <div>
              {this.state.inLobby === true && 

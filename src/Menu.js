@@ -55,12 +55,9 @@ class MenuPage extends React.Component {
       });
     }
 
-    createLobby() {
+    createLobby(e) {
+        e.preventDefault();
         var random_num = Math.floor(Math.random() * 1000000);
-        this.setState({
-            Name: this.state.Name,
-            Game_Key: random_num,
-        })
         var firestore = firebase.firestore();  
         var docRef = firestore.doc("Games/Game " + random_num);
         docRef.set({
@@ -69,7 +66,8 @@ class MenuPage extends React.Component {
         docRef.update({
             players : firebase.firestore.FieldValue.arrayUnion(this.state.Name)
         })
-        this.props.setInLobby(true, this.state.Game_Key, this.state.Name);
+        console.log(this.state.Game_Key);
+        this.props.setInLobby(true, random_num, this.state.Name);
     }
     
 

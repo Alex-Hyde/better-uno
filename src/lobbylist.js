@@ -15,6 +15,7 @@ class Lobbylist extends React.Component {
     
     render(){
             var playerstorender = this.props.players.map(player => <PlayerIcon key={player} name={player}/>)
+            console.log(playerstorender)
         return(
             <div>
                 {playerstorender}  
