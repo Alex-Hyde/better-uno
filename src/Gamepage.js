@@ -41,7 +41,7 @@ class GamePage extends React.Component {
             console.log(snapshot.data())
             if (snapshot.data()){
                 this.setState({
-                    inLobby : this.state.inLobby,
+                    inLobby : snapshot.data().inGame ? "In Game" : this.state.inLobby,
                     Game_Key : this.state.Game_Key,
                     name : this.state.name,
                     players: snapshot.data().players
@@ -80,6 +80,7 @@ class GamePage extends React.Component {
         }, () => {
             this.unsubscribe_listener();
         })
+        firebase.firestore().doc("Games/Game " + this.state.Game_Key).update({inGame : true})
     }
 
     render(){
