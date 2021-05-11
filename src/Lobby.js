@@ -13,6 +13,7 @@ class Lobby extends React.Component {
             players: props.players,
             name: props.name
         }
+        this.ishost = props.ishost;
         this.leaveLobby = this.leaveLobby.bind(this)
     }
 
@@ -48,6 +49,21 @@ class Lobby extends React.Component {
     }
 
     render(){
+        if (!this.ishost){
+            return(
+                <div>
+                    <div style = {{display: "flex", justifyContent: "center"}}>
+                    <Banner lobby_num = {this.props.Lobbycode}/>
+                    </div>
+                    <Lobbylist players={this.props.playerlist}/>  
+                    <MenuButton 
+                        style={{fontSize: "30px"}} 
+                        text="Leave"
+                        onClick={this.leaveLobby}
+                    />
+                </div>
+            ) 
+        }
         return(
             <div>
                 <div style = {{display: "flex", justifyContent: "center"}}>
@@ -60,7 +76,7 @@ class Lobby extends React.Component {
                         text="Start Game"
                         onClick = {this.props.setInGame}
                     />
-                    </div>
+                    </div>   
                 <MenuButton 
                     style={{fontSize: "30px"}} 
                     text="Leave"

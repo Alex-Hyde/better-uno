@@ -81,7 +81,7 @@ class MenuPage extends React.Component {
             firestore.doc("Games/Active Games").update({
                 "Active Games" : firebase.firestore.FieldValue.arrayUnion(random_num)
             })
-            this.props.setInLobby(true, random_num, this.state.Name);
+            this.props.setInLobby(true, random_num, this.state.Name, true);
         }).catch((error) => {
             console.log("Error getting document:", error);
         });

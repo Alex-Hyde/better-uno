@@ -13,7 +13,8 @@ class GamePage extends React.Component {
             inLobby: false,
             Game_Key: "",
             name: "",
-            players : []
+            players : [],
+            ishost: false
         }
         this.updatecounter = 0;
         this.turnnum = 0;
@@ -30,7 +31,8 @@ class GamePage extends React.Component {
                 inLobby : false,
                 Game_Key : this.state.Game_Key,
                 name : this.state.name,
-                players: []
+                players : [],
+                ishost: false
             })
     }
 
@@ -44,7 +46,8 @@ class GamePage extends React.Component {
                     inLobby : this.state.inLobby,
                     Game_Key : this.state.Game_Key,
                     name : this.state.name,
-                    players: snapshot.data().players
+                    players: snapshot.data().players,
+                    ishost: this.state.ishost
                 }, () => {
                     if(this.updatecounter === 0){
                         this.updatecounter += 1;
@@ -60,12 +63,13 @@ class GamePage extends React.Component {
         this.unsubscribe();
     }
 
-    setInLobby(status, gamekey, playername) {
+    setInLobby(status, gamekey, playername, ishost = this.state.ishost) {
         this.setState({
             inLobby : status,
             Game_Key : gamekey,
             name : playername,
-            players: this.state.players
+            players: this.state.players,
+            ishost: ishost
         }, () => {
         this.updatePlayers();
         });
@@ -76,7 +80,8 @@ class GamePage extends React.Component {
             inLobby : "In Game",
             Game_Key : this.state.Game_Key,
             name : this.state.name,
-            players: this.state.players
+            players: this.state.players,
+            ishost: this.state.ishost
         }, () => {
             this.unsubscribe_listener();
         })
@@ -87,7 +92,7 @@ class GamePage extends React.Component {
             <div>
              {this.state.inLobby === true && 
              (
-                <Lobby Lobbycode = {this.state.Game_Key} playerlist={this.state.players} setInGame = {this.setInGame} name= {this.state.name} setInLobby = {this.setInLobby}/>
+                <Lobby ishost = {this.state.ishost} Lobbycode = {this.state.Game_Key} playerlist={this.state.players} setInGame = {this.setInGame} name= {this.state.name} setInLobby = {this.setInLobby}/>
              )}
              {this.state.inLobby === false && (<MenuPage setInLobby = {this.setInLobby}/>)}
              {this.state.inLobby === "In Game" && (<GameCanvas playernum = {this.state.players.length} turnnumber ={this.turnnum} Game_Key={this.state.Game_Key}/>) }
