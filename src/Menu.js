@@ -38,11 +38,18 @@ class MenuPage extends React.Component {
         docRef.get()
         .then((docSnapshot) => {
           if ((docSnapshot.exists)){
+              if (!docSnapshot.data().inGame) {
                     docRef.update({
                         players : firebase.firestore.FieldValue.arrayUnion(this.state.Name),
                         PlayerAmnt : firebase.firestore.FieldValue.increment(1)
                     }) 
                 this.props.setInLobby(true, parseInt(this.state.Game_Key), this.state.Name);
+              } else {
+                this.setState({
+                    Name: this.state.Name,
+                    Game_Key: "Game already started",
+                })
+              }
             } 
           else {
             this.setState({
