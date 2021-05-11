@@ -15,6 +15,8 @@ class GamePage extends React.Component {
             name: "",
             players : []
         }
+        this.updatecounter = 0;
+        this.turnnum = 0;
         this.setInLobby = this.setInLobby.bind(this)
         this.onBackClick = this.onBackClick.bind(this)
         this.updatePlayers = this.updatePlayers.bind(this)
@@ -38,12 +40,16 @@ class GamePage extends React.Component {
         this.unsubscribe = firebase.firestore().collection("Games").doc("Game " + this.state.Game_Key).onSnapshot(snapshot => {
             console.log(snapshot.data())
             if (snapshot.data()){
-                console.log("hero")
                 this.setState({
                     inLobby : this.state.inLobby,
                     Game_Key : this.state.Game_Key,
                     name : this.state.name,
                     players: snapshot.data().players
+                }, () => {
+                    if(this.updatecounter === 0){
+                        this.updatecounter += 1;
+                        this.turnnum = this.state.players.length
+                    }
                 })
             }
         })
@@ -76,16 +82,15 @@ class GamePage extends React.Component {
         })
     }
 
-    render(){     
-        console.log(this.state.Game_Key)
+    render(){
         return (
             <div>
              {this.state.inLobby === true && 
              (
-                <Lobby Lobbycode = {this.state.Game_Key} playerlist={this.state.players} setInGame = {this.setInGame}/>
+                <Lobby Lobbycode = {this.state.Game_Key} playerlist={this.state.players} setInGame = {this.setInGame} name= {this.state.name} setInLobby = {this.setInLobby}/>
              )}
              {this.state.inLobby === false && (<MenuPage setInLobby = {this.setInLobby}/>)}
-             {this.state.inLobby === "In Game" && (<GameCanvas Game_Key={this.state.Game_Key}/>) }
+             {this.state.inLobby === "In Game" && (<GameCanvas playernum = {this.state.players.length} turnnumber ={this.turnnum} Game_Key={this.state.Game_Key}/>) }
              </div>
         )
     }

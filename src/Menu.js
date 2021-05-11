@@ -6,7 +6,6 @@ import firebase from "./firebase.js";
 
 class MenuPage extends React.Component {
     constructor(props){
-        console.log(props);
         super();
         this.state = {
             Name: "",
@@ -39,11 +38,11 @@ class MenuPage extends React.Component {
         docRef.get()
         .then((docSnapshot) => {
           if ((docSnapshot.exists)){
-                    console.log("peepoo")
                     docRef.update({
-                        players : firebase.firestore.FieldValue.arrayUnion(this.state.Name)
+                        players : firebase.firestore.FieldValue.arrayUnion(this.state.Name),
+                        PlayerAmnt : firebase.firestore.FieldValue.increment(1)
                     }) 
-                this.props.setInLobby(true, this.state.Game_Key, this.state.Name);
+                this.props.setInLobby(true, parseInt(this.state.Game_Key), this.state.Name);
             } 
           else {
             this.setState({
@@ -57,17 +56,35 @@ class MenuPage extends React.Component {
 
     createLobby(e) {
         e.preventDefault();
-        var random_num = Math.floor(Math.random() * 1000000);
         var firestore = firebase.firestore();  
-        var docRef = firestore.doc("Games/Game " + random_num);
-        docRef.set({
-            PlayerAmnt: 1
-        })
-        docRef.update({
-            players : firebase.firestore.FieldValue.arrayUnion(this.state.Name)
-        })
-        console.log(this.state.Game_Key);
-        this.props.setInLobby(true, random_num, this.state.Name);
+        var x = firestore.doc("Games/Active Games");
+        var y;
+        x.get().then((doc) => {
+            console.log("Document data:", doc.data());
+            y = doc.data()["Active Games"]
+            var random_num = Math.floor(Math.random() * 1000000);
+            while (y.includes(random_num)) {
+                random_num = Math.floor(Math.random() * 1000000);
+            }
+            this.setState({
+                Name: this.state.Name,
+                Game_Key: random_num,
+            })
+            var docRef = firestore.doc("Games/Game " + random_num);
+            docRef.set({
+                currentcard: "none",
+                PlayerAmnt: 1
+            })
+            docRef.update({
+                players : firebase.firestore.FieldValue.arrayUnion(this.state.Name)
+            })
+            firestore.doc("Games/Active Games").update({
+                "Active Games" : firebase.firestore.FieldValue.arrayUnion(random_num)
+            })
+            this.props.setInLobby(true, random_num, this.state.Name);
+        }).catch((error) => {
+            console.log("Error getting document:", error);
+        });
     }
     
 
