@@ -67,7 +67,6 @@ class MenuPage extends React.Component {
         var x = firestore.doc("Games/Active Games");
         var y;
         x.get().then((doc) => {
-            console.log("Document data:", doc.data());
             y = doc.data()["Active Games"]
             var random_num = Math.floor(Math.random() * 1000000);
             while (y.includes(random_num)) {

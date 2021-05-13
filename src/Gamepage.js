@@ -14,10 +14,8 @@ class GamePage extends React.Component {
             Game_Key: "",
             name: "",
             players : [],
-            ishost: false
+            turnnum : 0
         }
-        this.updatecounter = 0;
-        this.turnnum = 0;
         this.setInLobby = this.setInLobby.bind(this)
         this.onBackClick = this.onBackClick.bind(this)
         this.updatePlayers = this.updatePlayers.bind(this)
@@ -32,12 +30,11 @@ class GamePage extends React.Component {
                 Game_Key : this.state.Game_Key,
                 name : this.state.name,
                 players : [],
-                ishost: false
+                turnnum: this.state.turnnum
             })
     }
 
     updatePlayers(){
-        console.log("penano");
         console.log("gamekey:", "Game " + this.state.Game_Key);
         this.unsubscribe = firebase.firestore().collection("Games").doc("Game " + this.state.Game_Key).onSnapshot(snapshot => {
             console.log(snapshot.data())
@@ -47,32 +44,45 @@ class GamePage extends React.Component {
                     Game_Key : this.state.Game_Key,
                     name : this.state.name,
                     players: snapshot.data().players,
-                    ishost: this.state.ishost
+                    turnnum: this.state.turnnum
                 }, () => {
-                    if(this.updatecounter === 0){
-                        this.updatecounter += 1;
-                        this.turnnum = this.state.players.length
-                    }
+                        console.log("Updating player index")
+                        this.setState(
+                            {
+                                inLobby : this.state.inLobby,
+                                Game_Key : this.state.Game_Key,
+                                name : this.state.name,
+                                players : this.state.players,
+                                turnnum: this.state.players.indexOf(this.state.name)
+                            })
                 })
             }
         })
     }
 
     unsubscribe_listener(){
-        console.log("Hello How Are You Pee poo time");
         this.unsubscribe();
     }
 
-    setInLobby(status, gamekey, playername, ishost = this.state.ishost) {
+    setInLobby(status, gamekey, playername) {
         this.setState({
             inLobby : status,
             Game_Key : gamekey,
             name : playername,
             players: this.state.players,
-            ishost: ishost
+            turnnum: this.state.turnnum
         }, () => {
         this.updatePlayers();
         });
+    }
+
+    shuffleArray(array) {
+        for (var i = array.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var temp = array[i];
+            array[i] = array[j];
+            array[j] = temp;
+        }
     }
 
     setInGame(){
@@ -81,22 +91,31 @@ class GamePage extends React.Component {
             Game_Key : this.state.Game_Key,
             name : this.state.name,
             players: this.state.players,
-            ishost: this.state.ishost
+            turnnum: this.state.turnnum
         }, () => {
+            var Cards = ["1","1","1","1","1","1","2","2","2","2","2","2","3","3","3","4","5","5","5","5","5","reverse","reverse","reverse","reverse","reverse",]
+            this.shuffleArray(Cards);
+            for (var i = 1; i <= this.state.players.length; i++){
+                firebase.firestore().doc("Games/Game "+this.state.Game_Key+"/Players/Player "+ i.toString()).set({
+                    Hand: Cards.slice((i-1) * 7, i*7),
+                })
+            }
             this.unsubscribe_listener();
         })
         firebase.firestore().doc("Games/Game " + this.state.Game_Key).update({inGame : true})
     }
 
     render(){
+        console.log(this.state.turnnum)
+        console.log(!this.state.turnnum)
         return (
             <div>
              {this.state.inLobby === true && 
              (
-                <Lobby ishost = {this.state.ishost} Lobbycode = {this.state.Game_Key} playerlist={this.state.players} setInGame = {this.setInGame} name= {this.state.name} setInLobby = {this.setInLobby}/>
+                <Lobby ishost = {!this.state.turnnum} Lobbycode = {this.state.Game_Key} playerlist={this.state.players} setInGame = {this.setInGame} name= {this.state.name} setInLobby = {this.setInLobby}/>
              )}
              {this.state.inLobby === false && (<MenuPage setInLobby = {this.setInLobby}/>)}
-             {this.state.inLobby === "In Game" && (<GameCanvas playernum = {this.state.players.length} turnnumber ={this.turnnum} Game_Key={this.state.Game_Key}/>) }
+             {this.state.inLobby === "In Game" && (<GameCanvas playernum = {this.state.players.length} turnnumber ={this.state.turnnum} Game_Key={this.state.Game_Key}/>) }
              </div>
         )
     }

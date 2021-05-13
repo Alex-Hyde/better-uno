@@ -1,49 +1,17 @@
 import React from "react";
 import firebase from "./firebase.js";
+import Card from "./Card.js"
 
-function Card(value,width,height, img){
-    this.value = value;
-    this.strvalue = img
-    this.x = 0;
-    this.y = 0;
-    this.width = width;
-    this.height = height;
-    this.img = document.getElementById(img);
-    this.enlarged = false;
-
-    this.onCard = function(x, y, cardx = this.x, cardy = this.y){
-        if (!this.enlarged){
-            if((cardx < x) && (x < (cardx + this.width)) && (cardy < y) && (y < (cardy + this.height))){
-                return true
-            }
-            return false
-        }
-        else{
-            if((cardx < x) && (x < (cardx + this.width + 28)) && (cardy - 50 < y) && (y < (cardy + this.height))){
-                return true
-            }
-            return false    
-        }
+function createDeck(inputs){
+    var cards =[]
+    for(var i = 0; i < inputs.length; i++){
+        cards.push(new Card(106,184,inputs[i]));
     }
-
-    this.draw = function(ctx){
-        ctx.drawImage(this.img,this.x,this.y,this.width,this.height);
-    }   
-
-    this.playCard = function(Game_Key){
-        firebase.firestore().collection("Games").doc("Game " + Game_Key).update({
-            currentcard : this.strvalue
-        })
-    }
+    return cards;
 }
 
-var card1 = new Card(1,106,184,"1");
-var card2 = new Card(2,106,184,"2");
-var card3 = new Card(3,106,184,"3");
-var card4 = new Card(4,106,184,"4");
-var card5 = new Card(5,106,184,"5");
 
- var cardsInHand=[card1,card2,card4,card3,card5]
+ var cardsInHand = createDeck(["1","2","3","4","1"])
 
 class GameCanvas extends React.Component {
 
@@ -73,7 +41,7 @@ listentodoc(){
                 currentcard : snapshot.data().currentcard,
                 oncard : this.state.oncard
             })
-            this.currentplayer = (this.currentplayer % this.playernum) + 1 ;
+            this.currentplayer = (this.currentplayer + 1) % this.playernum;
         }
     })
 }
