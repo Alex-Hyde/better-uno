@@ -24,12 +24,10 @@ class Lobby extends React.Component {
         docRef.get()
             .then((docSnapshot) => {
                 if (docSnapshot.data().PlayerAmnt === 1) {
-                    console.log("whet")
                     firestore.doc("Games/Active Games").update({
                         "Active Games" : firebase.firestore.FieldValue.arrayRemove(this.state.Lobbycode)
                     })
                     firestore.doc("Games/Game " + this.state.Lobbycode).delete();
-                    console.log(typeof this.state.Lobbycode)
                 } else {
                     docRef.update({
                         players : firebase.firestore.FieldValue.arrayRemove(this.state.name),
@@ -49,8 +47,9 @@ class Lobby extends React.Component {
         //window.removeEventListener("beforeunload", this.leaveLobby);
     }
 
-    render(){
-        if (!this.ishost){
+    render(props){
+        console.log("Is the host:", this.ishost, this.props.ishost)
+        if (!this.props.ishost){
             return(
                 <div>
                     <div style = {{display: "flex", justifyContent: "center"}}>
