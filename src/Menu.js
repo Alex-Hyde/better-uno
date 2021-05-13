@@ -80,7 +80,8 @@ class MenuPage extends React.Component {
             var docRef = firestore.doc("Games/Game " + random_num);
             docRef.set({
                 currentcard: "none",
-                PlayerAmnt: 1
+                PlayerAmnt: 1,
+                inGame: false
             })
             docRef.update({
                 players : firebase.firestore.FieldValue.arrayUnion(this.state.Name)
