@@ -37,15 +37,16 @@ class Lobby extends React.Component {
                     }) 
                 }
             this.props.setInLobby(false, "", this.state.name);
+            return
             })
-        return
     }
     componentDidMount() {
-        window.onbeforeunload = this.leaveLobby;
+        window.addEventListener("beforeunload", this.leaveLobby);
+        window.addEventListener("unload", this.leaveLobby);
     }
       
     componentWillUnmount() {
-        //window.removeEventListener("beforeunload", this.props.onBeforeUnload);
+        //window.removeEventListener("beforeunload", this.leaveLobby);
     }
 
     render(){
