@@ -1,6 +1,7 @@
 import React from "react";
 import Banner from "./Banner";
 import Lobbylist from "./lobbylist";
+import HostLobbylist from "./hostlobbylist";
 import MenuButton from "./Buttons.js";
 import firebase from "./firebase.js";
 
@@ -38,6 +39,7 @@ class Lobby extends React.Component {
             })
         return
     }
+
     componentDidMount() {
         window.onbeforeunload = this.leaveLobby;
     }
@@ -68,7 +70,7 @@ class Lobby extends React.Component {
                 <div style = {{display: "flex", justifyContent: "center"}}>
                 <Banner lobby_num = {this.props.Lobbycode}/>
                 </div>
-                <Lobbylist players={this.props.playerlist}/>
+                <HostLobbylist players={this.props.playerlist} Lobbycode = {this.props.Lobbycode}/>
                 <div style = {{display: "flex", justifyContent: "center"}}>
                     <MenuButton 
                         style={{fontSize: "30px"}} 

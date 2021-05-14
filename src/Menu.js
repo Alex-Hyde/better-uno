@@ -37,28 +37,37 @@ class MenuPage extends React.Component {
         var docRef = firestore.doc("Games/Game " + this.state.Game_Key);
         docRef.get()
         .then((docSnapshot) => {
-          if ((docSnapshot.exists)){
-              if (!docSnapshot.data().inGame) {
+            if ((docSnapshot.exists)){
+                if (docSnapshot.data().inGame) {
+                    this.setState({
+                        Name: this.state.Name,
+                        Game_Key: "Game already started",
+                    })
+                } else if (docSnapshot.data().PlayerAmnt >= 10) {
+                    this.setState({
+                        Name: this.state.Name,
+                        Game_Key: "Game full",
+                    })
+                } else if (docSnapshot.data().players.includes(this.state.Name)) {
+                    this.setState({
+                        Name: this.state.Name,
+                        Game_Key: "Duplicate Name",
+                    })
+                } else {
                     docRef.update({
                         players : firebase.firestore.FieldValue.arrayUnion(this.state.Name),
                         PlayerAmnt : firebase.firestore.FieldValue.increment(1)
                     }) 
-                this.props.setInLobby(true, parseInt(this.state.Game_Key), this.state.Name);
-              } else {
+                    this.props.setInLobby(true, parseInt(this.state.Game_Key), this.state.Name);
+                } 
+            } else {
                 this.setState({
                     Name: this.state.Name,
-                    Game_Key: "Game already started",
+                    Game_Key: "Not found",
                 })
-              }
-            } 
-          else {
-            this.setState({
-                Name: this.state.Name,
-                Game_Key: "Not found",
-            })
-            return;
-          }
-      });
+                return;
+            }
+        });
     }
 
     createLobby(e) {
