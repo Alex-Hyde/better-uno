@@ -4,6 +4,7 @@ import Lobby from "./Lobby.js";
 import firebase from "./firebase.js";
 import GameCanvas from "./Canvas.js";
 import ReactDOM from 'react-dom';
+import MasterDeck from "./Deck.js";
 
 class GamePage extends React.Component {
 
@@ -93,13 +94,16 @@ class GamePage extends React.Component {
             players: this.state.players,
             turnnum: this.state.turnnum
         }, () => {
-            var Cards = ["1","1","1","1","1","1","2","2","2","2","2","2","3","3","3","4","5","5","5","5","5","reverse","reverse","reverse","reverse","reverse",]
+            var Cards = MasterDeck
             this.shuffleArray(Cards);
             for (var i = 1; i <= this.state.players.length; i++){
                 firebase.firestore().doc("Games/Game "+this.state.Game_Key+"/Players/Player "+ i.toString()).set({
-                    Hand: Cards.slice((i-1) * 7, i*7),
+                    Hand: Cards.splice(0,7)
                 })
             }
+            firebase.firestore().doc("Games/Game "+this.state.Game_Key).update({
+                Deck: Cards
+            })
             this.unsubscribe_listener();
         })
         firebase.firestore().doc("Games/Game " + this.state.Game_Key).update({inGame : true})

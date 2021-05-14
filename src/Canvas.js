@@ -1,17 +1,11 @@
 import React from "react";
 import firebase from "./firebase.js";
 import Card from "./Card.js"
-
-function createDeck(inputs){
-    var cards =[]
-    for(var i = 0; i < inputs.length; i++){
-        cards.push(new Card(106,184,inputs[i]));
-    }
-    return cards;
-}
+import Player from "./player.js";
+import MasterDeck from "./Deck.js";
 
 
- var cardsInHand = createDeck(["1","2","3","4","1"])
+var player = new Player();
 
 class GameCanvas extends React.Component {
 
@@ -21,7 +15,9 @@ class GameCanvas extends React.Component {
             currentcard: "none",
             oncard: false
         }
-        this.turnnumber = props.turnnumber
+        this.deck = new Card(216,318,"back");
+        this.deck.x = 800;
+        this.deck.y = 50;
         this.playernum = props.playernum
         this.currentplayer = 0;
         this.reversed = false;
@@ -34,7 +30,6 @@ class GameCanvas extends React.Component {
     }
 
 listentodoc(){
-    const db = firebase.firestore
     this.unsubscribe = firebase.firestore().collection("Games").doc("Game " + this.props.Game_Key).onSnapshot(snapshot => {
         if (snapshot.data()){
             this.setState({
@@ -46,9 +41,22 @@ listentodoc(){
     })
 }
 
+shuffleArray(array) {
+    for (var i = array.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+    }
+}
+
 componentDidMount(){
-    this.updateCanvas();
-    this.listentodoc()
+    player.turnNum = this.props.turnnumber;
+    firebase.firestore().doc("Games/Game " + this.props.Game_Key + "/Players/Player " + (player.turnNum + 1)).get().then(doc => {
+        player.loadCards(doc.data().Hand);
+        this.updateCanvas();
+        this.listentodoc();
+    })
 }
 
 onMouseMove(e){
@@ -56,8 +64,8 @@ onMouseMove(e){
     var rerender = false;
       this.x = e.clientX - rect.left
       this.y = e.clientY - rect.top
-      for(var i = 0; i < cardsInHand.length; i++ ){
-        if (cardsInHand[i].onCard(this.x,this.y)){
+      for(var i = 0; i <player.cardsInHand.length; i++ ){
+        if (player.cardsInHand[i].onCard(this.x,this.y)){
             rerender = true
         }
       }
@@ -75,15 +83,35 @@ onMouseMove(e){
       }
 }
 
+pullCard(){
+    firebase.firestore().doc("Games/Game " + this.props.Game_Key).get().then(doc => {
+        console.log(doc.data().Deck[0])
+        player.loadCards([doc.data().Deck[0]]);
+        var newdeck = doc.data().Deck
+        newdeck.splice(0,1);
+        if (newdeck.length === 1){
+            this.shuffleArray(MasterDeck)
+            newdeck = newdeck.concat(MasterDeck)
+        }
+        firebase.firestore().doc("Games/Game " + this.props.Game_Key).update({
+            Deck: newdeck
+        })
+    })    
+}
+
 onMouseClick(e){
     var rect = this.refs.canvas.getBoundingClientRect();
     var ex = e.clientX - rect.left
     var ey = e.clientY - rect.top
-    for(var i = 0; i < cardsInHand.length; i++ ){
-        if (cardsInHand[i].onCard(ex,ey) && (this.turnnumber === this.currentplayer)){
-            cardsInHand[i].playCard(this.props.Game_Key); 
-            cardsInHand.splice(i,1);   
+    for(var i = 0; i < player.cardsInHand.length; i++ ){
+        if (player.cardsInHand[i].onCard(ex,ey) && (player.turnNum === this.currentplayer)){
+            player.cardsInHand[i].playCard(this.props.Game_Key); 
+            player.cardsInHand.splice(i,1);   
+            player.updateHand(this.props.Game_Key);
         }
+    }
+    if (this.deck.onCard(ex,ey) && (player.turnNum === this.currentplayer)){
+        this.pullCard();
     }    
 }
 
@@ -95,25 +123,31 @@ componentWillUnmount(){
 
 }
 
+
+renderBoard(){
+    const ctx = this.refs.canvas.getContext("2d"); 
+    this.deck.draw(ctx);
+}
+
 renderHand(){
     const ctx = this.refs.canvas.getContext("2d"); 
     var currentx = 0;
-    for(var i = 0; i < cardsInHand.length; i++ ){
-        cardsInHand[i].x = currentx;
-        cardsInHand[i].y = 400; 
-        cardsInHand[i].width = 106
-            cardsInHand[i].height = 184      
-        if (cardsInHand[i].onCard(this.x,this.y)){
-            cardsInHand[i].y = 350;
-            cardsInHand[i].width = 135
-            cardsInHand[i].height = 234
-            cardsInHand[i].enlarged = true;
+    for(var i = 0; i < player.cardsInHand.length; i++ ){
+        player.cardsInHand[i].x = currentx;
+        player.cardsInHand[i].y = 400; 
+        player.cardsInHand[i].width = 106
+        player.cardsInHand[i].height = 184      
+        if (player.cardsInHand[i].onCard(this.x,this.y)){
+            player.cardsInHand[i].y = 350;
+            player.cardsInHand[i].width = 135
+            player.cardsInHand[i].height = 234
+            player.cardsInHand[i].enlarged = true;
         }
         else{
-            cardsInHand[i].enlarged = false;
+            player.cardsInHand[i].enlarged = false;
         }
-        currentx += cardsInHand[i].width
-        cardsInHand[i].draw(ctx);
+        currentx += player.cardsInHand[i].width
+        player.cardsInHand[i].draw(ctx);
     } 
 }
 
@@ -126,6 +160,7 @@ updateCanvas(){
     const ctx = this.refs.canvas.getContext("2d");
     ctx.clearRect(0,0,1350,595);
     this.renderDeck()
+    this.renderBoard()
     this.renderHand()
 }
 
