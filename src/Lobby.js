@@ -19,10 +19,12 @@ class Lobby extends React.Component {
 
     leaveLobby(e) {
         e.preventDefault();
+        //e.returnValue = "help"
         var firestore = firebase.firestore();  
         var docRef = firestore.doc("Games/Game " + this.state.Lobbycode);
         docRef.get()
             .then((docSnapshot) => {
+                e.returnValue = "help"
                 if (docSnapshot.data().PlayerAmnt === 1) {
                     firestore.doc("Games/Active Games").update({
                         "Active Games" : firebase.firestore.FieldValue.arrayRemove(this.state.Lobbycode)
@@ -34,17 +36,17 @@ class Lobby extends React.Component {
                         PlayerAmnt : firebase.firestore.FieldValue.increment(-1)
                     }) 
                 }
-            this.props.setInLobby(false, "", this.state.name);
-            return
+                this.props.setInLobby(false, "", this.state.name);
+                return// "help";
             })
     }
     componentDidMount() {
-        window.addEventListener("beforeunload", this.leaveLobby);
-        window.addEventListener("unload", this.leaveLobby);
+        window.onbeforeunload = this.leaveLobby
+        //window.addEventListener("unload", this.leaveLobby);
     }
       
     componentWillUnmount() {
-        //window.removeEventListener("beforeunload", this.leaveLobby);
+        window.removeEventListener("beforeunload", this.leaveLobby);
     }
 
     render(props){
