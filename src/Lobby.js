@@ -1,6 +1,7 @@
 import React from "react";
 import Banner from "./Banner";
 import Lobbylist from "./lobbylist";
+import HostLobbylist from "./hostlobbylist";
 import MenuButton from "./Buttons.js";
 import firebase from "./firebase.js";
 
@@ -19,12 +20,10 @@ class Lobby extends React.Component {
 
     leaveLobby(e) {
         e.preventDefault();
-        //e.returnValue = "help"
         var firestore = firebase.firestore();  
         var docRef = firestore.doc("Games/Game " + this.state.Lobbycode);
         docRef.get()
             .then((docSnapshot) => {
-                e.returnValue = "help"
                 if (docSnapshot.data().PlayerAmnt === 1) {
                     firestore.doc("Games/Active Games").update({
                         "Active Games" : firebase.firestore.FieldValue.arrayRemove(this.state.Lobbycode)
@@ -36,17 +35,17 @@ class Lobby extends React.Component {
                         PlayerAmnt : firebase.firestore.FieldValue.increment(-1)
                     }) 
                 }
-                this.props.setInLobby(false, "", this.state.name);
-                return// "help";
+            this.props.setInLobby(false, "", this.state.name);
             })
+        return
     }
+
     componentDidMount() {
-        window.onbeforeunload = this.leaveLobby
-        //window.addEventListener("unload", this.leaveLobby);
+        window.onbeforeunload = this.leaveLobby;
     }
       
     componentWillUnmount() {
-        window.removeEventListener("beforeunload", this.leaveLobby);
+        //window.removeEventListener("beforeunload", this.props.onBeforeUnload);
     }
 
     render(props){
@@ -71,7 +70,7 @@ class Lobby extends React.Component {
                 <div style = {{display: "flex", justifyContent: "center"}}>
                 <Banner lobby_num = {this.props.Lobbycode}/>
                 </div>
-                <Lobbylist players={this.props.playerlist}/>
+                <HostLobbylist players={this.props.playerlist} Lobbycode = {this.props.Lobbycode}/>
                 <div style = {{display: "flex", justifyContent: "center"}}>
                     <MenuButton 
                         style={{fontSize: "30px"}} 

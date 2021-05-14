@@ -38,7 +38,17 @@ class GamePage extends React.Component {
         console.log("gamekey:", "Game " + this.state.Game_Key);
         this.unsubscribe = firebase.firestore().collection("Games").doc("Game " + this.state.Game_Key).onSnapshot(snapshot => {
             console.log(snapshot.data())
-            if (snapshot.data()){
+            if (snapshot.data()) {
+                if (!snapshot.data().players.includes(this.state.name)) {
+                    this.setState({
+                        inLobby : false,
+                        Game_Key : "Kicked",
+                        name : this.state.name,
+                        players: [],
+                        ishost: false
+                    })
+                    return;
+                }
                 this.setState({
                     inLobby : snapshot.data().inGame ? "In Game" : this.state.inLobby,
                     Game_Key : this.state.Game_Key,
@@ -46,15 +56,15 @@ class GamePage extends React.Component {
                     players: snapshot.data().players,
                     turnnum: this.state.turnnum
                 }, () => {
-                        console.log("Updating player index")
-                        this.setState(
-                            {
-                                inLobby : this.state.inLobby,
-                                Game_Key : this.state.Game_Key,
-                                name : this.state.name,
-                                players : this.state.players,
-                                turnnum: this.state.players.indexOf(this.state.name)
-                            })
+                    console.log("Updating player index")
+                    this.setState(
+                    {
+                        inLobby : this.state.inLobby,
+                        Game_Key : this.state.Game_Key,
+                        name : this.state.name,
+                        players : this.state.players,
+                        turnnum: this.state.players.indexOf(this.state.name)
+                    })
                 })
             }
         })
