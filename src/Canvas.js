@@ -13,13 +13,13 @@ class GameCanvas extends React.Component {
         super();
         this.state = {
             currentcard: "none",
-            oncard: false
+            oncard: false,
         }
         this.deck = new Card(216,318,"back");
         this.deck.x = 800;
         this.deck.y = 50;
-        this.playernum = props.playernum
-        this.currentplayer = 0;
+        this.playernum = props.playernum;
+        this.currentplayer = 1;
         this.reversed = false;
         this.listentodoc = this.listentodoc.bind(this)
         this.updateCanvas = this.updateCanvas.bind(this)
@@ -28,6 +28,7 @@ class GameCanvas extends React.Component {
         this.onMouseMove = this.onMouseMove.bind(this)
         this.onMouseClick = this.onMouseClick.bind(this)
     }
+
 
 listentodoc(){
     this.unsubscribe = firebase.firestore().collection("Games").doc("Game " + this.props.Game_Key).onSnapshot(snapshot => {
@@ -40,6 +41,7 @@ listentodoc(){
         }
     })
 }
+
 
 shuffleArray(array) {
     for (var i = array.length - 1; i > 0; i--) {
@@ -64,7 +66,7 @@ onMouseMove(e){
     var rerender = false;
       this.x = e.clientX - rect.left
       this.y = e.clientY - rect.top
-      for(var i = 0; i <player.cardsInHand.length; i++ ){
+      for(var i = 0; i < player.cardsInHand.length; i++ ){
         if (player.cardsInHand[i].onCard(this.x,this.y)){
             rerender = true
         }

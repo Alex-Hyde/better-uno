@@ -29,9 +29,11 @@ function Card(width,height, img){
         ctx.drawImage(this.img,this.x,this.y,this.width,this.height);
     }   
 
-    this.playCard = function(Game_Key){
+    this.playCard = function(Game_Key, newturn, player, playernum, index){
         firebase.firestore().collection("Games").doc("Game " + Game_Key).update({
-            currentcard : this.strvalue
+            currentcard : this.strvalue,
+            turn : newturn + 1,
+            currentplayer: (player + 1) % playernum,
         })
     }
 }
