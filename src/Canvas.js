@@ -1,25 +1,28 @@
 import React from "react";
 import firebase from "./firebase.js";
 import Card from "./Card.js"
-import Player from "./player.js";
-import MasterDeck from "./Deck.js";
 
-
-var player = new Player();
+function createDeck(inputs){
+    var cards = []
+    for(var i = 0; i < inputs.length; i++){
+        cards.push(new Card(106,184,inputs[i]));
+    }
+    return cards;
+}
 
 class GameCanvas extends React.Component {
 
     constructor(props){
         super();
         this.state = {
+            cards: createDeck(["1","2","3","4","1"]),
             currentcard: "none",
-            oncard: false
+            oncard: false,
+            turn: 0,
+            currentplayer : 0
         }
-        this.deck = new Card(216,318,"back");
-        this.deck.x = 800;
-        this.deck.y = 50;
+        this.turnnumber = props.turnnumber
         this.playernum = props.playernum
-        this.currentplayer = 0;
         this.reversed = false;
         this.listentodoc = this.listentodoc.bind(this)
         this.updateCanvas = this.updateCanvas.bind(this)
@@ -30,24 +33,31 @@ class GameCanvas extends React.Component {
     }
 
 listentodoc(){
+    const db = firebase.firestore
     this.unsubscribe = firebase.firestore().collection("Games").doc("Game " + this.props.Game_Key).onSnapshot(snapshot => {
         if (snapshot.data()){
-            this.setState({
-                currentcard : snapshot.data().currentcard,
-                oncard : this.state.oncard
-            })
-            this.currentplayer = (this.currentplayer + 1) % this.playernum;
+            if (snapshot.data().turn != this.state.turn) {
+                console.log(snapshot.data())
+                if (snapshot.data().currentplayer === (this.turnnumber + 1) % this.playernum) {
+                    this.setState({
+                        cards: this.state.cards.slice(0, snapshot.data().cardIndex).concat(this.state.cards.slice(snapshot.data().cardIndex + 1)),
+                        currentcard : snapshot.data().currentcard,
+                        oncard : this.state.oncard,
+                        turn : snapshot.data().turn,
+                        currentplayer : snapshot.data().currentplayer
+                    })
+                } else {
+                    this.setState({
+                        cards: this.state.cards,
+                        currentcard : snapshot.data().currentcard,
+                        oncard : this.state.oncard,
+                        turn : snapshot.data().turn,
+                        currentplayer : snapshot.data().currentplayer
+                    })
+                }
+            }   
         }
     })
-}
-
-shuffleArray(array) {
-    for (var i = array.length - 1; i > 0; i--) {
-        var j = Math.floor(Math.random() * (i + 1));
-        var temp = array[i];
-        array[i] = array[j];
-        array[j] = temp;
-    }
 }
 
 componentDidMount(){
@@ -68,8 +78,8 @@ onMouseMove(e){
     var rerender = false;
       this.x = e.clientX - rect.left
       this.y = e.clientY - rect.top
-      for(var i = 0; i <player.cardsInHand.length; i++ ){
-        if (player.cardsInHand[i].onCard(this.x,this.y)){
+      for(var i = 0; i < this.state.cards.length; i++ ){
+        if (this.state.cards[i].onCard(this.x,this.y)){
             rerender = true
         }
       }
@@ -87,36 +97,15 @@ onMouseMove(e){
       }
 }
 
-pullCard(){
-    firebase.firestore().doc("Games/Game " + this.props.Game_Key).get().then(doc => {
-        console.log(doc.data().Deck[0])
-        player.loadCards([doc.data().Deck[0]]);
-        var newdeck = doc.data().Deck
-        newdeck.splice(0,1);
-        if (newdeck.length === 1){
-            this.shuffleArray(MasterDeck)
-            newdeck = newdeck.concat(MasterDeck)
-        }
-        firebase.firestore().doc("Games/Game " + this.props.Game_Key).update({
-            Deck: newdeck
-        })
-    })    
-}
-
 onMouseClick(e){
-    console.log(player.turnNum, this.currentplayer)
     var rect = this.refs.canvas.getBoundingClientRect();
     var ex = e.clientX - rect.left
     var ey = e.clientY - rect.top
-    for(var i = 0; i < player.cardsInHand.length; i++ ){
-        if (player.cardsInHand[i].onCard(ex,ey) && (player.turnNum === this.currentplayer)){
-            player.cardsInHand[i].playCard(this.props.Game_Key); 
-            player.cardsInHand.splice(i,1);   
-            player.updateHand(this.props.Game_Key);
+    for(var i = 0; i < this.state.cards.length; i++ ){
+        if (this.state.cards[i].onCard(ex,ey) && (this.turnnumber === this.state.currentplayer)){
+            this.state.cards[i].playCard(this.props.Game_Key, this.state.turn, this.turnnumber, this.playernum, i); 
+            //cardsInHand.splice(i,1);   
         }
-    }
-    if (this.deck.onCard(ex,ey) && (player.turnNum === this.currentplayer)){
-        this.pullCard();
     }    
 }
 
@@ -128,31 +117,25 @@ componentWillUnmount(){
 
 }
 
-
-renderBoard(){
-    const ctx = this.refs.canvas.getContext("2d"); 
-    this.deck.draw(ctx);
-}
-
 renderHand(){
     const ctx = this.refs.canvas.getContext("2d"); 
     var currentx = 0;
-    for(var i = 0; i < player.cardsInHand.length; i++ ){
-        player.cardsInHand[i].x = currentx;
-        player.cardsInHand[i].y = 400; 
-        player.cardsInHand[i].width = 106
-        player.cardsInHand[i].height = 184      
-        if (player.cardsInHand[i].onCard(this.x,this.y)){
-            player.cardsInHand[i].y = 350;
-            player.cardsInHand[i].width = 135
-            player.cardsInHand[i].height = 234
-            player.cardsInHand[i].enlarged = true;
+    for(var i = 0; i < this.state.cards.length; i++ ) {
+        this.state.cards[i].x = currentx;
+        this.state.cards[i].y = 400; 
+        this.state.cards[i].width = 106
+        this.state.cards[i].height = 184      
+        if (this.state.cards[i].onCard(this.x,this.y)) {
+            this.state.cards[i].y = 350;
+            this.state.cards[i].width = 135
+            this.state.cards[i].height = 234
+            this.state.cards[i].enlarged = true;
         }
-        else{
-            player.cardsInHand[i].enlarged = false;
+        else {
+            this.state.cards[i].enlarged = false;
         }
-        currentx += player.cardsInHand[i].width
-        player.cardsInHand[i].draw(ctx);
+        currentx += this.state.cards[i].width
+        this.state.cards[i].draw(ctx);
     } 
 }
 
@@ -165,7 +148,6 @@ updateCanvas(){
     const ctx = this.refs.canvas.getContext("2d");
     ctx.clearRect(0,0,1350,595);
     this.renderDeck()
-    this.renderBoard()
     this.renderHand()
 }
 

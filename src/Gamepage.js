@@ -112,7 +112,7 @@ class GamePage extends React.Component {
                 })
             }
             firebase.firestore().doc("Games/Game "+this.state.Game_Key).update({
-                Deck: Cards
+                Deck: Cards,
             })
             this.unsubscribe_listener();
         })

@@ -52,33 +52,21 @@ class KickButton extends React.Component {
     }
 }
 
-class PlayerLobbyElem extends React.Component {
-
-    render(props){
-        return (
-            <div style={{display: "flex"}}>
-                <PlayerIcon name={this.props.player}/>    
-                <KickButton kicked={this.props.player} 
-                style={{fontSize: "20px", height: "30px", verticalAlign: "middle", margin:"25px"}} 
-                Lobbycode={this.props.Lobbycode}/>
-            </div>
-        )
-    }
-}
-
 class HostLobbylist extends React.Component {
 
     render() {
         var playerstorender = [<div style={{display: "flex"}}><PlayerIcon key={this.props.players[0]} name={this.props.players[0]}/></div>].concat(
-            this.props.players.slice(1).map( (player, index) =>  {<PlayerLobbyElem key = {player} player = {player} Lobbycode={this.props.Lobbycode}/>}))
-                
+            this.props.players.slice(1).map(player => 
+                <div style={{display: "flex"}}>
+                <PlayerIcon key={player} name={player}/><KickButton kicked={player} style={{fontSize: "20px", height: "30px", verticalAlign: "middle", margin:"25px"}} Lobbycode={this.props.Lobbycode}/>
+            </div>))
 
-        return(
-            <div>
-                {playerstorender} 
-            </div>   
-        ) 
-    }
+    return(
+        <div>
+            {playerstorender} 
+        </div>   
+    ) 
+}
 }
 
-export default HostLobbylist; 
+export default HostLobbylist
