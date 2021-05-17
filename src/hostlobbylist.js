@@ -58,8 +58,9 @@ class HostLobbylist extends React.Component {
         var playerstorender = [<div style={{display: "flex", justifyContent: "center"}}><PlayerIcon key={this.props.players[0]} name={this.props.players[0]}/></div>].concat(
             this.props.players.slice(1).map(player => 
                 <div style={{display: "flex", justifyContent: "center"}}>
-                <PlayerIcon key={player} name={player}/><KickButton kicked={player} style={{fontSize: "20px", height: "30px", verticalAlign: "middle", margin:"25px"}} Lobbycode={this.props.Lobbycode}/>
-            </div>))
+                    <PlayerIcon key={player} name={player}/>
+                    <KickButton kicked={player} style={{fontSize: "20px", height: "30px", verticalAlign: "middle", margin:"25px"}} Lobbycode={this.props.Lobbycode}/>
+                </div>))
 
     return(
         <div>

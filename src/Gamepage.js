@@ -35,7 +35,6 @@ class GamePage extends React.Component {
     }
 
     updatePlayers(){
-        console.log("gamekey:", "Game " + this.state.Game_Key);
         this.unsubscribe = firebase.firestore().collection("Games").doc("Game " + this.state.Game_Key).onSnapshot(snapshot => {
             console.log(snapshot.data())
             if (snapshot.data()) {
@@ -56,7 +55,6 @@ class GamePage extends React.Component {
                     players: snapshot.data().players,
                     turnnum: this.state.turnnum
                 }, () => {
-                    console.log("Updating player index")
                     this.setState(
                     {
                         inLobby : this.state.inLobby,
@@ -105,19 +103,14 @@ class GamePage extends React.Component {
         }, () => {
             var Cards = ["1","1","1","1","1","1","2","2","2","2","2","2","3","3","3","4","5","5","5","5","5","reverse","reverse","reverse","reverse","reverse",]
             this.shuffleArray(Cards);
-            for (var i = 1; i <= this.state.players.length; i++){
-                firebase.firestore().doc("Games/Game "+this.state.Game_Key+"/Players/Player "+ i.toString()).set({
-                    Hand: Cards.slice((i-1) * 7, i*7),
-                })
-            }
             this.unsubscribe_listener();
         })
-        firebase.firestore().doc("Games/Game " + this.state.Game_Key).update({inGame : true})
+        firebase.firestore().doc("Games/Game " + this.state.Game_Key).update({
+            inGame : true,
+        })
     }
 
     render(){
-        console.log(this.state.turnnum)
-        console.log(!this.state.turnnum)
         return (
             <div>
              {this.state.inLobby === true && 
