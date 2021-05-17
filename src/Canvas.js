@@ -52,10 +52,14 @@ shuffleArray(array) {
 
 componentDidMount(){
     player.turnNum = this.props.turnnumber;
-    firebase.firestore().doc("Games/Game " + this.props.Game_Key + "/Players/Player " + (player.turnNum + 1)).get().then(doc => {
-        player.loadCards(doc.data().Hand);
-        this.updateCanvas();
-        this.listentodoc();
+    console.log(player.turnNum)
+    var unsub = firebase.firestore().doc("Games/Game " + this.props.Game_Key + "/Players/Player " + (player.turnNum + 1)).onSnapshot(snapshot => {
+        if (snapshot.data()){
+            player.loadCards(snapshot.data().Hand);
+            this.updateCanvas();
+            this.listentodoc();
+            unsub();
+        }
     })
 }
 
@@ -100,6 +104,7 @@ pullCard(){
 }
 
 onMouseClick(e){
+    console.log(player.turnNum, this.currentplayer)
     var rect = this.refs.canvas.getBoundingClientRect();
     var ex = e.clientX - rect.left
     var ey = e.clientY - rect.top
