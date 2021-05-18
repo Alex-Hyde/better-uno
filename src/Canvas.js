@@ -178,7 +178,6 @@ render(){
     return (
         <div>
         <canvas onMouseMove={this.onMouseMove} onClick={this.onMouseClick} ref="canvas" width={1250} height={595}/>
-        <button>Hello</button>
         </div>
     );
 }
