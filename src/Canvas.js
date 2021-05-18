@@ -16,8 +16,13 @@ class GameCanvas extends React.Component {
             turn: 0,
             currentplayer: 0
         }
+        this.options = {
+            chaining : true,
+            jumpin : true
+        }
         this.deck = new Card(216,318,"back");
         this.players = props.players;
+        this.chain = 0;
         this.hands = props.players.map(player => 7);
         this.deck.x = 800;
         this.deck.y = 50;
@@ -33,6 +38,7 @@ class GameCanvas extends React.Component {
         this.cardCanPlay = this.cardCanPlay.bind(this)
         this.shuffleArray = this.shuffleArray.bind(this)
         this.renderOthers = this.renderOthers.bind(this)
+        this.forcedPull = this.forcedPull.bind(this)
     }
 
 listentodoc(){
@@ -59,9 +65,14 @@ listentodoc(){
                     firebase.firestore().doc("Games/Game " + this.props.Game_Key + "/Players/Player " + (player.turnNum + 1)).update({
                         Hand: stringHand
                     })
+                } else if (snapshot.data().currentplayer === player.turnNum && snapshot.data().lastAction == "play") {
+                    var newdeck = snapshot.data().Deck
+                    console.log("forced???")
+                    this.forcedPull(snapshot.data().chain, newdeck)
                 }
                 if (snapshot.data().lastAction == "play") {
                     this.hands[snapshot.data().lastPlayer] -= 1;
+                    this.hands[snapshot.data().currentplayer] += snapshot.data().chain;
                 } else if (snapshot.data().lastAction == "pull") {
                     this.hands[snapshot.data().lastPlayer] += 1;
                 }
@@ -73,6 +84,7 @@ listentodoc(){
                 currentplayer: snapshot.data().currentplayer
             })
             this.reversed = snapshot.data().reversed
+            this.chain = snapshot.data().chain
             this.updateCanvas()
             this.renderOthers()
         }
@@ -145,19 +157,31 @@ pullCard(){
     })  
 }
 
+forcedPull(n, deck) {
+    console.log(deck, n)
+    if (n === 0) {
+        return
+    }
+    for (var i = 0; i < n; i++) {
+        player.loadCards([deck[0]]);
+        deck.splice(0,1);
+        if (deck.length === 0) {
+            this.shuffleArray(MasterDeck)
+            deck = deck.concat(MasterDeck)
+        }
+    }
+    var stringHand = player.cardsInHand.map(x => x.strvalue)
+    firebase.firestore().doc("Games/Game " + this.props.Game_Key + "/Players/Player " + (player.turnNum + 1)).update({
+        Hand: stringHand
+    })
+    firebase.firestore().collection("Games").doc("Game " + this.props.Game_Key).update({
+        Deck: deck,
+        gameAction: false
+    })
+}
+
 playCard(index) {
-    console.log(player.cardsInHand[index])
-    if (player.cardsInHand[index].strvalue[1] != "R") {
-        firebase.firestore().collection("Games").doc("Game " + this.props.Game_Key).update({
-            currentcard : player.cardsInHand[index].strvalue,
-            turn : this.state.turn + 1,
-            currentplayer: (player.turnNum - (this.reversed * 2) + 1 + this.playernum) % this.playernum,
-            cardInd : index,
-            lastPlayer : player.turnNum,
-            lastAction: "play",
-            gameAction: true
-        })//.then(() => {player.cardsInHand.splice(index,1); this.updateCanvas()})
-    } else {
+    if (player.cardsInHand[index].strvalue[1] === "R") {
         firebase.firestore().collection("Games").doc("Game " + this.props.Game_Key).update({
             currentcard : player.cardsInHand[index].strvalue,
             turn : this.state.turn + 1,
@@ -166,14 +190,77 @@ playCard(index) {
             lastPlayer : player.turnNum,
             lastAction: "play",
             gameAction: true,
-            reversed : !this.reversed
-        })//.then(() => {player.cardsInHand.splice(index,1); this.updateCanvas()})
+            reversed : !this.reversed,
+            chain : 0
+        })
+    } else if (player.cardsInHand[index].strvalue[1] === "+") {
+        if (this.options.chaining) {
+            firebase.firestore().collection("Games").doc("Game " + this.props.Game_Key).update({
+                currentcard : player.cardsInHand[index].strvalue,
+                turn : this.state.turn + 1,
+                currentplayer: (player.turnNum + (this.reversed*2) - 1 + this.playernum) % this.playernum,
+                cardInd : index,
+                lastPlayer : player.turnNum,
+                lastAction: "play",
+                gameAction: true,
+                reversed : !this.reversed,
+                chain : this.chain + 2
+            })
+        } else {
+            firebase.firestore().collection("Games").doc("Game " + this.props.Game_Key).update({
+                currentcard : player.cardsInHand[index].strvalue,
+                turn : this.state.turn + 1,
+                currentplayer: (player.turnNum + (this.reversed*2) - 1 + this.playernum) % this.playernum,
+                cardInd : index,
+                lastPlayer : player.turnNum,
+                lastAction: "play",
+                gameAction: true,
+                reversed : !this.reversed,
+                chain : 2
+            })
+        }
+    } else if (player.cardsInHand[index].strvalue[1] === "!") {
+        if (this.options.chaining) {
+            firebase.firestore().collection("Games").doc("Game " + this.props.Game_Key).update({
+                currentcard : player.cardsInHand[index].strvalue,
+                turn : this.state.turn + 1,
+                currentplayer: (player.turnNum + (this.reversed*2) - 1 + this.playernum) % this.playernum,
+                cardInd : index,
+                lastPlayer : player.turnNum,
+                lastAction: "play",
+                gameAction: true,
+                reversed : !this.reversed,
+                chain : this.chain + 4
+            })
+        } else {
+            firebase.firestore().collection("Games").doc("Game " + this.props.Game_Key).update({
+                currentcard : player.cardsInHand[index].strvalue,
+                turn : this.state.turn + 1,
+                currentplayer: (player.turnNum + (this.reversed*2) - 1 + this.playernum) % this.playernum,
+                cardInd : index,
+                lastPlayer : player.turnNum,
+                lastAction: "play",
+                gameAction: true,
+                reversed : !this.reversed,
+                chain : 4
+            })
+        }
+    } else {
+        firebase.firestore().collection("Games").doc("Game " + this.props.Game_Key).update({
+            currentcard : player.cardsInHand[index].strvalue,
+            turn : this.state.turn + 1,
+            currentplayer: (player.turnNum - (this.reversed * 2) + 1 + this.playernum) % this.playernum,
+            cardInd : index,
+            lastPlayer : player.turnNum,
+            lastAction: "play",
+            gameAction: true,
+            chain: 0
+        })
     }
     
 }
 
 onMouseClick(e){
-    console.log(player.turnNum, this.state.currentplayer)
     var rect = this.refs.canvas.getBoundingClientRect();
     var ex = e.clientX - rect.left
     var ey = e.clientY - rect.top

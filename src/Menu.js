@@ -97,7 +97,8 @@ class MenuPage extends React.Component {
                 lastAction : "N/A",
                 gameAction : false,
                 inGame : false,
-                reversed : false
+                reversed : false,
+                chain : 0
             })
             firestore.doc("Games/Active Games").update({
                 "Active Games" : firebase.firestore.FieldValue.arrayUnion(random_num)
