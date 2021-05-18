@@ -3,8 +3,11 @@ import firebase from "./firebase.js";
 import Card from "./Card.js"
 import Player from "./player.js";
 import MasterDeck from "./Deck.js";
+import CanvasButton from "./Canvasbutton.js";
 
 var player = new Player();
+var backButton = new CanvasButton("BackB",100,400,129,129);
+var forwardsButton = new CanvasButton("ForwardsB", 1100,400,129,129);
 
 class GameCanvas extends React.Component {
 
@@ -17,6 +20,10 @@ class GameCanvas extends React.Component {
             currentplayer: 0
         }
         this.deck = new Card(216,318,"back");
+        this.specialdeck = new Card(216,318,"SpecialDBack");
+        this.specialdeck.x = 500;
+        this.specialdeck.y = 50;
+        this.canvasRef = React.createRef();
         this.deck.x = 800;
         this.deck.y = 50;
         this.playernum = props.playernum
@@ -62,7 +69,6 @@ listentodoc(){
                 turn: snapshot.data().turn,
                 currentplayer: snapshot.data().currentplayer
             })
-            this.updateCanvas()
         }
     })
 }
@@ -97,7 +103,7 @@ cardCanPlay(card){
 }
 
 onMouseMove(e){
-    var rect = this.refs.canvas.getBoundingClientRect();
+    var rect = this.canvasRef.current.getBoundingClientRect();
     var rerender = false;
       this.x = e.clientX - rect.left
       this.y = e.clientY - rect.top
@@ -144,19 +150,29 @@ playCard(index) {
 
 onMouseClick(e){
     console.log(player.turnNum, this.state.currentplayer)
-    var rect = this.refs.canvas.getBoundingClientRect();
+    var rect = this.canvasRef.current.getBoundingClientRect();
     var ex = e.clientX - rect.left
     var ey = e.clientY - rect.top
-    for(var i = 0; i < player.cardsInHand.length; i++){
-        if (player.cardsInHand[i].onCard(ex,ey) && (
-        ((player.turnNum === this.state.currentplayer) && (this.cardCanPlay(player.cardsInHand[i]))) ||
-        this.state.currentcard === player.cardsInHand[i].strvalue)) { // add "and jump ins enabled" to this conditional later
-            this.playCard(i); 
+    for(var i = 7*player.handindex; i < 7 * (player.handindex + 1); i++){
+        if(player.cardsInHand[i]){
+            if (player.cardsInHand[i].onCard(ex,ey) && (
+            ((player.turnNum === this.state.currentplayer) && (this.cardCanPlay(player.cardsInHand[i]))) ||
+            this.state.currentcard === player.cardsInHand[i].strvalue)) { // add "and jump ins enabled" to this conditional later
+                this.playCard(i); 
+            }
         }
-    }
+    }   
     if (this.deck.onCard(ex,ey) && (player.turnNum === this.state.currentplayer)){
         this.pullCard();
     }    
+    if (forwardsButton.clicked(ex,ey) && forwardsButton.on){
+        player.handindex += 1;
+        this.setState(this.state)
+    }
+    if(backButton.clicked(ex,ey) && backButton.on){
+        player.handindex -= 1;
+        this.setState(this.state)
+    }
 }
 
 componentDidUpdate(){
@@ -168,50 +184,69 @@ componentWillUnmount(){
 }
 
 
-renderBoard(){
-    const ctx = this.refs.canvas.getContext("2d"); 
+renderBoard(ctx){
     this.deck.draw(ctx);
+    this.specialdeck.draw(ctx);
 }
 
-renderHand(){
-    const ctx = this.refs.canvas.getContext("2d"); 
-    var currentx = 0;
-    for(var i = 0; i < player.cardsInHand.length; i++ ){
-        player.cardsInHand[i].x = currentx;
-        player.cardsInHand[i].y = 400; 
-        player.cardsInHand[i].width = 106
-        player.cardsInHand[i].height = 184      
-        if (player.cardsInHand[i].onCard(this.x,this.y)){
-            player.cardsInHand[i].y = 350;
-            player.cardsInHand[i].width = 135
-            player.cardsInHand[i].height = 234
-            player.cardsInHand[i].enlarged = true;
-        }
-        else{
-            player.cardsInHand[i].enlarged = false;
-        }
-        currentx += player.cardsInHand[i].width
-        player.cardsInHand[i].draw(ctx);
-    } 
+renderHand(ctx){
+    var cardsnum = (Math.min(7, player.cardsInHand.length) - 1);
+    var currentx = 550 - 106* Math.floor(cardsnum / 2)
+    for(var i = 7*player.handindex; i < 7 * (player.handindex + 1); i++ ){
+        if(player.cardsInHand[i]){
+            player.cardsInHand[i].x = currentx;
+            player.cardsInHand[i].y = 400; 
+            player.cardsInHand[i].width = 106
+            player.cardsInHand[i].height = 184      
+            if (player.cardsInHand[i].onCard(this.x,this.y)){
+                player.cardsInHand[i].y = 350;
+                player.cardsInHand[i].width = 135
+                player.cardsInHand[i].height = 234
+                player.cardsInHand[i].enlarged = true;
+            }
+            else{
+                player.cardsInHand[i].enlarged = false;
+            }
+            currentx += player.cardsInHand[i].width
+            player.cardsInHand[i].draw(ctx);
+        } 
+    }
 }
 
-renderDeck(){
-    const ctx = this.refs.canvas.getContext("2d");
+renderUI(ctx){
+    if(player.handindex > 0){
+        backButton.draw(ctx);
+        backButton.on = true;
+    }
+    else{
+        backButton.on = false;
+    }
+    if (((player.handindex + 1) * 7) < (player.cardsInHand.length)){
+        forwardsButton.draw(ctx);
+        forwardsButton.on = true;
+    }
+    else{
+        forwardsButton.on = false;
+    }
+}
+
+renderDeck(ctx){
     ctx.drawImage(document.getElementById(this.state.currentcard),0,0,211,327)
 }
 
 updateCanvas(){
-    const ctx = this.refs.canvas.getContext("2d");
+    const ctx = this.canvasRef.current.getContext("2d");
     ctx.clearRect(0,0,1350,595);
-    this.renderDeck()
-    this.renderBoard()
-    this.renderHand()
+    this.renderDeck(ctx)
+    this.renderBoard(ctx)
+    this.renderHand(ctx)
+    this.renderUI(ctx)
 }
 
 render(){
     return (
         <div>
-        <canvas onMouseMove={this.onMouseMove} onClick={this.onMouseClick} ref="canvas" width={1250} height={595}/>
+        <canvas ref = {this.canvasRef} onMouseMove={this.onMouseMove} onClick={this.onMouseClick} width={1250} height={595}/>
         </div>
     );
 }

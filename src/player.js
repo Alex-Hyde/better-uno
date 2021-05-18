@@ -4,6 +4,7 @@ import firebase from "./firebase.js";
 function Player(){
     this.turnNum = 0; 
     this.cardsInHand = [];
+    this.handindex = 0;
 
     this.loadCards = function(inputs){
         for(var i = 0; i < inputs.length; i++){

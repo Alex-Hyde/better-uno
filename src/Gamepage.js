@@ -5,6 +5,7 @@ import firebase from "./firebase.js";
 import GameCanvas from "./Canvas.js";
 import ReactDOM from 'react-dom';
 import MasterDeck from "./Deck.js";
+import specialdeck from "./SpecialDeck.js";
 
 class GamePage extends React.Component {
 
@@ -106,6 +107,8 @@ class GamePage extends React.Component {
         }, () => {
             var Cards = MasterDeck.slice()
             this.shuffleArray(Cards);
+            var specialCards = specialdeck.slice();
+            this.shuffleArray(specialCards)
             for (var i = 1; i <= this.state.players.length; i++){
                 firebase.firestore().doc("Games/Game "+this.state.Game_Key+"/Players/Player "+ i.toString()).set({
                     Hand: Cards.splice(0,7)
@@ -113,6 +116,7 @@ class GamePage extends React.Component {
             }
             firebase.firestore().doc("Games/Game " + this.state.Game_Key).update({
                 Deck: Cards,
+                specialdeck: specialCards,
                 inGame : true
             })
             this.unsubscribe_listener();
