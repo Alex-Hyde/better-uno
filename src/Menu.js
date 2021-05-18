@@ -57,8 +57,8 @@ class MenuPage extends React.Component {
                     docRef.update({
                         players : firebase.firestore.FieldValue.arrayUnion(this.state.Name),
                         PlayerAmnt : firebase.firestore.FieldValue.increment(1)
-                    }) 
-                    this.props.setInLobby(true, parseInt(this.state.Game_Key), this.state.Name);
+                    }).then(
+                    this.props.setInLobby(true, parseInt(this.state.Game_Key), this.state.Name))
                 } 
             } else {
                 this.setState({
@@ -96,7 +96,8 @@ class MenuPage extends React.Component {
                 lastPlayer : -1,
                 lastAction : "N/A",
                 gameAction : false,
-                inGame : false
+                inGame : false,
+                reversed : false
             })
             firestore.doc("Games/Active Games").update({
                 "Active Games" : firebase.firestore.FieldValue.arrayUnion(random_num)

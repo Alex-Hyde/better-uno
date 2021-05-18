@@ -129,7 +129,7 @@ class GamePage extends React.Component {
                 <Lobby ishost = {!this.state.turnnum} Lobbycode = {this.state.Game_Key} playerlist={this.state.players} setInGame = {this.setInGame} name= {this.state.name} setInLobby = {this.setInLobby}/>
              )}
              {this.state.inLobby === false && (<MenuPage setInLobby = {this.setInLobby}/>)}
-             {this.state.inLobby === "In Game" && (<GameCanvas playernum = {this.state.players.length} turnnumber ={this.state.turnnum} Game_Key={this.state.Game_Key}/>) }
+             {this.state.inLobby === "In Game" && (<GameCanvas players = {this.state.players} turnnumber ={this.state.turnnum} Game_Key={this.state.Game_Key}/>) }
              </div>
         )
     }
