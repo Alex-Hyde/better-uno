@@ -49,11 +49,6 @@ class Lobby extends React.Component {
     }
 
     render(props){
-<<<<<<< HEAD
-        console.log(this.props.playerlist)
-        console.log("Is the host:", this.ishost, this.props.ishost)
-=======
->>>>>>> 64cd109c00eca7eb3dabc9605370d079220d6913
         if (!this.props.ishost){
             return(
                 <div>

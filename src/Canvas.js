@@ -35,6 +35,9 @@ class GameCanvas extends React.Component {
 listentodoc(){
     this.unsubscribe = firebase.firestore().collection("Games").doc("Game " + this.props.Game_Key).onSnapshot(snapshot => {
         if (snapshot.data()){
+            if (snapshot.data().lastPlayer === player.turnNum && snapshot.data().turn > this.state.turn) {
+                player.cardsInHand.splice(snapshot.data().cardInd,1)
+            }
             this.setState({
                 currentcard : snapshot.data().currentcard,
                 oncard : this.state.oncard,
@@ -105,12 +108,14 @@ pullCard(){
         player.loadCards([doc.data().Deck[0]]);
         var newdeck = doc.data().Deck
         newdeck.splice(0,1);
-        if (newdeck.length === 1){
+        if (newdeck.length === 0) {
             this.shuffleArray(MasterDeck)
             newdeck = newdeck.concat(MasterDeck)
         }
         firebase.firestore().doc("Games/Game " + this.props.Game_Key).update({
-            Deck: newdeck
+            Deck: newdeck,
+            turn: this.state.turn + 1,
+            lastPlayer: -1
         })
     })    
 }
@@ -120,8 +125,10 @@ playCard(index) {
     firebase.firestore().collection("Games").doc("Game " + this.props.Game_Key).update({
         currentcard : player.cardsInHand[index].strvalue,
         turn : this.state.turn + 1,
-        currentplayer: (player.turnNum + 1) % this.playernum
-    }).then(() => {player.cardsInHand.splice(index,1); this.updateCanvas()})
+        currentplayer: (player.turnNum + 1) % this.playernum,
+        cardInd : index,
+        lastPlayer : player.turnNum
+    })//.then(() => {player.cardsInHand.splice(index,1); this.updateCanvas()})
 }
 
 onMouseClick(e){
@@ -130,7 +137,9 @@ onMouseClick(e){
     var ex = e.clientX - rect.left
     var ey = e.clientY - rect.top
     for(var i = 0; i < player.cardsInHand.length; i++){
-        if (player.cardsInHand[i].onCard(ex,ey) && (player.turnNum === this.state.currentplayer) && (this.cardCanPlay(player.cardsInHand[i]))) {
+        if (player.cardsInHand[i].onCard(ex,ey) && (
+        ((player.turnNum === this.state.currentplayer) && (this.cardCanPlay(player.cardsInHand[i]))) ||
+        this.state.currentcard === player.cardsInHand[i].strvalue)) { // add "and jump ins enabled" to this conditional later
             this.playCard(i); 
         }
     }
