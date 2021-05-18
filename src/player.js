@@ -18,7 +18,6 @@ function Player(){
             Hand:  this.cardsInHand.map(card => card.strvalue)
         })
     }
-
 }
 
 export default Player;

@@ -1,27 +1,25 @@
 import React from "react";
 import firebase from "./firebase.js";
 import Card from "./Card.js"
+import Player from "./player.js";
+import MasterDeck from "./Deck.js";
 
-function createDeck(inputs){
-    var cards = []
-    for(var i = 0; i < inputs.length; i++){
-        cards.push(new Card(106,184,inputs[i]));
-    }
-    return cards;
-}
+
+var player = new Player();
 
 class GameCanvas extends React.Component {
 
     constructor(props){
         super();
         this.state = {
-            cards: createDeck(["1","2","3","4","1"]),
             currentcard: "none",
             oncard: false,
             turn: 0,
-            currentplayer : 0
+            currentplayer: 0
         }
-        this.turnnumber = props.turnnumber
+        this.deck = new Card(216,318,"back");
+        this.deck.x = 800;
+        this.deck.y = 50;
         this.playernum = props.playernum
         this.reversed = false;
         this.listentodoc = this.listentodoc.bind(this)
@@ -30,34 +28,31 @@ class GameCanvas extends React.Component {
         this.renderDeck = this.renderDeck.bind(this)
         this.onMouseMove = this.onMouseMove.bind(this)
         this.onMouseClick = this.onMouseClick.bind(this)
+        this.playCard = this.playCard.bind(this)
     }
 
 listentodoc(){
-    const db = firebase.firestore
     this.unsubscribe = firebase.firestore().collection("Games").doc("Game " + this.props.Game_Key).onSnapshot(snapshot => {
         if (snapshot.data()){
-            if (snapshot.data().turn != this.state.turn) {
-                console.log(snapshot.data())
-                if (snapshot.data().currentplayer === (this.turnnumber + 1) % this.playernum) {
-                    this.setState({
-                        cards: this.state.cards.slice(0, snapshot.data().cardIndex).concat(this.state.cards.slice(snapshot.data().cardIndex + 1)),
-                        currentcard : snapshot.data().currentcard,
-                        oncard : this.state.oncard,
-                        turn : snapshot.data().turn,
-                        currentplayer : snapshot.data().currentplayer
-                    })
-                } else {
-                    this.setState({
-                        cards: this.state.cards,
-                        currentcard : snapshot.data().currentcard,
-                        oncard : this.state.oncard,
-                        turn : snapshot.data().turn,
-                        currentplayer : snapshot.data().currentplayer
-                    })
-                }
-            }   
+            this.setState({
+                currentcard : snapshot.data().currentcard,
+                oncard : this.state.oncard,
+                turn: snapshot.data().turn,
+                currentplayer: snapshot.data().currentplayer
+            })
+            console.log("Hello")
+            this.updateCanvas()
         }
     })
+}
+
+shuffleArray(array) {
+    for (var i = array.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+    }
 }
 
 componentDidMount(){
@@ -78,8 +73,8 @@ onMouseMove(e){
     var rerender = false;
       this.x = e.clientX - rect.left
       this.y = e.clientY - rect.top
-      for(var i = 0; i < this.state.cards.length; i++ ){
-        if (this.state.cards[i].onCard(this.x,this.y)){
+      for(var i = 0; i <player.cardsInHand.length; i++ ){
+        if (player.cardsInHand[i].onCard(this.x,this.y)){
             rerender = true
         }
       }
@@ -97,15 +92,43 @@ onMouseMove(e){
       }
 }
 
+pullCard(){
+    firebase.firestore().doc("Games/Game " + this.props.Game_Key).get().then(doc => {
+        //onsole.log(doc.data().Deck[0])
+        player.loadCards([doc.data().Deck[0]]);
+        var newdeck = doc.data().Deck
+        newdeck.splice(0,1);
+        if (newdeck.length === 1){
+            this.shuffleArray(MasterDeck)
+            newdeck = newdeck.concat(MasterDeck)
+        }
+        firebase.firestore().doc("Games/Game " + this.props.Game_Key).update({
+            Deck: newdeck
+        })
+    })    
+}
+
+playCard(index) {
+    console.log(player.cardsInHand[index])
+    firebase.firestore().collection("Games").doc("Game " + this.props.Game_Key).update({
+        currentcard : player.cardsInHand[index].strvalue,
+        turn : this.state.turn + 1,
+        currentplayer: (player.turnNum + 1) % this.playernum
+    }).then(() => {player.cardsInHand.splice(index,1); this.updateCanvas()})
+}
+
 onMouseClick(e){
+    console.log(player.turnNum, this.state.currentplayer)
     var rect = this.refs.canvas.getBoundingClientRect();
     var ex = e.clientX - rect.left
     var ey = e.clientY - rect.top
-    for(var i = 0; i < this.state.cards.length; i++ ){
-        if (this.state.cards[i].onCard(ex,ey) && (this.turnnumber === this.state.currentplayer)){
-            this.state.cards[i].playCard(this.props.Game_Key, this.state.turn, this.turnnumber, this.playernum, i); 
-            //cardsInHand.splice(i,1);   
+    for(var i = 0; i < player.cardsInHand.length; i++){
+        if (player.cardsInHand[i].onCard(ex,ey) && (player.turnNum === this.state.currentplayer)){
+            this.playCard(i); 
         }
+    }
+    if (this.deck.onCard(ex,ey) && (player.turnNum === this.state.currentplayer)){
+        this.pullCard();
     }    
 }
 
@@ -117,25 +140,31 @@ componentWillUnmount(){
 
 }
 
+
+renderBoard(){
+    const ctx = this.refs.canvas.getContext("2d"); 
+    this.deck.draw(ctx);
+}
+
 renderHand(){
     const ctx = this.refs.canvas.getContext("2d"); 
     var currentx = 0;
-    for(var i = 0; i < this.state.cards.length; i++ ) {
-        this.state.cards[i].x = currentx;
-        this.state.cards[i].y = 400; 
-        this.state.cards[i].width = 106
-        this.state.cards[i].height = 184      
-        if (this.state.cards[i].onCard(this.x,this.y)) {
-            this.state.cards[i].y = 350;
-            this.state.cards[i].width = 135
-            this.state.cards[i].height = 234
-            this.state.cards[i].enlarged = true;
+    for(var i = 0; i < player.cardsInHand.length; i++ ){
+        player.cardsInHand[i].x = currentx;
+        player.cardsInHand[i].y = 400; 
+        player.cardsInHand[i].width = 106
+        player.cardsInHand[i].height = 184      
+        if (player.cardsInHand[i].onCard(this.x,this.y)){
+            player.cardsInHand[i].y = 350;
+            player.cardsInHand[i].width = 135
+            player.cardsInHand[i].height = 234
+            player.cardsInHand[i].enlarged = true;
         }
-        else {
-            this.state.cards[i].enlarged = false;
+        else{
+            player.cardsInHand[i].enlarged = false;
         }
-        currentx += this.state.cards[i].width
-        this.state.cards[i].draw(ctx);
+        currentx += player.cardsInHand[i].width
+        player.cardsInHand[i].draw(ctx);
     } 
 }
 
@@ -148,6 +177,7 @@ updateCanvas(){
     const ctx = this.refs.canvas.getContext("2d");
     ctx.clearRect(0,0,1350,595);
     this.renderDeck()
+    this.renderBoard()
     this.renderHand()
 }
 

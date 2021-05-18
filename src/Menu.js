@@ -91,10 +91,9 @@ class MenuPage extends React.Component {
                 PlayerAmnt: 1
             })
             docRef.update({
-                currentplayer: 0,
-                cardIndex: -1,
-                turn: 0,
                 players : firebase.firestore.FieldValue.arrayUnion(this.state.Name),
+                turn : 0,
+                currentplayer : 0,
                 inGame : false
             })
             firestore.doc("Games/Active Games").update({
