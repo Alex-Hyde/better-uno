@@ -104,7 +104,7 @@ class GamePage extends React.Component {
             players: this.state.players,
             turnnum: this.state.turnnum
         }, () => {
-            var Cards = MasterDeck
+            var Cards = MasterDeck.slice()
             this.shuffleArray(Cards);
             for (var i = 1; i <= this.state.players.length; i++){
                 firebase.firestore().doc("Games/Game "+this.state.Game_Key+"/Players/Player "+ i.toString()).set({

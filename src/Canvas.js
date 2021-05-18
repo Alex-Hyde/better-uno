@@ -4,7 +4,6 @@ import Card from "./Card.js"
 import Player from "./player.js";
 import MasterDeck from "./Deck.js";
 
-
 var player = new Player();
 
 class GameCanvas extends React.Component {
@@ -30,13 +29,32 @@ class GameCanvas extends React.Component {
         this.onMouseClick = this.onMouseClick.bind(this)
         this.playCard = this.playCard.bind(this)
         this.cardCanPlay = this.cardCanPlay.bind(this)
+        this.shuffleArray = this.shuffleArray.bind(this)
     }
 
 listentodoc(){
     this.unsubscribe = firebase.firestore().collection("Games").doc("Game " + this.props.Game_Key).onSnapshot(snapshot => {
-        if (snapshot.data()){
-            if (snapshot.data().lastPlayer === player.turnNum && snapshot.data().turn > this.state.turn) {
-                player.cardsInHand.splice(snapshot.data().cardInd,1)
+        if (snapshot.data()) {
+            if (snapshot.data().lastPlayer === player.turnNum && snapshot.data().turn > this.state.turn && snapshot.data().gameAction) {
+                if (snapshot.data().lastAction == "play") {
+                    player.cardsInHand.splice(snapshot.data().cardInd,1)
+                } else if (snapshot.data().lastAction == "pull") {
+                    player.loadCards([snapshot.data().Deck[0]]);
+                    var newdeck = snapshot.data().Deck
+                    newdeck.splice(0,1);
+                    if (newdeck.length === 0) {
+                        this.shuffleArray(MasterDeck)
+                        newdeck = newdeck.concat(MasterDeck)
+                    }
+                    firebase.firestore().collection("Games").doc("Game " + this.props.Game_Key).update({
+                        Deck: newdeck,
+                        gameAction: false
+                    })
+                }
+                var stringHand = player.cardsInHand.map(x => x.strvalue)
+                firebase.firestore().doc("Games/Game " + this.props.Game_Key + "/Players/Player " + (player.turnNum + 1)).update({
+                    Hand: stringHand
+                })
             }
             this.setState({
                 currentcard : snapshot.data().currentcard,
@@ -44,7 +62,6 @@ listentodoc(){
                 turn: snapshot.data().turn,
                 currentplayer: snapshot.data().currentplayer
             })
-            console.log("Hello")
             this.updateCanvas()
         }
     })
@@ -104,20 +121,12 @@ onMouseMove(e){
 }
 
 pullCard(){
-    firebase.firestore().doc("Games/Game " + this.props.Game_Key).get().then(doc => {
-        player.loadCards([doc.data().Deck[0]]);
-        var newdeck = doc.data().Deck
-        newdeck.splice(0,1);
-        if (newdeck.length === 0) {
-            this.shuffleArray(MasterDeck)
-            newdeck = newdeck.concat(MasterDeck)
-        }
-        firebase.firestore().doc("Games/Game " + this.props.Game_Key).update({
-            Deck: newdeck,
-            turn: this.state.turn + 1,
-            lastPlayer: -1
-        })
-    })    
+    firebase.firestore().doc("Games/Game " + this.props.Game_Key).update({
+        turn: this.state.turn + 1,
+        lastPlayer: player.turnNum,
+        lastAction: "pull",
+        gameAction: true
+    })  
 }
 
 playCard(index) {
@@ -127,7 +136,9 @@ playCard(index) {
         turn : this.state.turn + 1,
         currentplayer: (player.turnNum + 1) % this.playernum,
         cardInd : index,
-        lastPlayer : player.turnNum
+        lastPlayer : player.turnNum,
+        lastAction: "play",
+        gameAction: true
     })//.then(() => {player.cardsInHand.splice(index,1); this.updateCanvas()})
 }
 

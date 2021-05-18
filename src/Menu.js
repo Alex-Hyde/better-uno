@@ -94,6 +94,8 @@ class MenuPage extends React.Component {
                 currentplayer : 0,
                 cardInd : -1,
                 lastPlayer : -1,
+                lastAction : "N/A",
+                gameAction : false,
                 inGame : false
             })
             firestore.doc("Games/Active Games").update({
