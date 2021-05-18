@@ -27,6 +27,7 @@ class GameCanvas extends React.Component {
         this.renderDeck = this.renderDeck.bind(this)
         this.onMouseMove = this.onMouseMove.bind(this)
         this.onMouseClick = this.onMouseClick.bind(this)
+        this.cardCanPlay = this.cardCanPlay.bind(this)
     }
 
 listentodoc(){
@@ -52,11 +53,21 @@ shuffleArray(array) {
 
 componentDidMount(){
     player.turnNum = this.props.turnnumber;
-    firebase.firestore().doc("Games/Game " + this.props.Game_Key + "/Players/Player " + (player.turnNum + 1)).get().then(doc => {
-        player.loadCards(doc.data().Hand);
-        this.updateCanvas();
-        this.listentodoc();
+    var unsub = firebase.firestore().doc("Games/Game " + this.props.Game_Key + "/Players/Player " + (player.turnNum + 1)).onSnapshot(snapshot => {
+        if (snapshot.data()){
+            player.loadCards(snapshot.data().Hand);
+            this.updateCanvas();
+            this.listentodoc();
+            unsub();
+        }
     })
+}
+
+cardCanPlay(card){
+    if ( (this.state.currentcard === "none")|| (this.state.currentcard[0] === card.strvalue[0]) || (this.state.currentcard[1] === card.strvalue[1])){
+        return true;
+    }
+    return false;
 }
 
 onMouseMove(e){
@@ -85,7 +96,6 @@ onMouseMove(e){
 
 pullCard(){
     firebase.firestore().doc("Games/Game " + this.props.Game_Key).get().then(doc => {
-        console.log(doc.data().Deck[0])
         player.loadCards([doc.data().Deck[0]]);
         var newdeck = doc.data().Deck
         newdeck.splice(0,1);
@@ -104,7 +114,7 @@ onMouseClick(e){
     var ex = e.clientX - rect.left
     var ey = e.clientY - rect.top
     for(var i = 0; i < player.cardsInHand.length; i++ ){
-        if (player.cardsInHand[i].onCard(ex,ey) && (player.turnNum === this.currentplayer)){
+        if (player.cardsInHand[i].onCard(ex,ey) && (player.turnNum === this.currentplayer) && (this.cardCanPlay(player.cardsInHand[i]))){
             player.cardsInHand[i].playCard(this.props.Game_Key); 
             player.cardsInHand.splice(i,1);   
             player.updateHand(this.props.Game_Key);
@@ -166,7 +176,10 @@ updateCanvas(){
 
 render(){
     return (
+        <div>
         <canvas onMouseMove={this.onMouseMove} onClick={this.onMouseClick} ref="canvas" width={1250} height={595}/>
+        <button>Hello</button>
+        </div>
     );
 }
 
