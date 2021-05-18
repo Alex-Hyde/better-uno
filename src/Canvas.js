@@ -29,6 +29,7 @@ class GameCanvas extends React.Component {
         this.onMouseMove = this.onMouseMove.bind(this)
         this.onMouseClick = this.onMouseClick.bind(this)
         this.playCard = this.playCard.bind(this)
+        this.cardCanPlay = this.cardCanPlay.bind(this)
     }
 
 listentodoc(){
@@ -68,6 +69,13 @@ componentDidMount(){
     })
 }
 
+cardCanPlay(card){
+    if ( (this.state.currentcard === "none")|| (this.state.currentcard[0] === card.strvalue[0]) || (this.state.currentcard[1] === card.strvalue[1])){
+        return true;
+    }
+    return false;
+}
+
 onMouseMove(e){
     var rect = this.refs.canvas.getBoundingClientRect();
     var rerender = false;
@@ -94,7 +102,6 @@ onMouseMove(e){
 
 pullCard(){
     firebase.firestore().doc("Games/Game " + this.props.Game_Key).get().then(doc => {
-        //onsole.log(doc.data().Deck[0])
         player.loadCards([doc.data().Deck[0]]);
         var newdeck = doc.data().Deck
         newdeck.splice(0,1);
@@ -123,7 +130,7 @@ onMouseClick(e){
     var ex = e.clientX - rect.left
     var ey = e.clientY - rect.top
     for(var i = 0; i < player.cardsInHand.length; i++){
-        if (player.cardsInHand[i].onCard(ex,ey) && (player.turnNum === this.state.currentplayer)){
+        if (player.cardsInHand[i].onCard(ex,ey) && (player.turnNum === this.state.currentplayer) && (this.cardCanPlay(player.cardsInHand[i]))) {
             this.playCard(i); 
         }
     }
@@ -183,7 +190,10 @@ updateCanvas(){
 
 render(){
     return (
+        <div>
         <canvas onMouseMove={this.onMouseMove} onClick={this.onMouseClick} ref="canvas" width={1250} height={595}/>
+        <button>Hello</button>
+        </div>
     );
 }
 

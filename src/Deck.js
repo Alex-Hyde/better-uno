@@ -1,4 +1,3 @@
-var MasterDeck = ["1","1","1","1","1","1","2","2","2","2","2","2","3","3","3","4","5","5","5","5","5",
-              "reverse","reverse","reverse","reverse","reverse"]
+var MasterDeck = ["Y1","Y1","Y1","Y2","Y2","Y6","G1","G9","GR","RR","B1","B3","B7","R4","R5"]
 
 export default MasterDeck;

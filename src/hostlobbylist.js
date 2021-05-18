@@ -1,5 +1,4 @@
 import React from 'react';
-import MenuButton from "./Buttons.js";
 import firebase from "./firebase.js";
 
 class PlayerIcon extends React.Component{
@@ -55,18 +54,21 @@ class KickButton extends React.Component {
 class HostLobbylist extends React.Component {
 
     render() {
-        var playerstorender = [<div style={{display: "flex"}}><PlayerIcon key={this.props.players[0]} name={this.props.players[0]}/></div>].concat(
+        if (this.props.players.length > 0){
+        var playerstorender = [<div key={this.props.players[0]} style={{display: "flex"}}><PlayerIcon name={this.props.players[0]}/></div>].concat(
             this.props.players.slice(1).map(player => 
-                <div style={{display: "flex"}}>
-                <PlayerIcon key={player} name={player}/><KickButton kicked={player} style={{fontSize: "20px", height: "30px", verticalAlign: "middle", margin:"25px"}} Lobbycode={this.props.Lobbycode}/>
+                <div key={player} style={{display: "flex"}}>
+                <PlayerIcon name={player}/><KickButton kicked={player} style={{fontSize: "20px", height: "30px", verticalAlign: "middle", margin:"25px"}} Lobbycode={this.props.Lobbycode}/>
             </div>))
 
-    return(
-        <div>
-            {playerstorender} 
-        </div>   
-    ) 
-}
+        return(
+            <div>
+                {playerstorender} 
+            </div>   
+        ) 
+        }
+        return(<div></div>)
+    }
 }
 
 export default HostLobbylist
