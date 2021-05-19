@@ -6,8 +6,8 @@ import MasterDeck from "./Deck.js";
 import CanvasButton from "./Canvasbutton.js";
 
 var player = new Player();
-var backButton = new CanvasButton("BackB",100,400,129,129);
-var forwardsButton = new CanvasButton("ForwardsB", 1100,400,129,129);
+var backButton = new CanvasButton("BackB",200,450,65,65);
+var forwardsButton = new CanvasButton("ForwardsB", 915,450,65,65);
 
 class GameCanvas extends React.Component {
 
@@ -23,16 +23,16 @@ class GameCanvas extends React.Component {
             chaining : true,
             jumpin : true
         }
-        this.deck = new Card(150,240,"back");
-        this.specialdeck = new Card(150,240,"SpecialDBack");
-        this.specialdeck.x = 300;
-        this.specialdeck.y = 75;
+        this.deck = new Card(144,211,"back");
+        this.specialdeck = new Card(144,211,"SpecialDBack");
+        this.specialdeck.x = 350;
+        this.specialdeck.y = 175;
         this.canvasRef = React.createRef();
         this.players = props.players;
         this.chain = 0;
         this.hands = props.players.map(player => 7);
-        this.deck.x = 750;
-        this.deck.y = 75;
+        this.deck.x = 670;
+        this.deck.y = 175;
         this.playernum = props.players.length
         this.reversed = false;
         this.listentodoc = this.listentodoc.bind(this)
@@ -46,6 +46,7 @@ class GameCanvas extends React.Component {
         this.shuffleArray = this.shuffleArray.bind(this)
         this.renderOthers = this.renderOthers.bind(this)
         this.forcedPull = this.forcedPull.bind(this)
+        this.winner = -1;
     }
 
 listentodoc(){
@@ -54,7 +55,7 @@ listentodoc(){
             if (snapshot.data().turn > this.state.turn && snapshot.data().gameAction) {
                 if (snapshot.data().lastPlayer === player.turnNum) {
                     if (snapshot.data().lastAction == "play") {
-                        player.cardsInHand.splice(snapshot.data().cardInd,1)
+                        player.cardsInHand.splice(snapshot.data().cardInd,1);
                     } else if (snapshot.data().lastAction == "pull") {
                         player.loadCards([snapshot.data().Deck[0]]);
                         var newdeck = snapshot.data().Deck
@@ -92,6 +93,14 @@ listentodoc(){
             })
             this.reversed = snapshot.data().reversed
             this.chain = snapshot.data().chain
+            for (var i = 0; i < this.hands.length; i++){
+                console.log("present")
+                console.log(this.hands[i])
+                if(this.hands[i] === 0){
+                    console.log("Hello i am here")
+                    this.winner = i;
+                }
+            }
         }
     })
 }
@@ -204,7 +213,7 @@ playCard(index) {
             firebase.firestore().collection("Games").doc("Game " + this.props.Game_Key).update({
                 currentcard : player.cardsInHand[index].strvalue,
                 turn : this.state.turn + 1,
-                currentplayer: (player.turnNum + (this.reversed*2) - 1 + this.playernum) % this.playernum,
+                currentplayer: (player.turnNum - (this.reversed*2) + 1 + this.playernum) % this.playernum,
                 cardInd : index,
                 lastPlayer : player.turnNum,
                 lastAction: "play",
@@ -216,7 +225,7 @@ playCard(index) {
             firebase.firestore().collection("Games").doc("Game " + this.props.Game_Key).update({
                 currentcard : player.cardsInHand[index].strvalue,
                 turn : this.state.turn + 1,
-                currentplayer: (player.turnNum + (this.reversed*2) - 1 + this.playernum) % this.playernum,
+                currentplayer: (player.turnNum - (this.reversed*2) + 1 + this.playernum) % this.playernum,
                 cardInd : index,
                 lastPlayer : player.turnNum,
                 lastAction: "play",
@@ -230,7 +239,7 @@ playCard(index) {
             firebase.firestore().collection("Games").doc("Game " + this.props.Game_Key).update({
                 currentcard : player.cardsInHand[index].strvalue,
                 turn : this.state.turn + 1,
-                currentplayer: (player.turnNum + (this.reversed*2) - 1 + this.playernum) % this.playernum,
+                currentplayer: (player.turnNum - (this.reversed*2) + 1 + this.playernum) % this.playernum,
                 cardInd : index,
                 lastPlayer : player.turnNum,
                 lastAction: "play",
@@ -242,7 +251,7 @@ playCard(index) {
             firebase.firestore().collection("Games").doc("Game " + this.props.Game_Key).update({
                 currentcard : player.cardsInHand[index].strvalue,
                 turn : this.state.turn + 1,
-                currentplayer: (player.turnNum + (this.reversed*2) - 1 + this.playernum) % this.playernum,
+                currentplayer: (player.turnNum - (this.reversed*2) + 1 + this.playernum) % this.playernum,
                 cardInd : index,
                 lastPlayer : player.turnNum,
                 lastAction: "play",
@@ -251,7 +260,20 @@ playCard(index) {
                 chain : 4
             })
         }
-    } else {
+    } 
+    else if (player.cardsInHand[index].strvalue[1] === "S"){
+        firebase.firestore().collection("Games").doc("Game " + this.props.Game_Key).update({
+            currentcard : player.cardsInHand[index].strvalue,
+            turn : this.state.turn + 1,
+            currentplayer: (player.turnNum - (this.reversed * 4) + 2 + this.playernum) % this.playernum,
+            cardInd : index,
+            lastPlayer : player.turnNum,
+            lastAction: "play",
+            gameAction: true,
+            chain: 0
+        })    
+    }
+    else {
         firebase.firestore().collection("Games").doc("Game " + this.props.Game_Key).update({
             currentcard : player.cardsInHand[index].strvalue,
             turn : this.state.turn + 1,
@@ -309,17 +331,17 @@ renderBoard(ctx){
 
 renderHand(ctx){
     var cardsnum = (Math.min(7, player.cardsInHand.length) - 1);
-    var currentx = 550 - 106* Math.floor(cardsnum / 2)
+    var currentx = 550 - 81* Math.floor(cardsnum / 2)
     for(var i = 7*player.handindex; i < 7 * (player.handindex + 1); i++ ){
         if(player.cardsInHand[i]){
             player.cardsInHand[i].x = currentx;
-            player.cardsInHand[i].y = 400; 
-            player.cardsInHand[i].width = 106
-            player.cardsInHand[i].height = 184      
+            player.cardsInHand[i].y = 450; 
+            player.cardsInHand[i].width = 81
+            player.cardsInHand[i].height = 126      
             if (player.cardsInHand[i].onCard(this.x,this.y)){
-                player.cardsInHand[i].y = 350;
-                player.cardsInHand[i].width = 135
-                player.cardsInHand[i].height = 234
+                player.cardsInHand[i].y = 387;
+                player.cardsInHand[i].width = 121
+                player.cardsInHand[i].height = 189
                 player.cardsInHand[i].enlarged = true;
             }
             else{
@@ -357,7 +379,13 @@ renderOthers() {
 
 
 renderDeck(ctx){
-    ctx.drawImage(document.getElementById(this.state.currentcard),500,50,211,327)
+    ctx.drawImage(document.getElementById(this.state.currentcard),500,150,162,256)
+}
+
+renderWinner(ctx){
+    ctx.font = "50px Comic Sans";
+    ctx.fillStyle = "Red"
+    ctx.fillText(this.players[this.winner] + " wins!", 50, 50);
 }
 
 updateCanvas(){
@@ -366,6 +394,10 @@ updateCanvas(){
     this.renderBoard(this.ctx)
     this.renderHand(this.ctx)
     this.renderUI(this.ctx)
+    if (this.winner !== -1){
+        console.log("Here")
+        this.renderWinner(this.ctx)
+    }
 }
 
 render(){

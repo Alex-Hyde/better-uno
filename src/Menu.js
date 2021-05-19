@@ -9,6 +9,7 @@ class MenuPage extends React.Component {
         super();
         this.state = {
             Name: "",
+            message : "",
             Game_Key: "",
         }
         this.setName = this.setName.bind(this)
@@ -20,6 +21,7 @@ class MenuPage extends React.Component {
     setName(event){
         this.setState({
             Name: event.target.value,
+            message: "",
             Game_Key: this.state.Game_Key
         })
     }
@@ -27,12 +29,21 @@ class MenuPage extends React.Component {
     setCode(event){
         this.setState({
             Name: this.state.Name,
+            message: "",
             Game_Key: event.target.value
         })
     }
 
     setLobby(e) {
         e.preventDefault();
+        if(this.state.Name === ""){
+            this.setState({
+                Name: this.state.Name,
+                message: "Please enter a name",
+                Game_Key: this.state.Game_Key,
+            }) 
+            return   
+        }
         var firestore = firebase.firestore();  
         var docRef = firestore.doc("Games/Game " + this.state.Game_Key);
         docRef.get()
@@ -41,17 +52,20 @@ class MenuPage extends React.Component {
                 if (docSnapshot.data().inGame) {
                     this.setState({
                         Name: this.state.Name,
-                        Game_Key: "Game already started",
+                        message: "Game has already started",
+                        Game_Key: this.state.Game_Key,
                     })
                 } else if (docSnapshot.data().PlayerAmnt >= 10) {
                     this.setState({
                         Name: this.state.Name,
-                        Game_Key: "Game full",
+                        message: "Game full",
+                        Game_Key: this.state.Game_Key,
                     })
                 } else if (docSnapshot.data().players.includes(this.state.Name)) {
                     this.setState({
                         Name: this.state.Name,
-                        Game_Key: "Duplicate Name",
+                        message: "Duplicate Name",
+                        Game_Key: this.state.Game_Key,
                     })
                 } else {
                     docRef.update({
@@ -72,6 +86,14 @@ class MenuPage extends React.Component {
 
     createLobby(e) {
         e.preventDefault();
+        if(this.state.Name === ""){
+            this.setState({
+                Name: this.state.Name,
+                message: "Please enter a name",
+                Game_Key: this.state.Game_Key,
+            }) 
+            return   
+        }
         var firestore = firebase.firestore();  
         var x = firestore.doc("Games/Active Games");
         var y;
@@ -113,6 +135,9 @@ class MenuPage extends React.Component {
     render(){
         return (
             <div>
+                <div style={{display: "flex", justifyContent: "center"}}>
+                <h1>{this.state.message}</h1>
+                </div>
                 <div style={{display: "flex", justifyContent: "center"}}>
                 <h1>{this.state.Name}</h1>
                 </div>
