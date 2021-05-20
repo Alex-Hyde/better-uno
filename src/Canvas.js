@@ -8,6 +8,10 @@ import CanvasButton from "./Canvasbutton.js";
 var player = new Player();
 var backButton = new CanvasButton("BackB",100,400,129,129);
 var forwardsButton = new CanvasButton("ForwardsB", 1100,400,129,129);
+var redButton = new CanvasButton("RedB", 1100, 50, 100, 100);
+var blueButton = new CanvasButton("BlueB", 1210, 50, 100, 100);
+var yellowButton = new CanvasButton("YellowB", 1100, 210, 100, 100);
+var greenButton = new CanvasButton("GreenB", 1210, 210, 100, 100);
 
 class GameCanvas extends React.Component {
 
@@ -42,6 +46,7 @@ class GameCanvas extends React.Component {
         this.cardCanPlay = this.cardCanPlay.bind(this)
         this.shuffleArray = this.shuffleArray.bind(this)
         this.renderOthers = this.renderOthers.bind(this)
+        this.renderWildOptions = this.renderWildOptions.bind(this)
         //this.forcedPull = this.forcedPull.bind(this)
     }
 
@@ -83,7 +88,7 @@ componentDidMount(){
 
 cardCanPlay(card){
     if (this.data.chain > 0) {
-        if (card.strvalue === "DF" || card.strvalue === "!!") {
+        if (card.strvalue === "!D" || card.strvalue === "!!") {
             return true;
         } else if (this.data.chainCard === "2" && card.strvalue[1] === "+") {
             return true;
@@ -91,7 +96,8 @@ cardCanPlay(card){
             return false;
         }
     }
-    if ( (this.data.currentcard === "none")|| (this.data.currentcard[0] === card.strvalue[0]) || (this.data.currentcard[1] === card.strvalue[1])){
+    if ( (this.data.currentcard === "none")|| (this.data.currentcard[0] === card.strvalue[0]) 
+    || (this.data.currentcard[1] === card.strvalue[1])|| this.data.currentcard[0] === "!"){
         return true;
     }
     return false;
@@ -175,7 +181,8 @@ playCard(index) {
         } else {
             this.data.chain = 2
         }
-    } else if (player.cardsInHand[index].strvalue[1] === "!") {
+    } else if (player.cardsInHand[index].strvalue === "!!") {
+        this.data.currentplayer = player.turnNum;
         if (this.options.chaining) {
             this.data.chain += 4
             this.data.chainCard = "4"
@@ -195,9 +202,10 @@ onMouseClick(e){
     var ey = e.clientY - rect.top
     for(var i = 7*player.handindex; i < 7 * (player.handindex + 1); i++){
         if(player.cardsInHand[i]){
-            if (player.cardsInHand[i].onCard(ex,ey) && (
-            ((player.turnNum === this.data.currentplayer) && (this.cardCanPlay(player.cardsInHand[i]))) ||
-            this.data.currentcard === player.cardsInHand[i].strvalue)) { // add "and jump ins enabled" to this conditional later
+            if (player.cardsInHand[i].onCard(ex,ey) && this.data.currentcard[0] != "!" && (
+            (player.turnNum === this.data.currentplayer && this.cardCanPlay(player.cardsInHand[i])) ||
+            (this.options.jumpin && (this.data.currentcard === player.cardsInHand[i].strvalue || 
+                (this.data.currentcard[1] === player.cardsInHand[i].strvalue[1] && this.data.currentcard[0] === "!"))) )) { // add "and jump ins enabled" to this conditional later
                 this.playCard(i); 
             }
         }
@@ -212,6 +220,27 @@ onMouseClick(e){
     if(backButton.clicked(ex,ey) && backButton.on){
         player.handindex -= 1;
         this.setState(this.state)
+    }
+    if (redButton.on) {
+        var pressed = false;
+        if (redButton.clicked(ex,ey)) {
+            pressed = true;
+            this.data.currentcard = "R" + this.data.currentcard[1];
+        } else if (blueButton.clicked(ex,ey)) {
+            pressed = true;
+            this.data.currentcard = "B" + this.data.currentcard[1];
+        } else if (greenButton.clicked(ex,ey)) {
+            pressed = true;
+            this.data.currentcard = "G" + this.data.currentcard[1];
+        } else if (yellowButton.clicked(ex,ey)) {
+            pressed = true;
+            this.data.currentcard = "Y" + this.data.currentcard[1];
+        }
+        if (pressed) {
+            this.data.turn += 1;
+            this.data.currentplayer = (player.turnNum - (this.data.reversed*2) + 1 + this.playernum) % this.playernum;
+            firebase.firestore().doc("Games/Game " + this.props.Game_Key).update(this.data)
+        }
     }
 }
 
@@ -270,6 +299,24 @@ renderUI(ctx){
     }
 }
 
+renderWildOptions(ctx) {
+    if (this.data.currentcard[0] === "!" && this.data.currentplayer === player.turnNum) {
+        redButton.draw(ctx);
+        blueButton.draw(ctx);
+        yellowButton.draw(ctx);
+        greenButton.draw(ctx);
+        redButton.on = true;
+        blueButton.on = true;
+        greenButton.on = true;
+        yellowButton.on = true;
+    } else {
+        redButton.on = false;
+        blueButton.on = false;
+        greenButton.on = false;
+        yellowButton.on = false;
+    }
+}
+
 renderOthers() {
   //  const ctx = this.refs.canvas.getContext("2d");
     for(var i = 0; i < this.playernum; i++ ){
@@ -288,6 +335,7 @@ updateCanvas(){
     this.renderBoard(this.ctx)
     this.renderHand(this.ctx)
     this.renderUI(this.ctx)
+    this.renderWildOptions(this.ctx)
 }
 
 render(){
