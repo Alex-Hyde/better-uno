@@ -37,9 +37,7 @@ class GamePage extends React.Component {
     }
 
     updatePlayers(){
-        console.log("gamekey:", "Game " + this.state.Game_Key);
         this.unsubscribe = firebase.firestore().collection("Games").doc("Game " + this.state.Game_Key).onSnapshot(snapshot => {
-            console.log(snapshot.data())
             if (snapshot.data()) {
                 if (!snapshot.data().players.includes(this.state.name)) {
                     this.setState({
@@ -58,7 +56,6 @@ class GamePage extends React.Component {
                     players: snapshot.data().players,
                     turnnum: this.state.turnnum
                 }, () => {
-                    console.log("Updating player index")
                     this.setState(
                     {
                         inLobby : this.state.inLobby,

@@ -6,12 +6,12 @@ import MasterDeck from "./Deck.js";
 import CanvasButton from "./Canvasbutton.js";
 
 var player = new Player();
-var backButton = new CanvasButton("BackB",100,400,129,129);
-var forwardsButton = new CanvasButton("ForwardsB", 1100,400,129,129);
-var redButton = new CanvasButton("RedB", 1100, 50, 100, 100);
-var blueButton = new CanvasButton("BlueB", 1210, 50, 100, 100);
-var yellowButton = new CanvasButton("YellowB", 1100, 210, 100, 100);
-var greenButton = new CanvasButton("GreenB", 1210, 210, 100, 100);
+var backButton = new CanvasButton("BackB",200,450,65,65);
+var forwardsButton = new CanvasButton("ForwardsB", 915,450,65,65);
+var redButton = new CanvasButton("RedB", 900, 50, 100, 100);
+var blueButton = new CanvasButton("BlueB", 1010, 50, 100, 100);
+var yellowButton = new CanvasButton("YellowB", 900, 210, 100, 100);
+var greenButton = new CanvasButton("GreenB", 1010, 210, 100, 100);
 
 class GameCanvas extends React.Component {
 
@@ -24,37 +24,46 @@ class GameCanvas extends React.Component {
             chaining : true,
             jumpin : true
         }
-        this.deck = new Card(150,240,"back");
-        this.specialdeck = new Card(150,240,"SpecialDBack");
-        this.specialdeck.x = 300;
-        this.specialdeck.y = 75;
+        this.deck = new Card(144,211,"back");
+        this.specialdeck = new Card(144,211,"SpecialDBack");
+        this.specialdeck.x = 350;
+        this.specialdeck.y = 175;
         this.canvasRef = React.createRef();
         this.playerKey = "Player " + props.turnnumber.toString();
-        console.log(this.playerKey)
-        this.deck.x = 750;
-        this.deck.y = 75;
+        this.deck.x = 670;
+        this.deck.y = 175;
         this.data = {currentcard: "none"};
         this.playernum = props.players.length;
-        this.mustDraw = false;
+        this.players = props.players;
+        this.winner = -1;
+
         this.listentodoc = this.listentodoc.bind(this)
         this.updateCanvas = this.updateCanvas.bind(this)
+
         this.renderhand = this.renderHand.bind(this)
+        this.renderOthers = this.renderOthers.bind(this)
+        this.renderWinner = this.renderWinner.bind(this)
+        this.renderWildOptions = this.renderWildOptions.bind(this)
         this.renderDeck = this.renderDeck.bind(this)
+
         this.onMouseMove = this.onMouseMove.bind(this)
         this.onMouseClick = this.onMouseClick.bind(this)
+
         this.playCard = this.playCard.bind(this)
         this.cardCanPlay = this.cardCanPlay.bind(this)
         this.shuffleArray = this.shuffleArray.bind(this)
-        this.renderOthers = this.renderOthers.bind(this)
-        this.renderWildOptions = this.renderWildOptions.bind(this)
         //this.forcedPull = this.forcedPull.bind(this)
     }
 
 listentodoc(){
     this.unsubscribe = firebase.firestore().collection("Games").doc("Game " + this.props.Game_Key).onSnapshot(snapshot => {
         if (snapshot.data()) {
-            console.log("YES")
             this.data = snapshot.data()
+            for (var i = 0; i < this.playernum; i++) {
+                if(this.data.hands["Player " + i].length === 0) {
+                    this.winner = i;
+                }
+            }
             this.updateCanvas()
         }
     })
@@ -74,9 +83,6 @@ componentDidMount(){
     player.turnNum = this.props.turnnumber;
     var unsub = firebase.firestore().doc("Games/Game " + this.props.Game_Key).onSnapshot(snapshot => {
         if (snapshot.data()){
-            console.log("Key:", this.playerKey)
-            console.log(snapshot.data().hands[this.playerKey])
-            console.log(this.data.currentcard)
             this.data = snapshot.data()
             player.loadCards(this.data.hands[this.playerKey]);
             this.updateCanvas();
@@ -96,8 +102,8 @@ cardCanPlay(card){
             return false;
         }
     }
-    if ( (this.data.currentcard === "none")|| (this.data.currentcard[0] === card.strvalue[0]) 
-    || (this.data.currentcard[1] === card.strvalue[1])|| this.data.currentcard[0] === "!"){
+    if ( this.data.currentcard === "none" || this.data.currentcard[0] === card.strvalue[0]
+    || this.data.currentcard[1] === card.strvalue[1] || card.strvalue[0] === "!") {
         return true;
     }
     return false;
@@ -189,6 +195,8 @@ playCard(index) {
         } else {
             this.data.chain = 4
         }
+    } else if (player.cardsInHand[index].strvalue[1] === "S") {
+        this.data.currentplayer = (player.turnNum - (this.data.reversed * 4) + 2 + this.playernum) % this.playernum
     }
     player.cardsInHand.splice(index,1);
     this.data.hands[this.playerKey].splice(index,1);
@@ -260,17 +268,17 @@ renderBoard(ctx){
 
 renderHand(ctx){
     var cardsnum = (Math.min(7, player.cardsInHand.length) - 1);
-    var currentx = 550 - 106* Math.floor(cardsnum / 2)
+    var currentx = 550 - 81* Math.floor(cardsnum / 2)
     for(var i = 7*player.handindex; i < 7 * (player.handindex + 1); i++ ){
         if(player.cardsInHand[i]){
             player.cardsInHand[i].x = currentx;
-            player.cardsInHand[i].y = 400; 
-            player.cardsInHand[i].width = 106
-            player.cardsInHand[i].height = 184      
+            player.cardsInHand[i].y = 450; 
+            player.cardsInHand[i].width = 81
+            player.cardsInHand[i].height = 126     
             if (player.cardsInHand[i].onCard(this.x,this.y)){
-                player.cardsInHand[i].y = 350;
-                player.cardsInHand[i].width = 135
-                player.cardsInHand[i].height = 234
+                player.cardsInHand[i].y = 387;
+                player.cardsInHand[i].width = 121
+                player.cardsInHand[i].height = 189
                 player.cardsInHand[i].enlarged = true;
             }
             else{
@@ -326,7 +334,13 @@ renderOthers() {
 
 
 renderDeck(ctx){
-    ctx.drawImage(document.getElementById(this.data.currentcard),500,50,211,327)
+    ctx.drawImage(document.getElementById(this.data.currentcard),500,150,162,256)
+}
+
+renderWinner(ctx){
+    ctx.font = "50px Comic Sans";
+    ctx.fillStyle = "Red"
+    ctx.fillText(this.players[this.winner] + " wins!", 50, 50);
 }
 
 updateCanvas(){
@@ -336,6 +350,9 @@ updateCanvas(){
     this.renderHand(this.ctx)
     this.renderUI(this.ctx)
     this.renderWildOptions(this.ctx)
+    if (this.winner !== -1){
+        this.renderWinner(this.ctx)
+    }
 }
 
 render(){
