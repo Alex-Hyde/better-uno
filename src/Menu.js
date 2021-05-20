@@ -10,8 +10,7 @@ class MenuPage extends React.Component {
         this.state = {
             Name: "",
             message : "",
-            Game_Key: "",
-            message : ""
+            Game_Key: ""
         }
         this.setName = this.setName.bind(this)
         this.setLobby = this.setLobby.bind(this)
