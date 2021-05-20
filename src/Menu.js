@@ -112,7 +112,6 @@ class MenuPage extends React.Component {
                 currentcard: "none",
                 PlayerAmnt: 1,
                 players : firebase.firestore.FieldValue.arrayUnion(this.state.Name),
-                hands : {},
                 turn : 0,
                 currentplayer : 0,
                 cardInd : -1,
@@ -121,8 +120,7 @@ class MenuPage extends React.Component {
                 gameAction : false,
                 inGame : false,
                 reversed : false,
-                chain : 0,
-                chainCard : ""
+                chain : 0
             })
             firestore.doc("Games/Active Games").update({
                 "Active Games" : firebase.firestore.FieldValue.arrayUnion(random_num)
