@@ -9,8 +9,8 @@ class MenuPage extends React.Component {
         super();
         this.state = {
             Name: "",
-            message : "",
-            Game_Key: ""
+            Game_Key: "",
+            message : ""
         }
         this.setName = this.setName.bind(this)
         this.setLobby = this.setLobby.bind(this)
@@ -29,7 +29,6 @@ class MenuPage extends React.Component {
     setCode(event){
         this.setState({
             Name: this.state.Name,
-            message: "",
             Game_Key: event.target.value
         })
     }
@@ -112,6 +111,7 @@ class MenuPage extends React.Component {
                 currentcard: "none",
                 PlayerAmnt: 1,
                 players : firebase.firestore.FieldValue.arrayUnion(this.state.Name),
+                hands : {},
                 turn : 0,
                 currentplayer : 0,
                 cardInd : -1,
@@ -120,7 +120,8 @@ class MenuPage extends React.Component {
                 gameAction : false,
                 inGame : false,
                 reversed : false,
-                chain : 0
+                chain : 0,
+                chainCard : ""
             })
             firestore.doc("Games/Active Games").update({
                 "Active Games" : firebase.firestore.FieldValue.arrayUnion(random_num)
