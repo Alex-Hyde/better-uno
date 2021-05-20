@@ -37,9 +37,7 @@ class GamePage extends React.Component {
     }
 
     updatePlayers(){
-        console.log("gamekey:", "Game " + this.state.Game_Key);
         this.unsubscribe = firebase.firestore().collection("Games").doc("Game " + this.state.Game_Key).onSnapshot(snapshot => {
-            console.log(snapshot.data())
             if (snapshot.data()) {
                 if (!snapshot.data().players.includes(this.state.name)) {
                     this.setState({
@@ -58,7 +56,6 @@ class GamePage extends React.Component {
                     players: snapshot.data().players,
                     turnnum: this.state.turnnum
                 }, () => {
-                    console.log("Updating player index")
                     this.setState(
                     {
                         inLobby : this.state.inLobby,
@@ -98,34 +95,32 @@ class GamePage extends React.Component {
     }
 
     setInGame(){
-        this.setState({
-            inLobby : "In Game",
-            Game_Key : this.state.Game_Key,
-            name : this.state.name,
-            players: this.state.players,
-            turnnum: this.state.turnnum
-        }, () => {
-            var Cards = MasterDeck.slice()
-            this.shuffleArray(Cards);
-            var specialCards = specialdeck.slice();
-            this.shuffleArray(specialCards)
-            for (var i = 1; i <= this.state.players.length; i++){
-                firebase.firestore().doc("Games/Game "+this.state.Game_Key+"/Players/Player "+ i.toString()).set({
-                    Hand: Cards.splice(0,7)
-                })
-            }
-            firebase.firestore().doc("Games/Game " + this.state.Game_Key).update({
-                Deck: Cards,
-                specialdeck: specialCards,
-                inGame : true
+        var Cards = MasterDeck.slice()
+        this.shuffleArray(Cards);
+        var specialCards = specialdeck.slice();
+        this.shuffleArray(specialCards)
+        var handsMap = {}
+        for (var i = 0; i < this.state.players.length; i++){
+            handsMap["Player " + i.toString()] = Cards.splice(0,7);
+        }
+        firebase.firestore().doc("Games/Game " + this.state.Game_Key).update({
+            Deck: Cards,
+            specialdeck: specialCards,
+            inGame : true,
+                hands : handsMap
+        }).then(() => {
+            this.setState({
+                inLobby : "In Game",
+                Game_Key : this.state.Game_Key,
+                name : this.state.name,
+                players: this.state.players,
+                turnnum: this.state.turnnum
             })
-            this.unsubscribe_listener();
+        this.unsubscribe_listener();
         })
     }
 
     render(){
-        console.log(this.state.turnnum)
-        console.log(!this.state.turnnum)
         return (
             <div>
              {this.state.inLobby === true && 
