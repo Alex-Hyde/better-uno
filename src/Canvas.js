@@ -213,7 +213,7 @@ onMouseClick(e){
             if (player.cardsInHand[i].onCard(ex,ey) && this.data.currentcard[0] != "!" && (
             (player.turnNum === this.data.currentplayer && this.cardCanPlay(player.cardsInHand[i])) ||
             (this.options.jumpin && (this.data.currentcard === player.cardsInHand[i].strvalue || 
-                (this.data.currentcard[1] === player.cardsInHand[i].strvalue[1] && this.data.currentcard[0] === "!"))) )) { // add "and jump ins enabled" to this conditional later
+                (this.data.currentcard[1] === player.cardsInHand[i].strvalue[1] && player.cardsInHand[i].strvalue[0] === "!"))) )) { // add "and jump ins enabled" to this conditional later
                 this.playCard(i); 
             }
         }
