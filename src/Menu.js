@@ -9,6 +9,7 @@ class MenuPage extends React.Component {
         super();
         this.state = {
             Name: "",
+            message : "",
             Game_Key: "",
             message : ""
         }
@@ -29,6 +30,7 @@ class MenuPage extends React.Component {
     setCode(event){
         this.setState({
             Name: this.state.Name,
+            message: "",
             Game_Key: event.target.value
         })
     }
