@@ -8,7 +8,7 @@ function Player(){
 
     this.loadCards = function(inputs){
         for(var i = 0; i < inputs.length; i++){
-            this.cardsInHand.push(new Card(106,184,inputs[i]));
+            this.cardsInHand.push(new Card(81,126,inputs[i]));
         }
     }
     
