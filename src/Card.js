@@ -35,12 +35,12 @@ function Card(width,height, img){
         // return (0 < dot(AP, AB) && dot(AP, AB) < dot(AB, AB) && 0 < dot(AP, AD) && dot(AP, AD) < dot(AD, AD));
     }
 
-    this.draw = function(ctx){
+    this.draw = function(ctx, offset=0){
         ctx.save();
         ctx.translate(this.x, this.y);
         ctx.rotate(this.angle);
         ctx.translate(-this.x, -this.y);
-        ctx.drawImage(this.img,this.x,this.y - ((this.hovered) ? this.height/4 : 0),this.width,this.height);
+        ctx.drawImage(this.img,this.x + offset,this.y - ((this.hovered) ? this.height/4 : 0),this.width,this.height);
         ctx.restore(); 
     }   
 

@@ -219,9 +219,9 @@ onMouseClick(e){
     var rect = this.canvasRef.current.getBoundingClientRect();
     var ex = e.clientX - rect.left
     var ey = e.clientY - rect.top
-    for(var i = 7*player.handindex; i < 7 * (player.handindex + 1); i++){
+    for(var i = 0; i < player.cardsInHand.length; i++){
         if(player.cardsInHand[i]){
-            if (player.cardsInHand[i].onCard(ex,ey) && this.data.currentcard[0] != "!" && (
+            if (player.cardsInHand[i].hovered && this.data.currentcard[0] != "!" && (
             (player.turnNum === this.data.currentplayer && this.cardCanPlay(player.cardsInHand[i])) ||
             (this.options.jumpin && (this.data.currentcard === player.cardsInHand[i].strvalue || 
                 (this.data.currentcard[1] === player.cardsInHand[i].strvalue[1] && player.cardsInHand[i].strvalue[0] === "!"))) )) { // add "and jump ins enabled" to this conditional later
@@ -304,17 +304,19 @@ renderHand(ctx){
         card.angle = -(window.innerWidth/2-card.x)/10000;
     }
     var alreadyHovered = false;
+    var hoveredIndex = -1;
     for (let i = 0; i < player.cardsInHand.length; i++) {
         var card = player.cardsInHand[player.cardsInHand.length-i-1];
         if (card.onCard(this.x, this.y) && !alreadyHovered) {
             card.hovered = true;
+            hoveredIndex = player.cardsInHand.length-1-i;
             alreadyHovered = true;
         } else {
             card.hovered = false;
         }
     }
     for (let i = 0; i < player.cardsInHand.length; i++) {
-        player.cardsInHand[i].draw(ctx);
+        player.cardsInHand[i].draw(ctx, (i > hoveredIndex && hoveredIndex != -1) ? 50 : 0);
     }
 
     /*
