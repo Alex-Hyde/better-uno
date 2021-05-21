@@ -8,8 +8,19 @@ function Player(){
 
     this.loadCards = function(inputs){
         for(var i = 0; i < inputs.length; i++){
-            this.cardsInHand.push(new Card(81,126,inputs[i]));
+            var newCard = new Card(81,126,inputs[i]);
+            this.insertCard(newCard);
         }
+    }
+
+    this.insertCard = function(card) {
+        for (var i = 0; i < this.cardsInHand.length; i++) {
+            const other = this.cardsInHand[i];
+            if (card.lessThan(other)) {
+                break;
+            }
+        }
+        this.cardsInHand.splice(i, 0, card);
     }
     
     this.updateHand = function(Game_Key){

@@ -13,6 +13,9 @@ var blueButton = new CanvasButton("BlueB", 1010, 50, 100, 100);
 var yellowButton = new CanvasButton("YellowB", 900, 210, 100, 100);
 var greenButton = new CanvasButton("GreenB", 1010, 210, 100, 100);
 
+const CARD_WIDTH = 100;
+const CARD_HEIGHT = 160;
+
 class GameCanvas extends React.Component {
 
     constructor(props) {
@@ -53,7 +56,14 @@ class GameCanvas extends React.Component {
         this.cardCanPlay = this.cardCanPlay.bind(this)
         this.shuffleArray = this.shuffleArray.bind(this)
         //this.forcedPull = this.forcedPull.bind(this)
+        
     }
+
+handleResize = () => {
+    this.updateCanvas();
+    this.setState({ width: window.innerWidth, height: window.innerHeight });
+};
+
 
 listentodoc(){
     this.unsubscribe = firebase.firestore().collection("Games").doc("Game " + this.props.Game_Key).onSnapshot(snapshot => {
@@ -79,6 +89,7 @@ shuffleArray(array) {
 }
 
 componentDidMount(){
+    window.addEventListener("resize", this.handleResize);
     this.ctx = this.canvasRef.current.getContext("2d");
     player.turnNum = this.props.turnnumber;
     var unsub = firebase.firestore().doc("Games/Game " + this.props.Game_Key).onSnapshot(snapshot => {
@@ -257,7 +268,7 @@ componentDidUpdate(){
 }
 
 componentWillUnmount(){
-
+    window.removeEventListener("resize", this.handleResize);
 }
 
 
@@ -267,6 +278,46 @@ renderBoard(ctx){
 }
 
 renderHand(ctx){
+    var maxWidth = 1000;
+    var sizeMult = 1;
+    if (window.innerWidth > 2000) {
+        sizeMult = 2
+        maxWidth = 2000;
+    } else if (window.innerWidth > 1500) {
+        sizeMult = 1.5
+        maxWidth = 1500;
+    } else if (window.innerWidth > 1000) {
+        sizeMult = 1
+        maxWidth = 1000;
+    } else {
+        sizeMult = 0.5
+        maxWidth = 500;
+    }
+    maxWidth -= CARD_WIDTH*sizeMult;
+
+    for (let i = 0; i < player.cardsInHand.length; i++) {
+        var card = player.cardsInHand[i];
+        card.x = window.innerWidth/2 + (i-player.cardsInHand.length/2)*(Math.min(CARD_WIDTH*sizeMult*0.7, maxWidth/player.cardsInHand.length));
+        card.y = window.innerHeight - CARD_HEIGHT*sizeMult - 20;
+        card.width = CARD_WIDTH*sizeMult;
+        card.height = CARD_HEIGHT*sizeMult;
+        card.angle = -(window.innerWidth/2-card.x)/10000;
+    }
+    var alreadyHovered = false;
+    for (let i = 0; i < player.cardsInHand.length; i++) {
+        var card = player.cardsInHand[player.cardsInHand.length-i-1];
+        if (card.onCard(this.x, this.y) && !alreadyHovered) {
+            card.hovered = true;
+            alreadyHovered = true;
+        } else {
+            card.hovered = false;
+        }
+    }
+    for (let i = 0; i < player.cardsInHand.length; i++) {
+        player.cardsInHand[i].draw(ctx);
+    }
+
+    /*
     var cardsnum = (Math.min(7, player.cardsInHand.length) - 1);
     var currentx = 550 - 81* Math.floor(cardsnum / 2)
     for(var i = 7*player.handindex; i < 7 * (player.handindex + 1); i++ ){
@@ -288,6 +339,7 @@ renderHand(ctx){
             player.cardsInHand[i].draw(ctx);
         } 
     }
+    */
 }
 
 renderUI(ctx){
@@ -344,7 +396,7 @@ renderWinner(ctx){
 }
 
 updateCanvas(){
-    this.ctx.clearRect(0,0,1350,595);
+    this.ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
     this.renderDeck(this.ctx)
     this.renderBoard(this.ctx)
     this.renderHand(this.ctx)
@@ -358,7 +410,7 @@ updateCanvas(){
 render(){
     return (
         <div>
-        <canvas ref = {this.canvasRef} onMouseMove={this.onMouseMove} onClick={this.onMouseClick} width={1250} height={595}/>
+        <canvas ref = {this.canvasRef} onMouseMove={this.onMouseMove} onClick={this.onMouseClick} width={window.innerWidth} height={window.innerHeight}/>
         </div>
     );
 }
