@@ -68,6 +68,7 @@ listentodoc(){
         if (snapshot.data()) {
             this.data = snapshot.data()
             for (var i = 0; i < this.playernum; i++) {
+                console.log(this.data.hands)
                 if(this.data.hands["Player " + i].length === 0) {
                     this.winner = i;
                 }
@@ -154,7 +155,9 @@ pullCard() {
             }
         }
     } else {
-        player.loadCards(this.data.Deck.splice(0,1));
+        var newCard = this.data.Deck.splice(0,1);
+        this.data.hands[this.playerKey] = this.data.hands[this.playerKey].concat(newCard)
+        player.loadCards(newCard);
         if (this.data.Deck.length === 0) {
             this.shuffleArray(MasterDeck)
             this.data.Deck = MasterDeck.slice()
@@ -367,6 +370,8 @@ renderDeck(ctx){
 renderWinner(ctx){
     ctx.font = "50px Comic Sans";
     ctx.fillStyle = "Red"
+    ctx.drawImage(document.getElementById("winnerbackground"),0,0,window.innerWidth,window.innerHeight);
+    ctx.drawImage(document.getElementById("winnerbanner"),(window.innerWidth - 536)/2,(window.innerHeight - 293)/2,536,293);
     ctx.fillText(this.players[this.winner] + " wins!", 50, 50);
 }
 
