@@ -5,11 +5,13 @@ import Player from "./player.js";
 import MasterDeck from "./Deck.js";
 import CanvasButton from "./Canvasbutton.js";
 
-var player = new Player();
 var redButton = new CanvasButton("RedB", 900, 50, 100, 100);
 var blueButton = new CanvasButton("BlueB", 1010, 50, 100, 100);
 var yellowButton = new CanvasButton("YellowB", 900, 210, 100, 100);
 var greenButton = new CanvasButton("GreenB", 1010, 210, 100, 100);
+
+var returnbutton = new CanvasButton("returnbutton",(window.innerWidth/2)-160,230,155,70);
+var leavebutton = new CanvasButton("leavebutton",(window.innerWidth/2)+5,230,155,70);
 
 const CARD_WIDTH = 100;
 const CARD_HEIGHT = 160;
@@ -28,6 +30,7 @@ class GameCanvas extends React.Component {
         this.deck = new Card(144,211,"back");
         this.specialdeck = new Card(144,211,"SpecialDBack");
         this.specialdeck.x = 350;
+        this.player = new Player();
         this.specialdeck.y = 175;
         this.canvasRef = React.createRef();
         this.playerKey = "Player " + props.turnnumber.toString();
@@ -67,10 +70,18 @@ listentodoc(){
     this.unsubscribe = firebase.firestore().collection("Games").doc("Game " + this.props.Game_Key).onSnapshot(snapshot => {
         if (snapshot.data()) {
             this.data = snapshot.data()
+            console.log(this.playernum)
             for (var i = 0; i < this.playernum; i++) {
                 console.log(this.data.hands)
                 if(this.data.hands["Player " + i].length === 0) {
                     this.winner = i;
+                    if (this.props.turnnumber === 0){
+                        console.log("Hi");
+                        firebase.firestore().doc("Games/Game " + this.props.Game_Key).update({
+                            gameAction: false,
+                            inGame: false
+                        })    
+                    }
                 }
             }
             this.updateCanvas()
@@ -90,11 +101,11 @@ shuffleArray(array) {
 componentDidMount(){
     window.addEventListener("resize", this.handleResize);
     this.ctx = this.canvasRef.current.getContext("2d");
-    player.turnNum = this.props.turnnumber;
+    this.player.turnNum = this.props.turnnumber;
     var unsub = firebase.firestore().doc("Games/Game " + this.props.Game_Key).onSnapshot(snapshot => {
         if (snapshot.data()){
             this.data = snapshot.data()
-            player.loadCards(this.data.hands[this.playerKey]);
+            this.player.loadCards(this.data.hands[this.playerKey]);
             this.updateCanvas();
             this.listentodoc();
             unsub();
@@ -120,25 +131,31 @@ cardCanPlay(card){
 }
 
 onMouseMove(e){
-    var rect = this.canvasRef.current.getBoundingClientRect();
-    var rerender = false;
-      this.x = e.clientX - rect.left
-      this.y = e.clientY - rect.top
-      for(var i = 0; i <player.cardsInHand.length; i++ ){
-        if (player.cardsInHand[i].onCard(this.x,this.y)){
-            rerender = true
+    if (this.winner === -1){
+        var rect = this.canvasRef.current.getBoundingClientRect();
+        var rerender = false;
+        this.x = e.clientX - rect.left
+        this.y = e.clientY - rect.top
+        for(var i = 0; i < this.player.cardsInHand.length; i++ ){
+            if ( this.player.cardsInHand[i].onCard(this.x,this.y)){
+                rerender = true
+            }
         }
-      }
-      if (rerender){
-        this.setState({
-            oncard: true
-        })
-      }
-      else if (this.state.oncard && !rerender){
-        this.setState({
-            oncard: false
-        })    
-      }
+        if (rerender){
+            this.setState({
+                oncard: true
+            })
+        }
+        else if (this.state.oncard && !rerender){
+            this.setState({
+                oncard: false
+            })    
+        }
+    }
+    else {
+        //Insert code here maybe
+        return;
+    }
 }
 
 pullCard() {
@@ -148,7 +165,7 @@ pullCard() {
         for (var i = 0; i < this.data.chain; i++) {
             var newCard = this.data.Deck.splice(0,1);
             this.data.hands[this.playerKey] = this.data.hands[this.playerKey].concat(newCard)
-            player.loadCards(newCard);
+            this.player.loadCards(newCard);
             if (this.data.Deck.length === 0) {
                 this.shuffleArray(MasterDeck)
                 this.data.Deck = MasterDeck.slice()
@@ -157,7 +174,7 @@ pullCard() {
     } else {
         var newCard = this.data.Deck.splice(0,1);
         this.data.hands[this.playerKey] = this.data.hands[this.playerKey].concat(newCard)
-        player.loadCards(newCard);
+        this.player.loadCards(newCard);
         if (this.data.Deck.length === 0) {
             this.shuffleArray(MasterDeck)
             this.data.Deck = MasterDeck.slice()
@@ -186,73 +203,107 @@ pullCard() {
 
 playCard(index) {
     this.data.turn += 1;
-    this.data.currentcard = player.cardsInHand[index].strvalue;
+    this.data.currentcard = this.player.cardsInHand[index].strvalue;
     this.gameAction = true;
-    this.data.currentplayer = (player.turnNum - (this.data.reversed*2) + 1 + this.playernum) % this.playernum;
-    if (player.cardsInHand[index].strvalue[1] === "R") {
+    this.data.currentplayer = (this.player.turnNum - (this.data.reversed*2) + 1 + this.playernum) % this.playernum;
+    if (this.player.cardsInHand[index].strvalue[1] === "R") {
         this.data.reversed = !this.data.reversed
-        this.data.currentplayer = (player.turnNum - (this.data.reversed*2) + 1 + this.playernum) % this.playernum
-    } else if (player.cardsInHand[index].strvalue[1] === "+") {
+        this.data.currentplayer = (this.player.turnNum - (this.data.reversed*2) + 1 + this.playernum) % this.playernum
+    } else if (this.player.cardsInHand[index].strvalue[1] === "+") {
         if (this.options.chaining) {
             this.data.chain = this.data.chain + 2
             this.data.chainCard = "2"
         } else {
             this.data.chain = 2
         }
-    } else if (player.cardsInHand[index].strvalue === "!!") {
-        this.data.currentplayer = player.turnNum;
+    } else if (this.player.cardsInHand[index].strvalue === "!!") {
+        this.data.currentplayer = this.player.turnNum;
         if (this.options.chaining) {
             this.data.chain += 4
             this.data.chainCard = "4"
         } else {
             this.data.chain = 4
         }
-    } else if (player.cardsInHand[index].strvalue[1] === "S") {
-        this.data.currentplayer = (player.turnNum - (this.data.reversed * 4) + 2 + this.playernum) % this.playernum
+    } else if (this.player.cardsInHand[index].strvalue[1] === "S") {
+        this.data.currentplayer = (this.player.turnNum - (this.data.reversed * 4) + 2 + this.playernum) % this.playernum
     }
-    player.cardsInHand.splice(index,1);
+    this.player.cardsInHand.splice(index,1);
     this.data.hands[this.playerKey].splice(index,1);
     this.updateCanvas()
     firebase.firestore().doc("Games/Game " + this.props.Game_Key).update(this.data)
+}
+
+leaveLobby() {
+    var firestore = firebase.firestore();  
+    var docRef = firestore.doc("Games/Game " + this.props.Game_Key);
+    docRef.get()
+    .then((docSnapshot) => {
+            if (docSnapshot.data().PlayerAmnt === 1) {
+                firestore.doc("Games/Active Games").update({
+                    "Active Games" : firebase.firestore.FieldValue.arrayRemove(this.props.Game_Key)
+                })
+                firestore.doc("Games/Game " + this.props.Game_Key).delete();
+            } else {
+                docRef.update({
+                    players : firebase.firestore.FieldValue.arrayRemove(this.players[this.props.turnnumber]),
+                    PlayerAmnt : firebase.firestore.FieldValue.increment(-1)
+                }) 
+            }
+        this.props.setInLobby(false, "", this.state.name);
+        })
+    return
 }
 
 onMouseClick(e){
     var rect = this.canvasRef.current.getBoundingClientRect();
     var ex = e.clientX - rect.left
     var ey = e.clientY - rect.top
-    for(var i = 0; i < player.cardsInHand.length; i++){
-        if(player.cardsInHand[i]){
-            if (player.cardsInHand[i].hovered && this.data.currentcard[0] != "!" && (
-            (player.turnNum === this.data.currentplayer && this.cardCanPlay(player.cardsInHand[i])) ||
-            (this.options.jumpin && (this.data.currentcard === player.cardsInHand[i].strvalue || 
-                (this.data.currentcard[1] === player.cardsInHand[i].strvalue[1] && player.cardsInHand[i].strvalue[0] === "!"))) )) { // add "and jump ins enabled" to this conditional later
-                this.playCard(i); 
+    if (this.winner === -1){
+        for(var i = 0; i < this.player.cardsInHand.length; i++){
+            if( this.player.cardsInHand[i]){
+                if ( this.player.cardsInHand[i].hovered && this.data.currentcard[0] != "!" && (
+                ( this.player.turnNum === this.data.currentplayer && this.cardCanPlay( this.player.cardsInHand[i])) ||
+                (this.options.jumpin && (this.data.currentcard === this.player.cardsInHand[i].strvalue || 
+                    (this.data.currentcard[1] === this.player.cardsInHand[i].strvalue[1] && this.player.cardsInHand[i].strvalue[0] === "!"))) )) { // add "and jump ins enabled" to this conditional later
+                    this.playCard(i); 
+                }
+            }
+        }   
+        if (this.deck.onCard(ex,ey) && (this.player.turnNum === this.data.currentplayer)){
+            this.pullCard();
+        }
+        if (this.specialdeck.onCard(ex,ey) && (this.player.turnNum === this.data.currentplayer)){
+            
+        }    
+        if (redButton.on) {
+            var pressed = false;
+            if (redButton.clicked(ex,ey)) {
+                pressed = true;
+                this.data.currentcard = "R" + this.data.currentcard[1];
+            } else if (blueButton.clicked(ex,ey)) {
+                pressed = true;
+                this.data.currentcard = "B" + this.data.currentcard[1];
+            } else if (greenButton.clicked(ex,ey)) {
+                pressed = true;
+                this.data.currentcard = "G" + this.data.currentcard[1];
+            } else if (yellowButton.clicked(ex,ey)) {
+                pressed = true;
+                this.data.currentcard = "Y" + this.data.currentcard[1];
+            }
+            if (pressed) {
+                this.data.turn += 1;
+                this.data.currentplayer = ( this.player.turnNum - (this.data.reversed*2) + 1 + this.playernum) % this.playernum;
+                firebase.firestore().doc("Games/Game " + this.props.Game_Key).update(this.data)
             }
         }
-    }   
-    if (this.deck.onCard(ex,ey) && (player.turnNum === this.data.currentplayer)){
-        this.pullCard();
-    }    
-    if (redButton.on) {
-        var pressed = false;
-        if (redButton.clicked(ex,ey)) {
-            pressed = true;
-            this.data.currentcard = "R" + this.data.currentcard[1];
-        } else if (blueButton.clicked(ex,ey)) {
-            pressed = true;
-            this.data.currentcard = "B" + this.data.currentcard[1];
-        } else if (greenButton.clicked(ex,ey)) {
-            pressed = true;
-            this.data.currentcard = "G" + this.data.currentcard[1];
-        } else if (yellowButton.clicked(ex,ey)) {
-            pressed = true;
-            this.data.currentcard = "Y" + this.data.currentcard[1];
+    }
+    else {
+        if(returnbutton.clicked(ex,ey)){
+            this.props.setInLobby(true,this.props.Game_Key,this.players[this.props.turnnumber])
         }
-        if (pressed) {
-            this.data.turn += 1;
-            this.data.currentplayer = (player.turnNum - (this.data.reversed*2) + 1 + this.playernum) % this.playernum;
-            firebase.firestore().doc("Games/Game " + this.props.Game_Key).update(this.data)
-        }
+        else if(leavebutton.clicked(ex,ey)){
+            this.leaveLobby();
+        }     
     }
 }
 
@@ -261,6 +312,7 @@ componentDidUpdate(){
 }
 
 componentWillUnmount(){
+    this.unsubscribe();
     window.removeEventListener("resize", this.handleResize);
 }
 
@@ -288,9 +340,9 @@ renderHand(ctx){
     }
     maxWidth -= CARD_WIDTH*sizeMult;
 
-    for (let i = 0; i < player.cardsInHand.length; i++) {
-        var card = player.cardsInHand[i];
-        card.x = window.innerWidth/2 + (i-player.cardsInHand.length/2)*(Math.min(CARD_WIDTH*sizeMult*0.7, maxWidth/player.cardsInHand.length));
+    for (let i = 0; i < this.player.cardsInHand.length; i++) {
+        var card = this.player.cardsInHand[i];
+        card.x = window.innerWidth/2 + (i- this.player.cardsInHand.length/2)*(Math.min(CARD_WIDTH*sizeMult*0.7, maxWidth/ this.player.cardsInHand.length));
         card.y = window.innerHeight - CARD_HEIGHT*sizeMult - 20;
         card.width = CARD_WIDTH*sizeMult;
         card.height = CARD_HEIGHT*sizeMult;
@@ -298,18 +350,18 @@ renderHand(ctx){
     }
     var alreadyHovered = false;
     var hoveredIndex = -1;
-    for (let i = 0; i < player.cardsInHand.length; i++) {
-        var card = player.cardsInHand[player.cardsInHand.length-i-1];
+    for (let i = 0; i < this.player.cardsInHand.length; i++) {
+        var card = this.player.cardsInHand[this.player.cardsInHand.length-i-1];
         if (card.onCard(this.x, this.y) && !alreadyHovered) {
             card.hovered = true;
-            hoveredIndex = player.cardsInHand.length-1-i;
+            hoveredIndex = this.player.cardsInHand.length-1-i;
             alreadyHovered = true;
         } else {
             card.hovered = false;
         }
     }
-    for (let i = 0; i < player.cardsInHand.length; i++) {
-        player.cardsInHand[i].draw(ctx, (i > hoveredIndex && hoveredIndex != -1) ? 50 : 0);
+    for (let i = 0; i < this.player.cardsInHand.length; i++) {
+        this.player.cardsInHand[i].draw(ctx, (i > hoveredIndex && hoveredIndex != -1) ? 50 : 0);
     }
 
     /*
@@ -338,7 +390,7 @@ renderHand(ctx){
 }
 
 renderWildOptions(ctx) {
-    if (this.data.currentcard[0] === "!" && this.data.currentplayer === player.turnNum) {
+    if (this.data.currentcard[0] === "!" && this.data.currentplayer === this.player.turnNum) {
         redButton.draw(ctx);
         blueButton.draw(ctx);
         yellowButton.draw(ctx);
@@ -371,8 +423,11 @@ renderWinner(ctx){
     ctx.font = "50px Comic Sans";
     ctx.fillStyle = "Red"
     ctx.drawImage(document.getElementById("winnerbackground"),0,0,window.innerWidth,window.innerHeight);
-    ctx.drawImage(document.getElementById("winnerbanner"),(window.innerWidth - 536)/2,(window.innerHeight - 293)/2,536,293);
-    ctx.fillText(this.players[this.winner] + " wins!", 50, 50);
+    //ctx.drawImage(document.getElementById("winnerbanner"),(window.innerWidth - 536)/2,(window.innerHeight - 293)/2,536,293);
+    ctx.textAlign="center"
+    this.ctx.fillText(this.players[this.winner] + " wins!", (window.innerWidth/2), window.innerHeight/2 -100);
+    returnbutton.draw(ctx);
+    leavebutton.draw(ctx);
 }
 
 updateCanvas(){
