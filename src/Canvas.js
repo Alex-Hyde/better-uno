@@ -115,7 +115,9 @@ componentDidMount(){
 
 cardCanPlay(card){
     if (this.data.chain > 0) {
-        if (card.strvalue === "!D" || card.strvalue === "!!") {
+        if (!this.options.chaining) {
+            return false;
+        } else if (card.strvalue === "!D" || card.strvalue === "!!") {
             return true;
         } else if (this.data.chainCard === "2" && card.strvalue[1] === "+") {
             return true;
@@ -203,6 +205,7 @@ pullCard() {
 
 playCard(index) {
     this.data.turn += 1;
+    this.data.playedCards += 1;
     this.data.currentcard = this.player.cardsInHand[index].strvalue;
     this.gameAction = true;
     this.data.currentplayer = (this.player.turnNum - (this.data.reversed*2) + 1 + this.playernum) % this.playernum;
@@ -273,7 +276,7 @@ onMouseClick(e){
             this.pullCard();
         }
         if (this.specialdeck.onCard(ex,ey) && (this.player.turnNum === this.data.currentplayer)){
-            
+
         }    
         if (redButton.on) {
             var pressed = false;

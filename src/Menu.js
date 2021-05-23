@@ -76,7 +76,7 @@ class MenuPage extends React.Component {
             } else {
                 this.setState({
                     Name: this.state.Name,
-                    Game_Key: "Not found",
+                    message: "Lobby Not Found"
                 })
                 return;
             }
@@ -121,7 +121,8 @@ class MenuPage extends React.Component {
                 inGame : false,
                 reversed : false,
                 chain : 0,
-                chainCard : ""
+                chainCard : "",
+                playedCards: 0
             })
             firestore.doc("Games/Active Games").update({
                 "Active Games" : firebase.firestore.FieldValue.arrayUnion(random_num)
