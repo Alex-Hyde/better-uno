@@ -115,9 +115,11 @@ componentDidMount(){
 
 cardCanPlay(card){
     if (this.data.chain > 0) {
-        if (!this.options.chaining) {
+        if (card.strvalue === "!D") {
+            return true;
+        } if (!this.options.chaining) {
             return false;
-        } else if (card.strvalue === "!D" || card.strvalue === "!!") {
+        } else if (card.strvalue === "!!") {
             return true;
         } else if (this.data.chainCard === "2" && card.strvalue[1] === "+") {
             return true;
@@ -208,7 +210,11 @@ playCard(index) {
     this.data.playedCards += 1;
     this.data.currentcard = this.player.cardsInHand[index].strvalue;
     this.gameAction = true;
-    this.data.currentplayer = (this.player.turnNum - (this.data.reversed*2) + 1 + this.playernum) % this.playernum;
+    if (this.player.cardsInHand[index].strvalue[0] === "!") {
+        this.data.currentplayer = this.player.turnNum;
+    } else {
+        this.data.currentplayer = (this.player.turnNum - (this.data.reversed*2) + 1 + this.playernum) % this.playernum;
+    }
     if (this.player.cardsInHand[index].strvalue[1] === "R") {
         this.data.reversed = !this.data.reversed
         this.data.currentplayer = (this.player.turnNum - (this.data.reversed*2) + 1 + this.playernum) % this.playernum
@@ -220,7 +226,6 @@ playCard(index) {
             this.data.chain = 2
         }
     } else if (this.player.cardsInHand[index].strvalue === "!!") {
-        this.data.currentplayer = this.player.turnNum;
         if (this.options.chaining) {
             this.data.chain += 4
             this.data.chainCard = "4"

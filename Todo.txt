@@ -1,7 +1,5 @@
 -Adjust the offset of the cards when you hover over them depending on the number of cards in hand
 
--Implement the shield card (allows you to deflect +2 and +4 to the next person)
-
 -Add Alex's scrollin thing for players at the top of the screen
 
 -Implement betting for special cards. When you draw one of two things can occur:
@@ -26,3 +24,9 @@
 
                         -Since you can draw infinitely, we have to find a way to balance the 
                          cards where you hand your deck off to someone else
+
+-Optional: Highlight deck when it is your turn and you need to draw (or continue chain)
+
+
+DONE
+- Implement the shield card (allows you to deflect +2 and +4 to the next person)
