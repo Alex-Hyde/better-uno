@@ -104,13 +104,22 @@ class GamePage extends React.Component {
             handsMap["Player " + i.toString()] = Cards.splice(0,7);
         }
         firebase.firestore().doc("Games/Game " + this.state.Game_Key).update({
+            currentcard: "none",
+            turn : 0,
+            currentplayer : 0,
+            cardInd : -1,
+            lastPlayer : -1,
+            lastAction : "N/A",
+            gameAction : false,
+            reversed : false,
+            chain : 0,
+            chainCard : "",
             Deck: Cards,
             specialdeck: specialCards,
             inGame : true,
-                hands : handsMap
+            hands : handsMap
         }).then(() => {
             this.setState({
-                inLobby : "In Game",
                 Game_Key : this.state.Game_Key,
                 name : this.state.name,
                 players: this.state.players,
@@ -128,7 +137,7 @@ class GamePage extends React.Component {
                 <Lobby ishost = {!this.state.turnnum} Lobbycode = {this.state.Game_Key} playerlist={this.state.players} setInGame = {this.setInGame} name= {this.state.name} setInLobby = {this.setInLobby}/>
              )}
              {this.state.inLobby === false && (<MenuPage setInLobby = {this.setInLobby}/>)}
-             {this.state.inLobby === "In Game" && (<GameCanvas players = {this.state.players} turnnumber ={this.state.turnnum} Game_Key={this.state.Game_Key}/>) }
+             {this.state.inLobby === "In Game" && (<GameCanvas players = {this.state.players} turnnumber ={this.state.turnnum} Game_Key={this.state.Game_Key} setInLobby={this.setInLobby}/>) }
              </div>
         )
     }

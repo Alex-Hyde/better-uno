@@ -1,0 +1,32 @@
+-Adjust the offset of the cards when you hover over them depending on the number of cards in hand
+
+-Add Alex's scrollin thing for players at the top of the screen
+
+-Implement betting for special cards. When you draw one of two things can occur:
+    -Guess the colour of the next card to be drawn
+    -Guess the type of the next card to be drawn
+    
+    if you guess it correctly, draw from special cards, if not, draw 2
+
+-Special Card ideas
+    -Colorblind: Chose 1 colour, all cards of that colour are discarded from your hand
+    -Unseeing eye: Allows you to view the hand of a single player of your choice
+    -Paradigm shift: All hands are shifted once in the direction of play
+    -Gravedigger: Copies the card at the top of the played pile
+    -Act of Kindness: Give 2 of your cards to the player of your choice
+    -Duel: Chose a player to duel. Whoever's cards add up to the lowest value must draw 3
+    -Lifeline: If a player wins the game while this card is in someones hand, 
+               the winning player is delt 4 cards and this card is discarded. (Normal wildcard if played)
+    -Breakaway: You keep playing until you must pick up a card or win
+    -Sleight of hand: Swap hands with a person of your choice
+    -Rederect: Deflect any incoming effects to a player of your choice
+    -Hand of God: Discard 50% of your cards
+
+                        -Since you can draw infinitely, we have to find a way to balance the 
+                         cards where you hand your deck off to someone else
+
+-Optional: Highlight deck when it is your turn and you need to draw (or continue chain)
+
+
+DONE
+- Implement the shield card (allows you to deflect +2 and +4 to the next person)

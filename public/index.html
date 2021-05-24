@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Card Game</title>
   </head>
-  <body style="margin: 0;">
+  <body style="margin: 0; overflow: hidden;">
     <script src="https://www.gstatic.com/firebasejs/8.4.2/firebase.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.6.1/firebase-database.js"></script>
 
@@ -29,6 +29,11 @@
     <script type="text\babel" src="Buttons.js"></script>
     <script type="text\babel" src="Menu.js"></script>
     <script type='text\babel' src="index.js"></script>
+    
+    <img id="gameBG_1" style="display: none;" src="Textures/gameBackground_1.png" />
+    <img id="gameBG_2" style="display: none;" src="Textures/gameBackground_2.png" />
+    <img id="gameBG_3" style="display: none;" src="Textures/gameBackground_3.png" />
+
     <img id="1" style="display: none;" src="Textures/1card.png" />
     <img id="2" style="display: none;" src="Textures/2card.png" />
 
@@ -116,6 +121,18 @@
     <img id="G!" style="display: none;" src="Textures/Green+4.png"/>
     <img id="B!" style="display: none;" src="Textures/Blue+4.png"/>
     <img id="Y!" style="display: none;" src="Textures/Yellow+4.png"/>
+
+    <img id="!D" style="display: none;" src="Textures/Def.png"/>
+    <img id="RD" style="display: none;" src="Textures/RedDef.png"/>
+    <img id="GD" style="display: none;" src="Textures/GreenDef.png"/>
+    <img id="BD" style="display: none;" src="Textures/BlueDef.png"/>
+    <img id="YD" style="display: none;" src="Textures/YellowDef.png"/>
+
+    <img id="winnerbackground" style="display: none;" src="Textures/winnerbackground.png"/>
+    <img id="winnerbanner" style="display: none;" src="Textures/winnerbanner.png"/>
+
+    <img id="leavebutton" style="display: none;" src="Textures/leavebutton.png"/>
+    <img id="returnbutton" style="display: none;" src="Textures/returnbutton.png"/>
 
     <div id="root"></div>
 
