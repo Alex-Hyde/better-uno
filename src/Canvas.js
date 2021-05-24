@@ -3,13 +3,14 @@ import firebase from "./firebase.js";
 import Card from "./Card.js"
 import Player from "./player.js";
 import MasterDeck from "./Deck.js";
-import CanvasButton from "./Canvasbutton.js";
 import specialdeck from "./SpecialDeck.js";
 
-var redButton = new CanvasButton("RedB", 900, 50, 100, 100);
-var blueButton = new CanvasButton("BlueB", 1010, 50, 100, 100);
-var yellowButton = new CanvasButton("YellowB", 900, 210, 100, 100);
-var greenButton = new CanvasButton("GreenB", 1010, 210, 100, 100);
+import { CanvasButton, CanvasButtonCircle } from "./Canvasbutton.js";
+
+var redButton = new CanvasButtonCircle(window.innerWidth/2 + 2, window.innerHeight/2 + 2, 100, 1, "red");
+var blueButton = new CanvasButtonCircle(window.innerWidth/2 - 2, window.innerHeight/2 + 2, 100, 2, "blue");
+var yellowButton = new CanvasButtonCircle(window.innerWidth/2 - 2, window.innerHeight/2 - 2, 100, 3, "yellow");
+var greenButton = new CanvasButtonCircle(window.innerWidth/2 + 2, window.innerHeight/2 - 2, 100, 4, "green");
 
 var returnbutton = new CanvasButton("returnbutton",(window.innerWidth/2)-160,230,155,70);
 var leavebutton = new CanvasButton("leavebutton",(window.innerWidth/2)+5,230,155,70);
@@ -40,6 +41,8 @@ class GameCanvas extends React.Component {
         this.player = new Player();
         this.specialdeck.y = 175;
         this.canvasRef = React.createRef()
+        this.player = new Player();
+        this.canvasRef = React.createRef();
         this.playerKey = "Player " + props.turnnumber.toString();
         this.deck.x = 670;
         this.deck.y = 175;
@@ -53,6 +56,7 @@ class GameCanvas extends React.Component {
         this.placedCards = [];
         this.playedCardsBefore = 0;
         this.background = "gameBG_" + (Math.floor(Math.random() * NUM_BACKGROUNDS) + 1).toString(10);
+        
        // console.log(this.background);
 
         this.listentodoc = this.listentodoc.bind(this)
@@ -91,29 +95,66 @@ class GameCanvas extends React.Component {
         }
         
         this.maxWidth -= CARD_WIDTH*this.sizeMult;
+
+        redButton.x = window.innerWidth/2 + 2;
+        redButton.y = window.innerHeight/2 + 2;
+        redButton.radius = 70 * this.sizeMult;
+        blueButton.x = window.innerWidth/2 - 3;
+        blueButton.y = window.innerHeight/2 + 2;
+        blueButton.radius = 70 * this.sizeMult;
+        greenButton.x = window.innerWidth/2 + 2;
+        greenButton.y = window.innerHeight/2 - 2;
+        greenButton.radius = 70 * this.sizeMult;
+        yellowButton.x = window.innerWidth/2 - 2;
+        yellowButton.y = window.innerHeight/2 - 2;
+        yellowButton.radius = 70 * this.sizeMult;
+
+        this.deck = new Card(CARD_WIDTH*this.sizeMult, CARD_HEIGHT*this.sizeMult,"back");
+        this.specialdeck = new Card(CARD_WIDTH*this.sizeMult, CARD_HEIGHT*this.sizeMult,"SpecialDBack");
     }
 
-handleResize = () => {
-    this.maxWidth = 1000;
-    this.sizeMult = 1;
-    if (window.innerWidth > 2000) {
-        this.sizeMult = 2
-        this.maxWidth = 2000;
-    } else if (window.innerWidth > 1500) {
-        this.sizeMult = 1.5
-        this.maxWidth = 1500;
-    } else if (window.innerWidth > 1000) {
-        this.sizeMult = 1
+    handleResize = () => {
         this.maxWidth = 1000;
-    } else {
-        this.sizeMult = 0.5
-        this.maxWidth = 500;
-    }
-    
-    this.maxWidth -= CARD_WIDTH*this.sizeMult;
+        this.sizeMult = 1;
+        if (window.innerWidth > 2000) {
+            this.sizeMult = 2
+            this.maxWidth = 2000;
+        } else if (window.innerWidth > 1500) {
+            this.sizeMult = 1.5
+            this.maxWidth = 1500;
+        } else if (window.innerWidth > 1000) {
+            this.sizeMult = 1
+            this.maxWidth = 1000;
+        } else {
+            this.sizeMult = 0.75
+            this.maxWidth = 500;
+        }
+        
+        this.maxWidth -= CARD_WIDTH*this.sizeMult;
 
-    this.setState({ width: window.innerWidth * 2, height: window.innerHeight * 2 });
-};
+        this.setState({ width: window.innerWidth * 2, height: window.innerHeight * 2 });
+
+        this.deck.width = CARD_WIDTH*this.sizeMult;
+        this.deck.height = CARD_HEIGHT*this.sizeMult;
+        
+        this.specialdeck.width = CARD_WIDTH*this.sizeMult;
+        this.specialdeck.height = CARD_HEIGHT*this.sizeMult;
+    
+        redButton.x = window.innerWidth/2 + 2;
+        redButton.y = window.innerHeight/2 + 2;
+        redButton.radius = 70 * this.sizeMult;
+        blueButton.x = window.innerWidth/2 - 3;
+        blueButton.y = window.innerHeight/2 + 2;
+        blueButton.radius = 70 * this.sizeMult;
+        greenButton.x = window.innerWidth/2 + 2;
+        greenButton.y = window.innerHeight/2 - 2;
+        greenButton.radius = 70 * this.sizeMult;
+        yellowButton.x = window.innerWidth/2 - 2;
+        yellowButton.y = window.innerHeight/2 - 2;
+        yellowButton.radius = 70 * this.sizeMult;
+    
+        this.setState({ width: window.innerWidth, height: window.innerHeight });
+    };
 
 
 listentodoc(){
@@ -221,9 +262,36 @@ onMouseMove(e){
             })    
         }
     }
-    else {
-        //Insert code here maybe
-        return;
+    // else {
+    //     //Insert code here maybe
+    //     return;
+    // }
+    var rect = this.canvasRef.current.getBoundingClientRect();
+    var ex = e.clientX - rect.left;
+    var ey = e.clientY - rect.top;
+
+    if (redButton.on) {
+        var render = redButton.hovered || blueButton.hovered || greenButton.hovered || yellowButton.hovered;
+        redButton.hovered = false;
+        blueButton.hovered = false;
+        greenButton.hovered = false;
+        yellowButton.hovered = false;
+        
+        if (redButton.clicked(ex,ey)) {
+            redButton.hovered = true;
+        } else if (blueButton.clicked(ex,ey)) {
+            blueButton.hovered = true;
+        } else if (greenButton.clicked(ex,ey)) {
+            greenButton.hovered = true;
+        } else if (yellowButton.clicked(ex,ey)) {
+            yellowButton.hovered = true;
+        } else {
+            if (render) {
+                this.updateCanvas();
+            }
+            return;
+        }
+        this.updateCanvas();
     }
 }
 
@@ -459,12 +527,12 @@ componentWillUnmount(){
 renderBoard(ctx){
     this.placedCards.forEach(card => {
         //shadow
-        let shadowx = 2;
-        let shadowy = 3;
+        let shadowx = 2 * this.sizeMult;
+        let shadowy = 3 * this.sizeMult;
         ctx.save();
         ctx.translate(window.innerWidth/2 + shadowx, window.innerHeight/2 + shadowy);
         ctx.rotate(card[1]);
-        ctx.translate(-window.innerWidth/2 + shadowx, -window.innerHeight/2 - shadowy);
+        ctx.translate(-window.innerWidth/2 - shadowx, -window.innerHeight/2 - shadowy);
         ctx.globalAlpha = 0.5;
         ctx.fillStyle = "black";
         ctx.fillRect(window.innerWidth/2-CARD_WIDTH*this.sizeMult/2 + shadowx,window.innerHeight/2-CARD_HEIGHT*this.sizeMult/2 + shadowy,CARD_WIDTH*this.sizeMult, CARD_HEIGHT*this.sizeMult);
@@ -477,15 +545,28 @@ renderBoard(ctx){
         ctx.drawImage(document.getElementById(card[0]),window.innerWidth/2-CARD_WIDTH*this.sizeMult/2,window.innerHeight/2-CARD_HEIGHT*this.sizeMult/2,CARD_WIDTH*this.sizeMult, CARD_HEIGHT*this.sizeMult);
         ctx.restore(); 
     });
-    this.deck.draw(ctx);
-    this.specialdeck.draw(ctx);
+
+    this.deck.x = window.innerWidth/2 + CARD_WIDTH*this.sizeMult*1.5 + 18*this.sizeMult;
+    this.deck.y = window.innerHeight/2 - CARD_HEIGHT*this.sizeMult/2 + 12*this.sizeMult;
+    for (let i = 0; i < 5; i++) {
+        this.deck.x -= 3*this.sizeMult;
+        this.deck.y -= 2*this.sizeMult; 
+        this.deck.draw(ctx);    
+    }
+    this.specialdeck.x = window.innerWidth/2 - CARD_WIDTH*this.sizeMult*2.5 + 18*this.sizeMult;
+    this.specialdeck.y = window.innerHeight/2 - CARD_HEIGHT*this.sizeMult/2 + 12*this.sizeMult;
+    for (let i = 0; i < 5; i++) {
+        this.specialdeck.x -= 3*this.sizeMult;
+        this.specialdeck.y -= 2*this.sizeMult; 
+        this.specialdeck.draw(ctx);    
+    }
 }
 
 renderHand(ctx){
    // console.log(this.player.cardsInHand)
     for (let i = 0; i < this.player.cardsInHand.length; i++) {
         var card = this.player.cardsInHand[i];
-        card.x = window.innerWidth/2 + (i-this.player.cardsInHand.length/2)*(Math.min(CARD_WIDTH*this.sizeMult*0.7, this.maxWidth/this.player.cardsInHand.length));
+        card.x = window.innerWidth/2 + (i-this.player.cardsInHand.length/2)*(Math.min(CARD_WIDTH*this.sizeMult*0.7, this.maxWidth/this.player.cardsInHand.length)) - CARD_WIDTH*this.sizeMult/2;
         card.y = window.innerHeight - CARD_HEIGHT*this.sizeMult - 20;
         card.width = CARD_WIDTH*this.sizeMult;
         card.height = CARD_HEIGHT*this.sizeMult;
@@ -504,7 +585,7 @@ renderHand(ctx){
         }
     }
     for (let i = 0; i < this.player.cardsInHand.length; i++) {
-        this.player.cardsInHand[i].draw(ctx, (i > hoveredIndex && hoveredIndex != -1) ? 50 : 0);
+        this.player.cardsInHand[i].draw(ctx, (i > hoveredIndex && hoveredIndex != -1) ? Math.max(0, CARD_WIDTH*this.sizeMult*0.7 - this.maxWidth/this.player.cardsInHand.length) : 0);
     }
 
     /*
@@ -534,6 +615,14 @@ renderHand(ctx){
 
 renderWildOptions(ctx) {
     if (this.data.currentcard[0] === "!" && this.data.currentplayer === this.player.turnNum) {
+        var grdSize = 160;
+        var grd = ctx.createRadialGradient(window.innerWidth/2, window.innerHeight/2, 100, window.innerWidth/2, window.innerHeight/2, grdSize);
+        grd.addColorStop(0, "#000000");
+        grd.addColorStop(1, "#00000000");
+
+        ctx.fillStyle = grd;
+        ctx.fillRect(window.innerWidth/2 - grdSize/2*this.sizeMult, window.innerHeight/2 - grdSize/2*this.sizeMult, grdSize*this.sizeMult, grdSize*this.sizeMult);
+        
         redButton.draw(ctx);
         blueButton.draw(ctx);
         yellowButton.draw(ctx);
