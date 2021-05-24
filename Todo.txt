@@ -8,10 +8,11 @@
     
     if you guess it correctly, draw from special cards, if not, draw 2
 
+-I'm getting a bug where the lobby won't always update, but it only happens like a third of the time. -Kevin
+
 -Special Card ideas
     -Colorblind: Chose 1 colour, all cards of that colour are discarded from your hand
     -Unseeing eye: Allows you to view the hand of a single player of your choice
-    -Paradigm shift: All hands are shifted once in the direction of play
     -Gravedigger: Copies the card at the top of the played pile
     -Act of Kindness: Give 2 of your cards to the player of your choice
     -Duel: Chose a player to duel. Whoever's cards add up to the lowest value must draw 3
@@ -27,6 +28,8 @@
 
 -Optional: Highlight deck when it is your turn and you need to draw (or continue chain)
 
-
 DONE
 - Implement the shield card (allows you to deflect +2 and +4 to the next person)
+
+-Special Card ideas
+    -Paradigm shift: All hands are shifted once in the direction of play (required reworking some parts of Canvas.js)
