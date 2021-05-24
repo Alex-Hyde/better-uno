@@ -28,6 +28,9 @@ class GameCanvas extends React.Component {
             jumpin : true
         }
         this.deck = new Card(144,211,"back");
+        this.Guessdeck = new Card(162,256,"back");
+        this.Guessdeck.x = (window.innerWidth/2) - 81;
+        this.Guessdeck.y = 150;
         this.specialdeck = new Card(144,211,"SpecialDBack");
         this.specialdeck.x = 350;
         this.player = new Player();
@@ -40,6 +43,9 @@ class GameCanvas extends React.Component {
         this.playernum = props.players.length;
         this.players = props.players;
         this.winner = -1;
+        this.sparehand = [];
+        this.guessing = false;
+        this.sparecard = null;
 
         this.listentodoc = this.listentodoc.bind(this)
         this.updateCanvas = this.updateCanvas.bind(this)
@@ -56,6 +62,7 @@ class GameCanvas extends React.Component {
         this.playCard = this.playCard.bind(this)
         this.cardCanPlay = this.cardCanPlay.bind(this)
         this.shuffleArray = this.shuffleArray.bind(this)
+        this.checkguess = this.checkguess.bind(this)
         //this.forcedPull = this.forcedPull.bind(this)
         
     }
@@ -189,6 +196,26 @@ pullCard() {
     firebase.firestore().doc("Games/Game " + this.props.Game_Key).update(this.data)
 }
 
+guess() {
+    var guesshand = [];
+    var potentialcards = ["W1","W2","W3","W4","W5","W6","W7","W8","W9","W+","!D","!!","WS"];
+    guesshand[0] = "W" + this.data.Deck[0][1];
+    potentialcards.splice(potentialcards.indexOf(guesshand[0]),1);
+    console.log(guesshand)
+    console.log(potentialcards)
+    for(var i = 1; i < 4; i++){
+        var ri = Math.floor(Math.random() * potentialcards.length)
+        guesshand[i] = potentialcards[ri]
+        potentialcards.splice(ri,1);
+    }
+    console.log(guesshand)
+    this.sparehand = this.player.cardsInHand 
+    this.player.cardsInHand = [];
+    this.player.loadCards(guesshand)
+    this.guessing = true; 
+    this.updateCanvas();
+    }
+
 /*forcedPull(n, deck) {
     console.log(deck, n)
     if (n === 0) {
@@ -262,11 +289,23 @@ leaveLobby() {
     return
 }
 
+checkguess(card){
+    this.sparecard = this.data.Deck.splice(0,1)[0];
+    if(card.strvalue[1] === this.sparecard[1]){
+        this.guessing = "correct";
+    }
+    else{
+        console.log("incorrect")
+    }
+    this.player.cardsInHand = this.sparehand;
+    this.guessing = false;
+}
+
 onMouseClick(e){
     var rect = this.canvasRef.current.getBoundingClientRect();
     var ex = e.clientX - rect.left
     var ey = e.clientY - rect.top
-    if (this.winner === -1){
+    if ((this.winner === -1) && (this.guessing === false)){
         for(var i = 0; i < this.player.cardsInHand.length; i++){
             if( this.player.cardsInHand[i]){
                 if ( this.player.cardsInHand[i].hovered && this.data.currentcard[0] != "!" && (
@@ -281,7 +320,7 @@ onMouseClick(e){
             this.pullCard();
         }
         if (this.specialdeck.onCard(ex,ey) && (this.player.turnNum === this.data.currentplayer)){
-
+            this.guess()
         }    
         if (redButton.on) {
             var pressed = false;
@@ -305,6 +344,13 @@ onMouseClick(e){
             }
         }
     }
+    else if ((this.winner === -1) && (this.guessing === true)){
+        for(var i = 0; i < this.player.cardsInHand.length; i++){
+            if(this.player.cardsInHand[i].hovered){
+                this.checkguess(this.player.cardsInHand[i])
+            }
+        }    
+    } 
     else {
         if(returnbutton.clicked(ex,ey)){
             this.props.setInLobby(true,this.props.Game_Key,this.players[this.props.turnnumber])
@@ -422,16 +468,29 @@ renderOthers() {
     } 
 }
 
+renderCorrect(ctx){
+    ctx.font = "50px Comic Sans";
+    ctx.textAlign="center"
+    ctx.fillStyle = "Green"
+    this.ctx.fillText("Correct!", (window.innerWidth/2), 100);
+    this.sparecard.draw(ctx)
+}
 
 renderDeck(ctx){
     ctx.drawImage(document.getElementById(this.data.currentcard),500,150,162,256)
+}
+
+renderGuess(ctx){
+    ctx.font = "50px Comic Sans";
+    ctx.textAlign="center"
+    this.ctx.fillText("Guess the type of card at the top of the deck", (window.innerWidth/2), 100);
+    this.Guessdeck.draw(ctx)
 }
 
 renderWinner(ctx){
     ctx.font = "50px Comic Sans";
     ctx.fillStyle = "Red"
     ctx.drawImage(document.getElementById("winnerbackground"),0,0,window.innerWidth,window.innerHeight);
-    //ctx.drawImage(document.getElementById("winnerbanner"),(window.innerWidth - 536)/2,(window.innerHeight - 293)/2,536,293);
     ctx.textAlign="center"
     this.ctx.fillText(this.players[this.winner] + " wins!", (window.innerWidth/2), window.innerHeight/2 -100);
     returnbutton.draw(ctx);
@@ -440,12 +499,22 @@ renderWinner(ctx){
 
 updateCanvas(){
     this.ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
-    this.renderDeck(this.ctx)
-    this.renderBoard(this.ctx)
-    this.renderHand(this.ctx)
-    this.renderWildOptions(this.ctx)
-    if (this.winner !== -1){
-        this.renderWinner(this.ctx)
+    if (this.guessing === false){
+        this.renderDeck(this.ctx)
+        this.renderBoard(this.ctx)
+        this.renderHand(this.ctx)
+        this.renderWildOptions(this.ctx)
+        if (this.winner !== -1){
+            this.renderWinner(this.ctx)
+        }
+    }
+    else if (this.guessing === true){
+        this.renderHand(this.ctx) 
+        this.renderGuess(this.ctx)   
+    }
+    else if (this.guessing === "correct"){
+        //this.renderHand(this.ctx);
+        this.correctGuess(this.ctx);    
     }
 }
 
