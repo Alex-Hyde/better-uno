@@ -14,6 +14,7 @@ var greenButton = new CanvasButton("GreenB", 1010, 210, 100, 100);
 const CARD_WIDTH = 100;
 const CARD_HEIGHT = 160;
 
+
 class GameCanvas extends React.Component {
 
     constructor(props) {
@@ -37,6 +38,7 @@ class GameCanvas extends React.Component {
         this.playernum = props.players.length;
         this.players = props.players;
         this.winner = -1;
+        this.placedCards = [];
 
         this.listentodoc = this.listentodoc.bind(this)
         this.updateCanvas = this.updateCanvas.bind(this)
@@ -45,7 +47,6 @@ class GameCanvas extends React.Component {
         this.renderOthers = this.renderOthers.bind(this)
         this.renderWinner = this.renderWinner.bind(this)
         this.renderWildOptions = this.renderWildOptions.bind(this)
-        this.renderDeck = this.renderDeck.bind(this)
 
         this.onMouseMove = this.onMouseMove.bind(this)
         this.onMouseClick = this.onMouseClick.bind(this)
@@ -54,11 +55,45 @@ class GameCanvas extends React.Component {
         this.cardCanPlay = this.cardCanPlay.bind(this)
         this.shuffleArray = this.shuffleArray.bind(this)
         //this.forcedPull = this.forcedPull.bind(this)
+
+        this.maxWidth = 1000;
+        this.sizeMult = 1;
+        if (window.innerWidth > 2000) {
+            this.sizeMult = 2
+            this.maxWidth = 2000;
+        } else if (window.innerWidth > 1500) {
+            this.sizeMult = 1.5
+            this.maxWidth = 1500;
+        } else if (window.innerWidth > 1000) {
+            this.sizeMult = 1
+            this.maxWidth = 1000;
+        } else {
+            this.sizeMult = 0.5
+            this.maxWidth = 500;
+        }
         
+        this.maxWidth -= CARD_WIDTH*this.sizeMult;
     }
 
 handleResize = () => {
-    this.updateCanvas();
+    this.maxWidth = 1000;
+    this.sizeMult = 1;
+    if (window.innerWidth > 2000) {
+        this.sizeMult = 2
+        this.maxWidth = 2000;
+    } else if (window.innerWidth > 1500) {
+        this.sizeMult = 1.5
+        this.maxWidth = 1500;
+    } else if (window.innerWidth > 1000) {
+        this.sizeMult = 1
+        this.maxWidth = 1000;
+    } else {
+        this.sizeMult = 0.5
+        this.maxWidth = 500;
+    }
+    
+    this.maxWidth -= CARD_WIDTH*this.sizeMult;
+
     this.setState({ width: window.innerWidth, height: window.innerHeight });
 };
 
@@ -70,6 +105,12 @@ listentodoc(){
             for (var i = 0; i < this.playernum; i++) {
                 if(this.data.hands["Player " + i].length === 0) {
                     this.winner = i;
+                }
+            }
+            if (this.data.currentcard != "none") {
+                this.placedCards.push([this.data.currentcard, Math.random()*180-90]);
+                if (this.placedCards.length > 5) {
+                    this.placedCards.shift();
                 }
             }
             this.updateCanvas()
@@ -263,34 +304,25 @@ componentWillUnmount(){
 
 
 renderBoard(ctx){
+    this.placedCards.forEach(card => {
+        ctx.save();
+        ctx.translate(window.innerWidth/2, window.innerHeight/2);
+        ctx.rotate(card[1]);
+        ctx.translate(-window.innerWidth/2, -window.innerHeight/2);
+        ctx.drawImage(document.getElementById(card[0]),window.innerWidth/2-CARD_WIDTH/2,window.innerHeight/2-CARD_HEIGHT/2,CARD_WIDTH*this.sizeMult, CARD_HEIGHT*this.sizeMult);
+        ctx.restore(); 
+    });
     this.deck.draw(ctx);
     this.specialdeck.draw(ctx);
 }
 
 renderHand(ctx){
-    var maxWidth = 1000;
-    var sizeMult = 1;
-    if (window.innerWidth > 2000) {
-        sizeMult = 2
-        maxWidth = 2000;
-    } else if (window.innerWidth > 1500) {
-        sizeMult = 1.5
-        maxWidth = 1500;
-    } else if (window.innerWidth > 1000) {
-        sizeMult = 1
-        maxWidth = 1000;
-    } else {
-        sizeMult = 0.5
-        maxWidth = 500;
-    }
-    maxWidth -= CARD_WIDTH*sizeMult;
-
     for (let i = 0; i < player.cardsInHand.length; i++) {
         var card = player.cardsInHand[i];
-        card.x = window.innerWidth/2 + (i-player.cardsInHand.length/2)*(Math.min(CARD_WIDTH*sizeMult*0.7, maxWidth/player.cardsInHand.length));
-        card.y = window.innerHeight - CARD_HEIGHT*sizeMult - 20;
-        card.width = CARD_WIDTH*sizeMult;
-        card.height = CARD_HEIGHT*sizeMult;
+        card.x = window.innerWidth/2 + (i-player.cardsInHand.length/2)*(Math.min(CARD_WIDTH*this.sizeMult*0.7, this.maxWidth/player.cardsInHand.length));
+        card.y = window.innerHeight - CARD_HEIGHT*this.sizeMult - 20;
+        card.width = CARD_WIDTH*this.sizeMult;
+        card.height = CARD_HEIGHT*this.sizeMult;
         card.angle = -(window.innerWidth/2-card.x)/10000;
     }
     var alreadyHovered = false;
@@ -360,10 +392,6 @@ renderOthers() {
 }
 
 
-renderDeck(ctx){
-    ctx.drawImage(document.getElementById(this.data.currentcard),500,150,162,256)
-}
-
 renderWinner(ctx){
     ctx.font = "50px Comic Sans";
     ctx.fillStyle = "Red"
@@ -372,7 +400,6 @@ renderWinner(ctx){
 
 updateCanvas(){
     this.ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
-    this.renderDeck(this.ctx)
     this.renderBoard(this.ctx)
     this.renderHand(this.ctx)
     this.renderWildOptions(this.ctx)
