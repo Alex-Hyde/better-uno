@@ -42,6 +42,7 @@ class MenuPage extends React.Component {
                 message: "Please enter a name",
                 Game_Key: this.state.Game_Key,
             }) 
+            document.getElementById("nameInput").focus()
             return   
         }
         var firestore = firebase.firestore();  
@@ -79,6 +80,7 @@ class MenuPage extends React.Component {
                     Name: this.state.Name,
                     message: "Lobby Not Found"
                 })
+                document.getElementById("codeInput").focus()
                 return;
             }
         });
@@ -92,6 +94,7 @@ class MenuPage extends React.Component {
                 message: "Please enter a name",
                 Game_Key: this.state.Game_Key,
             }) 
+            document.getElementById("nameInput").focus()
             return   
         }
         var firestore = firebase.firestore();  
@@ -152,7 +155,8 @@ class MenuPage extends React.Component {
                                         fontSize: "30px", 
                                         height: "75px", 
                                         width: "100%",
-                                        borderRadius: "10px"
+                                        borderRadius: "10px",
+                                        backgroundImage: "linear-gradient(20deg, #999999 0%, #FFFFFF 100%)"
                                     }} 
                                 text="Join game"
                                 onClick={this.setLobby}
@@ -164,7 +168,8 @@ class MenuPage extends React.Component {
                                         fontSize: "30px", 
                                         height: "100%", 
                                         width: "100%" ,
-                                        borderRadius: "10px"
+                                        borderRadius: "10px",
+                                        backgroundImage: "linear-gradient(20deg, #999999 0%, #FFFFFF 100%)"
                                     }} 
                                 text="Host Game"
                                 onClick={this.createLobby}
