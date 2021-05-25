@@ -437,9 +437,8 @@ resetGuess(){
 
 resetwrongGuess(){
     this.player.cardsInHand = this.sparehand;
-    for(var i = 0; i < 3; i++){
-        this.pullCard();
-    }
+    this.data.chain = 3;
+    this.pullCard();
     this.guessing = false;
     this.updateCanvas()
 }
@@ -578,7 +577,7 @@ renderHand(ctx){
         card.y = window.innerHeight - CARD_HEIGHT*this.sizeMult - 20;
         card.width = CARD_WIDTH*this.sizeMult;
         card.height = CARD_HEIGHT*this.sizeMult;
-        card.angle = -(window.innerWidth/2-card.x)/10000;
+        card.angle = 0; //-(window.innerWidth/2-card.x)/10000;
     }
     var alreadyHovered = false;
     var hoveredIndex = -1;
