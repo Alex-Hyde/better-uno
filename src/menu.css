@@ -1,0 +1,46 @@
+#menuContainer {
+    margin: auto;
+    margin-top: 100px;
+    padding: 50px;
+    border-radius: 20px;
+    width: fit-content;
+    background-image: url("./menuBackground.png");
+    box-shadow: 5px 10px #00000033;
+}
+
+#nameInput {
+    color: black;
+    height: 75px;
+    width: 100%;
+    border-radius: 10px;
+    padding-left: 10px;
+    /* background-color: #FFFFFF55; */
+    border: 2px solid black;
+    font-size: 35px;
+}
+
+#nameInput:focus {
+    border: 2px solid black;
+    outline: none;
+    background-color: #FFFFFF99;
+}
+
+::placeholder { /* Most modern browsers support this now. */
+    color:    #444444;
+}
+
+#codeInput {
+    color: black;
+    height: 75px;
+    width: 100%;
+    box-sizing: border-box;
+      -webkit-box-sizing: border-box;
+      -moz-box-sizing: border-box;
+    margin-right: 5px;
+    border-radius: 10px;
+    padding-left: 10px;
+    /* background-color: #FFFFFF55; */
+    border: 2px solid black;
+    font-size: 35px;
+    margin-bottom: 10px;
+}

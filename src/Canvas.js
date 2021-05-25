@@ -476,7 +476,7 @@ renderHand(ctx){
         card.y = window.innerHeight - CARD_HEIGHT*this.sizeMult - 20;
         card.width = CARD_WIDTH*this.sizeMult;
         card.height = CARD_HEIGHT*this.sizeMult;
-        card.angle = -(window.innerWidth/2-card.x)/10000;
+        card.angle = -(window.innerWidth/2 - card.x - CARD_WIDTH*this.sizeMult/2)/10000;
     }
     var alreadyHovered = false;
     var hoveredIndex = -1;
