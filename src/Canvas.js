@@ -377,6 +377,7 @@ guess() {
 playCard(index) {
     this.data.turn += 1;
     this.data.playedCards += 1;
+    var prevCard = this.data.currentcard;
     this.data.currentcard = this.player.cardsInHand[index].strvalue;
     this.player.cardsInHand.splice(index,1);
     this.data.hands[this.playerKey].splice(index,1);
@@ -419,6 +420,16 @@ playCard(index) {
         }
         this.player.cardsInHand = [];
         this.player.loadCards(this.data.hands[this.playerKey]);
+    } else if (this.data.currentcard === "!B") { // bodyguard card
+        var prevPlayer = "Player " + ((this.player.turnNum - 1 + this.playernum) % this.playernum)
+        var nextPlayer = "Player " + ((this.player.turnNum + 1) % this.playernum)
+        this.data.hands[prevPlayer] = this.data.hands[prevPlayer].filter(card => (card[1] !== "+" && card !== "!!"))
+        this.data.hands[nextPlayer] = this.data.hands[nextPlayer].filter(card => (card[1] !== "+" && card !== "!!"))
+    } else if (this.data.currentcard === "!G") { // gravedigger card
+        this.data.currentcard = prevCard;
+        this.data.hands[this.playerKey].push(prevCard)
+        this.player.loadCards([prevCard])
+        this.data.playedCards -= 1;
     } else if (this.data.currentcard[1] === "S") { // any skip card
         this.data.currentplayer = (this.player.turnNum - (this.data.reversed * 4) + 2 + this.playernum) % this.playernum
     }
