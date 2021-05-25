@@ -100,11 +100,18 @@ class GamePage extends React.Component {
         var specialCards = specialdeck.slice();
         this.shuffleArray(specialCards)
         var handsMap = {}
-        for (var i = 0; i < this.state.players.length; i++){
+        for (var i = 0; i < this.state.players.length; i++) {
             handsMap["Player " + i.toString()] = Cards.splice(0,7);
         }
+        var startCard = Cards.splice(0,1);
+
+        while (startCard[0] === "!") {
+            Cards.push(startCard);
+            startCard = Cards.splice(0,1);
+        }
+
         firebase.firestore().doc("Games/Game " + this.state.Game_Key).update({
-            currentcard: "none",
+            currentcard: startCard[0],
             turn : 0,
             currentplayer : 0,
             cardInd : -1,

@@ -128,7 +128,8 @@ class MenuPage extends React.Component {
                 chainCard : "",
                 playedCards: 0,
                 special : false,
-                guessing : false
+                guessing : false,
+                guessHand: []
             })
             firestore.doc("Games/Active Games").update({
                 "Active Games" : firebase.firestore.FieldValue.arrayUnion(random_num)
