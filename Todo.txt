@@ -4,6 +4,12 @@
 
 -Add random messages for getting guesses right or wrong
 
+-Fix the wildcard code propt for special cards
+
+-Make info pop up
+
+-fix +2 on +4
+
 -Prevent players from jumping in when a player is guessing for a special card
 
 -Implement betting for special cards. When you draw one of two things can occur:
@@ -16,7 +22,7 @@
     -Colorblind: Chose 1 colour, all cards of that colour are discarded from your hand
     -Unseeing eye: Allows you to view the hand of a single player of your choice
     -Paradigm shift: All hands are shifted once in the direction of play
-    -Gravedigger: Copies the card at the top of the played pile
+    -Identity the: Copies the card at the top of the played pile
     -Act of Kindness: Give 2 of your cards to the player of your choice
     -Duel: Chose a player to duel. Whoever's cards add up to the lowest value must draw 3
     -Lifeline: If a player wins the game while this card is in someones hand, 
@@ -26,8 +32,9 @@
     -Rederect: Deflect any incoming effects to a player of your choice
     -Hand of God: Discard 50% of your cards
 
-                        -Since you can draw infinitely, we have to find a way to balance the 
-                         cards where you hand your deck off to someone else
+-Stop drawing if they can play a card
+
+-Make pop ups again
 
 -Optional: Highlight deck when it is your turn and you need to draw (or continue chain)
 

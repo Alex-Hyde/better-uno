@@ -52,7 +52,7 @@ class GameCanvas extends React.Component {
         this.guessing = false;
         this.sparecard = null;
         this.placedCards = [];
-        this.playedCardsBefore = 0;
+        this.playedCardsBefore = -1;
         this.background = "gameBG_" + (Math.floor(Math.random() * NUM_BACKGROUNDS) + 1).toString(10);
 
         this.listentodoc = this.listentodoc.bind(this)
@@ -260,37 +260,33 @@ onMouseMove(e){
                 oncard: false
             })    
         }
-    }
-    // else {
-    //     //Insert code here maybe
-    //     return;
-    // }
-    var rect = this.canvasRef.current.getBoundingClientRect();
-    var ex = e.clientX - rect.left;
-    var ey = e.clientY - rect.top;
+        var rect = this.canvasRef.current.getBoundingClientRect();
+        var ex = e.clientX - rect.left;
+        var ey = e.clientY - rect.top;
 
-    if (redButton.on) {
-        var render = redButton.hovered || blueButton.hovered || greenButton.hovered || yellowButton.hovered;
-        redButton.hovered = false;
-        blueButton.hovered = false;
-        greenButton.hovered = false;
-        yellowButton.hovered = false;
-        
-        if (redButton.clicked(ex,ey)) {
-            redButton.hovered = true;
-        } else if (blueButton.clicked(ex,ey)) {
-            blueButton.hovered = true;
-        } else if (greenButton.clicked(ex,ey)) {
-            greenButton.hovered = true;
-        } else if (yellowButton.clicked(ex,ey)) {
-            yellowButton.hovered = true;
-        } else {
-            if (render) {
-                this.updateCanvas();
+        if (redButton.on) {
+            var render = redButton.hovered || blueButton.hovered || greenButton.hovered || yellowButton.hovered;
+            redButton.hovered = false;
+            blueButton.hovered = false;
+            greenButton.hovered = false;
+            yellowButton.hovered = false;
+            
+            if (redButton.clicked(ex,ey)) {
+                redButton.hovered = true;
+            } else if (blueButton.clicked(ex,ey)) {
+                blueButton.hovered = true;
+            } else if (greenButton.clicked(ex,ey)) {
+                greenButton.hovered = true;
+            } else if (yellowButton.clicked(ex,ey)) {
+                yellowButton.hovered = true;
+            } else {
+                if (render) {
+                    this.updateCanvas();
+                }
+                return;
             }
-            return;
+            this.updateCanvas();
         }
-        this.updateCanvas();
     }
 }
 
@@ -316,18 +312,18 @@ pullCard() {
             var newCard = this.data.Deck.splice(0,1);
             this.data.hands[this.playerKey] = this.data.hands[this.playerKey].concat(newCard)
             this.player.loadCards(newCard);
-            if (this.data.Deck.length === 0) {
+            if (this.data.Deck.length === 5) {
                 this.shuffleArray(MasterDeck)
-                this.data.Deck = MasterDeck.slice()
+                this.data.Deck = this.data.Deck.concat(MasterDeck.slice())
             }
         }
     } else {
         var newCard = this.data.Deck.splice(0,1);
         this.data.hands[this.playerKey] = this.data.hands[this.playerKey].concat(newCard)
         this.player.loadCards(newCard);
-        if (this.data.Deck.length === 0) {
+        if (this.data.Deck.length === 5) {
             this.shuffleArray(MasterDeck)
-            this.data.Deck = MasterDeck.slice()
+            this.data.Deck = this.data.Deck.concat(MasterDeck.slice())
         }
     }
     this.data.chain = 0
@@ -577,7 +573,7 @@ renderHand(ctx){
         card.y = window.innerHeight - CARD_HEIGHT*this.sizeMult - 20;
         card.width = CARD_WIDTH*this.sizeMult;
         card.height = CARD_HEIGHT*this.sizeMult;
-        card.angle = 0; //-(window.innerWidth/2-card.x)/10000;
+        card.angle = -(window.innerWidth/2-card.x)/10000;
     }
     var alreadyHovered = false;
     var hoveredIndex = -1;

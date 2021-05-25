@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import LobbyBanner from './Banner.js';
 import MenuButton from "./Buttons.js";
 import firebase from "./firebase.js";
+import "./menu.css";
 
 class MenuPage extends React.Component {
     constructor(props){
@@ -41,6 +42,7 @@ class MenuPage extends React.Component {
                 message: "Please enter a name",
                 Game_Key: this.state.Game_Key,
             }) 
+            document.getElementById("nameInput").focus()
             return   
         }
         var firestore = firebase.firestore();  
@@ -78,6 +80,7 @@ class MenuPage extends React.Component {
                     Name: this.state.Name,
                     message: "Lobby Not Found"
                 })
+                document.getElementById("codeInput").focus()
                 return;
             }
         });
@@ -91,6 +94,7 @@ class MenuPage extends React.Component {
                 message: "Please enter a name",
                 Game_Key: this.state.Game_Key,
             }) 
+            document.getElementById("nameInput").focus()
             return   
         }
         var firestore = firebase.firestore();  
@@ -136,37 +140,52 @@ class MenuPage extends React.Component {
 
     render(){
         return (
-            <div>
-                <div style={{display: "flex", justifyContent: "center"}}>
-                <h1>{this.state.message}</h1>
-                </div>
-                <div style={{display: "flex", justifyContent: "center"}}>
-                <h1>{this.state.Name}</h1>
-                </div>
-                <div style={{display: "flex", justifyContent: "center"}}>
-                <h1>Lobby: {this.state.Game_Key}</h1>
-                </div>
-                <br/>
+            <div id="menuContainer">
                 <form>
                     <div style={{display: "flex", justifyContent: "center"}}>
-                        <h1 style={{fontSize: "30px"}}> Enter Your Name:</h1>
-                        <input type="textfield" placeholder="Player Name" onChange={this.setName}></input>                 
+                        {/* <h1 style={{fontSize: "30px"}}> Enter Your Name:</h1> */}
+                        <input id="nameInput" type="textfield" placeholder="Name" onChange={this.setName} spellCheck="false"></input>                 
                     </div>
                     <br/>
                     <div style={{display: "flex", justifyContent: "center"}}>
-                        <input type="textfield" placeholder="Enter Game Code" onChange={this.setCode}></input>
-                        <MenuButton 
-                            style={{fontSize: "30px"}} 
-                            text="Join game"
-                            onClick={this.setLobby}
-                        />
-                        <MenuButton 
-                            style={{fontSize: "30px"}} 
-                            text="Host Game"
-                            onClick={this.createLobby}
-                        />
+                        <div style={{flex: "50%", paddingRight: "8px"}}>
+                            <input id="codeInput" type="textfield" placeholder="Game Code" onChange={this.setCode} spellCheck="false"></input>
+                            <MenuButton id="joinLobby"
+                                style={{
+                                        fontSize: "30px", 
+                                        height: "75px", 
+                                        width: "100%",
+                                        borderRadius: "10px",
+                                        backgroundImage: "linear-gradient(20deg, #999999 0%, #FFFFFF 100%)"
+                                    }} 
+                                text="Join game"
+                                onClick={this.setLobby}
+                            />
+                        </div>
+                        <div style={{flex: "50%", paddingLeft: "8px"}}>
+                            <MenuButton id="hostLobby"
+                                style={{
+                                        fontSize: "30px", 
+                                        height: "100%", 
+                                        width: "100%" ,
+                                        borderRadius: "10px",
+                                        backgroundImage: "linear-gradient(20deg, #999999 0%, #FFFFFF 100%)"
+                                    }} 
+                                text="Host Game"
+                                onClick={this.createLobby}
+                            />
+                        </div>
                     </div>
                 </form>
+                <div style={{display: "none", justifyContent: "center"}}>
+                <h1>{this.state.message}</h1>
+                </div>
+                <div style={{display: "none", justifyContent: "center"}}>
+                <h1>{this.state.Name}</h1>
+                </div>
+                <div style={{display: "none", justifyContent: "center"}}>
+                <h1 style={{display: "none"}} >Lobby: {this.state.Game_Key}</h1>
+                </div>
             </div>
         )
 
