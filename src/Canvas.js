@@ -309,6 +309,7 @@ onMouseMove(e){
 }
 
 pullSpecialCard(){
+    //this.data.breakaway = false;
     this.data.gameAction = true;
     this.data.turn += 1;
     this.data.guessing = true;
@@ -325,6 +326,7 @@ pullSpecialCard(){
 }
 
 pullCard() {
+    //this.data.breakaway = false;
     this.data.gameAction = true;
     this.data.turn += 1;
     if (this.data.chain > 0) {
