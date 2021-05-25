@@ -225,7 +225,7 @@ componentDidMount(){
         if (snapshot.data()){
             this.data = snapshot.data()
             this.player.loadCards(this.data.hands[this.playerKey]);
-            this.placedCards = [[this.data.currentcard, Math.random()*Math.PI-Math.PI/2]]
+            //this.placedCards = [[this.data.currentcard, Math.random()*Math.PI-Math.PI/2]]
             this.updateCanvas();
             this.listentodoc();
             unsub();
@@ -455,15 +455,8 @@ resetGuess(){
 
 resetwrongGuess(){
     this.player.cardsInHand = this.sparehand;
-<<<<<<< HEAD
-    for(var i = 0; i < 3; i++){
-        this.pullCard();
-    }
-=======
     this.data.chain = 3;
     this.pullCard();
-    this.guessing = false;
->>>>>>> dcad13e13ae09890c652ddcbff317c7d0120fc92
     this.updateCanvas()
 }
 
