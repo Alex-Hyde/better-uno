@@ -1,8 +1,5 @@
--Adjust the offset of the cards when you hover over them depending on the number of cards in hand
 
 -Add Alex's scrollin thing for players at the top of the screen
-
--Add random messages for getting guesses right or wrong
 
 -Fix the wildcard code propt for special cards
 
@@ -19,10 +16,11 @@
     if you guess it correctly, draw from special cards, if not, draw 2
 
 -Special Card ideas
+    -Bodyguard: Removes all +2 and +4 cards from the players directly to the left and right of you
     -Colorblind: Chose 1 colour, all cards of that colour are discarded from your hand
     -Unseeing eye: Allows you to view the hand of a single player of your choice
     -Paradigm shift: All hands are shifted once in the direction of play
-    -Identity the: Copies the card at the top of the played pile
+    -Gravedigger: Copies the card at the top of the played pile
     -Act of Kindness: Give 2 of your cards to the player of your choice
     -Duel: Chose a player to duel. Whoever's cards add up to the lowest value must draw 3
     -Lifeline: If a player wins the game while this card is in someones hand, 
@@ -35,6 +33,10 @@
 -Stop drawing if they can play a card
 
 -Make pop ups again
+
+-Add profile pic selection
+
+-implement skip turn
 
 -Optional: Highlight deck when it is your turn and you need to draw (or continue chain)
 

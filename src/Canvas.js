@@ -14,6 +14,7 @@ var greenButton = new CanvasButtonCircle(window.innerWidth/2 + 2, window.innerHe
 
 var returnbutton = new CanvasButton("returnbutton",(window.innerWidth/2)-160,230,155,70);
 var leavebutton = new CanvasButton("leavebutton",(window.innerWidth/2)+5,230,155,70);
+var skipbutton = new CanvasButton("SkipButton",(window.innerWidth/8) * 7,230,155,70);
 
 const CARD_WIDTH = 100;
 const CARD_HEIGHT = 151;
