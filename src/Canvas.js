@@ -44,8 +44,6 @@ class GameCanvas extends React.Component {
         this.player = new Player();
         this.canvasRef = React.createRef();
         this.playerKey = "Player " + props.turnnumber.toString();
-        this.deck.x = 670;
-        this.deck.y = 175;
         this.data = {currentcard: "none"};
         this.playernum = props.players.length;
         this.players = props.players;
@@ -56,8 +54,6 @@ class GameCanvas extends React.Component {
         this.placedCards = [];
         this.playedCardsBefore = 0;
         this.background = "gameBG_" + (Math.floor(Math.random() * NUM_BACKGROUNDS) + 1).toString(10);
-        
-       // console.log(this.background);
 
         this.listentodoc = this.listentodoc.bind(this)
         this.updateCanvas = this.updateCanvas.bind(this)
@@ -76,6 +72,7 @@ class GameCanvas extends React.Component {
         this.checkguess = this.checkguess.bind(this)
         this.renderCorrect = this.renderCorrect.bind(this)
         this.resetGuess = this.resetGuess.bind(this)
+        this.resetwrongGuess = this.resetwrongGuess.bind(this)
         //this.forcedPull = this.forcedPull.bind(this)
 
         this.maxWidth = 1000;
@@ -203,10 +200,12 @@ shuffleArray(array) {
 componentDidMount(){
     window.addEventListener("resize", this.handleResize);
     this.ctx = this.canvasRef.current.getContext("2d");
-    var rect = this.canvasRef.current.getBoundingClientRect()
-    this.canvasRef.current.width = rect.width * devicePixelRatio;
-    this.canvasRef.current.height = rect.height * devicePixelRatio;
-    this.ctx.scale(devicePixelRatio, devicePixelRatio)
+    //var rect = this.canvasRef.current.getBoundingClientRect()
+    //this.canvasRef.current.width = rect.width * devicePixelRatio;
+   // this.canvasRef.current.height = rect.height * devicePixelRatio;
+   // this.ctx.scale(devicePixelRatio, devicePixelRatio)
+   // this.canvasRef.current.width = rect.width + "px"
+   // this.canvasRef.current.height = rect.height + "px"
     this.player.turnNum = this.props.turnnumber;
     var unsub = firebase.firestore().doc("Games/Game " + this.props.Game_Key).onSnapshot(snapshot => {
         if (snapshot.data()){
@@ -436,6 +435,15 @@ resetGuess(){
     this.updateCanvas()
 }
 
+resetwrongGuess(){
+    this.player.cardsInHand = this.sparehand;
+    for(var i = 0; i < 3; i++){
+        this.pullCard();
+    }
+    this.guessing = false;
+    this.updateCanvas()
+}
+
 checkguess(card){
     this.sparecard = this.data.Deck.splice(0,1)[0];
     this.sparecard = new Card(162,256,this.sparecard);
@@ -450,7 +458,7 @@ checkguess(card){
     else{
         this.guessing = "incorrect";
         this.updateCanvas()
-        setTimeout(this.resetGuess, 2000)
+        setTimeout(this.resetwrongGuess, 2000)
     }
 }
 
@@ -622,7 +630,6 @@ renderWildOptions(ctx) {
 
         ctx.fillStyle = grd;
         ctx.fillRect(window.innerWidth/2 - grdSize/2*this.sizeMult, window.innerHeight/2 - grdSize/2*this.sizeMult, grdSize*this.sizeMult, grdSize*this.sizeMult);
-        
         redButton.draw(ctx);
         blueButton.draw(ctx);
         yellowButton.draw(ctx);
