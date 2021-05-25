@@ -2,6 +2,10 @@
 
 -Add Alex's scrollin thing for players at the top of the screen
 
+-Add random messages for getting guesses right or wrong
+
+-Prevent players from jumping in when a player is guessing for a special card
+
 -Implement betting for special cards. When you draw one of two things can occur:
     -Guess the colour of the next card to be drawn
     -Guess the type of the next card to be drawn

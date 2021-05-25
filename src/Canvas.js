@@ -3,6 +3,8 @@ import firebase from "./firebase.js";
 import Card from "./Card.js"
 import Player from "./player.js";
 import MasterDeck from "./Deck.js";
+import specialdeck from "./SpecialDeck.js";
+
 import { CanvasButton, CanvasButtonCircle } from "./Canvasbutton.js";
 
 var redButton = new CanvasButtonCircle(window.innerWidth/2 + 2, window.innerHeight/2 + 2, 100, 1, "red");
@@ -14,7 +16,7 @@ var returnbutton = new CanvasButton("returnbutton",(window.innerWidth/2)-160,230
 var leavebutton = new CanvasButton("leavebutton",(window.innerWidth/2)+5,230,155,70);
 
 const CARD_WIDTH = 100;
-const CARD_HEIGHT = 160;
+const CARD_HEIGHT = 151;
 const PLACED_CARDS_DECK_SIZE = 10;
 const NUM_BACKGROUNDS = 3;
 
@@ -30,6 +32,15 @@ class GameCanvas extends React.Component {
             chaining : true,
             jumpin : true
         }
+        this.deck = new Card(144,211,"back");
+        this.Guessdeck = new Card(162,256,"back");
+        this.Guessdeck.x = (window.innerWidth/2) - 81;
+        this.Guessdeck.y = 150;
+        this.specialdeck = new Card(144,211,"SpecialDBack");
+        this.specialdeck.x = 350;
+        this.player = new Player();
+        this.specialdeck.y = 175;
+        this.canvasRef = React.createRef()
         this.player = new Player();
         this.canvasRef = React.createRef();
         this.playerKey = "Player " + props.turnnumber.toString();
@@ -37,6 +48,9 @@ class GameCanvas extends React.Component {
         this.playernum = props.players.length;
         this.players = props.players;
         this.winner = -1;
+        this.sparehand = [];
+        this.guessing = false;
+        this.sparecard = null;
         this.placedCards = [];
         this.playedCardsBefore = 0;
         this.background = "gameBG_" + (Math.floor(Math.random() * NUM_BACKGROUNDS) + 1).toString(10);
@@ -55,6 +69,10 @@ class GameCanvas extends React.Component {
         this.playCard = this.playCard.bind(this)
         this.cardCanPlay = this.cardCanPlay.bind(this)
         this.shuffleArray = this.shuffleArray.bind(this)
+        this.checkguess = this.checkguess.bind(this)
+        this.renderCorrect = this.renderCorrect.bind(this)
+        this.resetGuess = this.resetGuess.bind(this)
+        this.resetwrongGuess = this.resetwrongGuess.bind(this)
         //this.forcedPull = this.forcedPull.bind(this)
 
         this.maxWidth = 1000;
@@ -92,59 +110,61 @@ class GameCanvas extends React.Component {
         this.specialdeck = new Card(CARD_WIDTH*this.sizeMult, CARD_HEIGHT*this.sizeMult,"SpecialDBack");
     }
 
-handleResize = () => {
-    this.maxWidth = 1000;
-    this.sizeMult = 1;
-    if (window.innerWidth > 2000) {
-        this.sizeMult = 2
-        this.maxWidth = 2000;
-    } else if (window.innerWidth > 1500) {
-        this.sizeMult = 1.5
-        this.maxWidth = 1500;
-    } else if (window.innerWidth > 1000) {
-        this.sizeMult = 1
+    handleResize = () => {
         this.maxWidth = 1000;
-    } else {
-        this.sizeMult = 0.75
-        this.maxWidth = 500;
-    }
+        this.sizeMult = 1;
+        if (window.innerWidth > 2000) {
+            this.sizeMult = 2
+            this.maxWidth = 2000;
+        } else if (window.innerWidth > 1500) {
+            this.sizeMult = 1.5
+            this.maxWidth = 1500;
+        } else if (window.innerWidth > 1000) {
+            this.sizeMult = 1
+            this.maxWidth = 1000;
+        } else {
+            this.sizeMult = 0.75
+            this.maxWidth = 500;
+        }
+        
+        this.maxWidth -= CARD_WIDTH*this.sizeMult;
+
+        this.setState({ width: window.innerWidth * 2, height: window.innerHeight * 2 });
+
+        this.deck.width = CARD_WIDTH*this.sizeMult;
+        this.deck.height = CARD_HEIGHT*this.sizeMult;
+        
+        this.specialdeck.width = CARD_WIDTH*this.sizeMult;
+        this.specialdeck.height = CARD_HEIGHT*this.sizeMult;
     
-    this.maxWidth -= CARD_WIDTH*this.sizeMult;
-
-    this.deck.width = CARD_WIDTH*this.sizeMult;
-    this.deck.height = CARD_HEIGHT*this.sizeMult;
+        redButton.x = window.innerWidth/2 + 2;
+        redButton.y = window.innerHeight/2 + 2;
+        redButton.radius = 70 * this.sizeMult;
+        blueButton.x = window.innerWidth/2 - 3;
+        blueButton.y = window.innerHeight/2 + 2;
+        blueButton.radius = 70 * this.sizeMult;
+        greenButton.x = window.innerWidth/2 + 2;
+        greenButton.y = window.innerHeight/2 - 2;
+        greenButton.radius = 70 * this.sizeMult;
+        yellowButton.x = window.innerWidth/2 - 2;
+        yellowButton.y = window.innerHeight/2 - 2;
+        yellowButton.radius = 70 * this.sizeMult;
     
-    this.specialdeck.width = CARD_WIDTH*this.sizeMult;
-    this.specialdeck.height = CARD_HEIGHT*this.sizeMult;
-
-    redButton.x = window.innerWidth/2 + 2;
-    redButton.y = window.innerHeight/2 + 2;
-    redButton.radius = 70 * this.sizeMult;
-    blueButton.x = window.innerWidth/2 - 3;
-    blueButton.y = window.innerHeight/2 + 2;
-    blueButton.radius = 70 * this.sizeMult;
-    greenButton.x = window.innerWidth/2 + 2;
-    greenButton.y = window.innerHeight/2 - 2;
-    greenButton.radius = 70 * this.sizeMult;
-    yellowButton.x = window.innerWidth/2 - 2;
-    yellowButton.y = window.innerHeight/2 - 2;
-    yellowButton.radius = 70 * this.sizeMult;
-
-    this.setState({ width: window.innerWidth, height: window.innerHeight });
-};
+        this.setState({ width: window.innerWidth, height: window.innerHeight });
+    };
 
 
 listentodoc(){
     this.unsubscribe = firebase.firestore().collection("Games").doc("Game " + this.props.Game_Key).onSnapshot(snapshot => {
         if (snapshot.data()) {
             this.data = snapshot.data()
-            console.log(this.playernum)
+           // console.log(this.playernum)
             for (var i = 0; i < this.playernum; i++) {
-                console.log(this.data.hands)
+            //    console.log(this.data.hands)
                 if(this.data.hands["Player " + i].length === 0) {
                     this.winner = i;
                     if (this.props.turnnumber === 0){
-                        console.log("Hi");
+                 //       console.log("Hi");
                         firebase.firestore().doc("Games/Game " + this.props.Game_Key).update({
                             gameAction: false,
                             inGame: false
@@ -180,6 +200,12 @@ shuffleArray(array) {
 componentDidMount(){
     window.addEventListener("resize", this.handleResize);
     this.ctx = this.canvasRef.current.getContext("2d");
+    //var rect = this.canvasRef.current.getBoundingClientRect()
+    //this.canvasRef.current.width = rect.width * devicePixelRatio;
+   // this.canvasRef.current.height = rect.height * devicePixelRatio;
+   // this.ctx.scale(devicePixelRatio, devicePixelRatio)
+   // this.canvasRef.current.width = rect.width + "px"
+   // this.canvasRef.current.height = rect.height + "px"
     this.player.turnNum = this.props.turnnumber;
     var unsub = firebase.firestore().doc("Games/Game " + this.props.Game_Key).onSnapshot(snapshot => {
         if (snapshot.data()){
@@ -268,6 +294,20 @@ onMouseMove(e){
     }
 }
 
+pullSpecialCard(){
+    this.data.gameAction = true;
+    this.data.turn += 1;
+    var newCard = this.data.specialdeck.splice(0,1);
+    this.data.hands[this.playerKey] = this.data.hands[this.playerKey].concat(newCard)
+    this.player.loadCards(newCard);
+    if (this.data.specialdeck.length === 0) {
+        this.shuffleArray(specialdeck)
+        this.data.specialdeck = specialdeck.slice()
+    }
+    this.updateCanvas()
+    firebase.firestore().doc("Games/Game " + this.props.Game_Key).update(this.data)
+}
+
 pullCard() {
     this.data.gameAction = true;
     this.data.turn += 1;
@@ -294,6 +334,26 @@ pullCard() {
     this.updateCanvas()
     firebase.firestore().doc("Games/Game " + this.props.Game_Key).update(this.data)
 }
+
+guess() {
+    var guesshand = [];
+    var potentialcards = ["W1","W2","W3","W4","W5","W6","W7","W8","W9","W+","!D","!!","WS","WR"];
+    guesshand[0] = "W" + this.data.Deck[0][1];
+    potentialcards.splice(potentialcards.indexOf(guesshand[0]),1);
+    console.log(guesshand)
+   // console.log(potentialcards)
+    for(var i = 1; i < 4; i++){
+        var ri = Math.floor(Math.random() * potentialcards.length)
+        guesshand[i] = potentialcards[ri]
+        potentialcards.splice(ri,1);
+    }
+   // console.log(guesshand)
+    this.sparehand = this.player.cardsInHand 
+    this.player.cardsInHand = [];
+    this.player.loadCards(guesshand)
+    this.guessing = true; 
+    this.updateCanvas();
+    }
 
 /*forcedPull(n, deck) {
     console.log(deck, n)
@@ -368,11 +428,45 @@ leaveLobby() {
     return
 }
 
+resetGuess(){
+    this.player.cardsInHand = this.sparehand;
+    this.pullSpecialCard();
+    this.guessing = false;
+    this.updateCanvas()
+}
+
+resetwrongGuess(){
+    this.player.cardsInHand = this.sparehand;
+    for(var i = 0; i < 3; i++){
+        this.pullCard();
+    }
+    this.guessing = false;
+    this.updateCanvas()
+}
+
+checkguess(card){
+    this.sparecard = this.data.Deck.splice(0,1)[0];
+    this.sparecard = new Card(162,256,this.sparecard);
+    this.sparecard.x = (window.innerWidth/2) - 81;
+    this.sparecard.y = 150;
+    if(card.strvalue[1] === this.sparecard.strvalue[1]){
+        this.guessing = "correct";
+        this.updateCanvas()
+        setTimeout(this.resetGuess, 2000)
+        
+    }
+    else{
+        this.guessing = "incorrect";
+        this.updateCanvas()
+        setTimeout(this.resetwrongGuess, 2000)
+    }
+}
+
 onMouseClick(e){
     var rect = this.canvasRef.current.getBoundingClientRect();
     var ex = e.clientX - rect.left
     var ey = e.clientY - rect.top
-    if (this.winner === -1){
+    if ((this.winner === -1) && (this.guessing === false)){
         for(var i = 0; i < this.player.cardsInHand.length; i++){
             if( this.player.cardsInHand[i]){
                 if ( this.player.cardsInHand[i].hovered && this.data.currentcard[0] != "!" && (
@@ -387,7 +481,7 @@ onMouseClick(e){
             this.pullCard();
         }
         if (this.specialdeck.onCard(ex,ey) && (this.player.turnNum === this.data.currentplayer)){
-
+            this.guess()
         }    
         if (redButton.on) {
             var pressed = false;
@@ -411,7 +505,14 @@ onMouseClick(e){
             }
         }
     }
-    else {
+    else if ((this.winner === -1) && (this.guessing === true)){
+        for(var i = 0; i < this.player.cardsInHand.length; i++){
+            if(this.player.cardsInHand[i].hovered){
+                this.checkguess(this.player.cardsInHand[i])
+            }
+        }    
+    } 
+    else if (this.winner !== -1){
         if(returnbutton.clicked(ex,ey)){
             this.props.setInLobby(true,this.props.Game_Key,this.players[this.props.turnnumber])
         }
@@ -470,6 +571,7 @@ renderBoard(ctx){
 }
 
 renderHand(ctx){
+   // console.log(this.player.cardsInHand)
     for (let i = 0; i < this.player.cardsInHand.length; i++) {
         var card = this.player.cardsInHand[i];
         card.x = window.innerWidth/2 + (i-this.player.cardsInHand.length/2)*(Math.min(CARD_WIDTH*this.sizeMult*0.7, this.maxWidth/this.player.cardsInHand.length)) - CARD_WIDTH*this.sizeMult/2;
@@ -528,7 +630,6 @@ renderWildOptions(ctx) {
 
         ctx.fillStyle = grd;
         ctx.fillRect(window.innerWidth/2 - grdSize/2*this.sizeMult, window.innerHeight/2 - grdSize/2*this.sizeMult, grdSize*this.sizeMult, grdSize*this.sizeMult);
-
         redButton.draw(ctx);
         blueButton.draw(ctx);
         yellowButton.draw(ctx);
@@ -548,16 +649,39 @@ renderWildOptions(ctx) {
 renderOthers() {
   //  const ctx = this.refs.canvas.getContext("2d");
     for(var i = 0; i < this.playernum; i++ ){
-        console.log(this.players[i], this.hands[i])
+       // console.log(this.players[i], this.hands[i])
     } 
 }
 
+renderIncorrect(ctx){
+    ctx.font = "50px Comic Sans";
+    ctx.textAlign="center"
+    ctx.fillStyle = "Red"
+    this.ctx.fillText("Sucks to suck!", (window.innerWidth/2), 100);
+    ctx.font = "30px Comic Sans";
+    this.ctx.fillText("Draw 3 Cards", (window.innerWidth/2), 140);
+    this.sparecard.draw(ctx)
+}
+
+renderCorrect(ctx){
+    ctx.font = "50px Comic Sans";
+    ctx.textAlign="center"
+    ctx.fillStyle = "Green"
+    this.ctx.fillText("Correct!", (window.innerWidth/2), 100);
+    this.sparecard.draw(ctx)
+}
+
+renderGuess(ctx){
+    ctx.font = "50px Comic Sans";
+    ctx.textAlign="center"
+    this.ctx.fillText("Guess the type of card at the top of the deck", (window.innerWidth/2), 100);
+    this.Guessdeck.draw(ctx)
+}
 
 renderWinner(ctx){
     ctx.font = "50px Comic Sans";
     ctx.fillStyle = "Red"
     ctx.drawImage(document.getElementById("winnerbackground"),0,0,window.innerWidth,window.innerHeight);
-    //ctx.drawImage(document.getElementById("winnerbanner"),(window.innerWidth - 536)/2,(window.innerHeight - 293)/2,536,293);
     ctx.textAlign="center"
     this.ctx.fillText(this.players[this.winner] + " wins!", (window.innerWidth/2), window.innerHeight/2 -100);
     returnbutton.draw(ctx);
@@ -567,18 +691,31 @@ renderWinner(ctx){
 updateCanvas(){
     this.ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
     this.ctx.drawImage(document.getElementById(this.background), 0, 0, window.innerWidth, window.innerHeight);
-    this.renderBoard(this.ctx)
-    this.renderHand(this.ctx)
-    this.renderWildOptions(this.ctx)
-    if (this.winner !== -1){
-        this.renderWinner(this.ctx)
+    if (this.guessing === false){
+        this.renderBoard(this.ctx)
+        this.renderHand(this.ctx)
+        this.renderWildOptions(this.ctx)
+        if (this.winner !== -1){
+            this.renderWinner(this.ctx)
+        }
+    }
+    else if (this.guessing === true){
+        this.renderHand(this.ctx) 
+        this.renderGuess(this.ctx)   
+    }
+    else if (this.guessing === "correct"){
+        //this.renderHand(this.ctx);
+        this.renderCorrect(this.ctx);    
+    }
+    else if (this.guessing === "incorrect"){
+        this.renderIncorrect(this.ctx);
     }
 }
 
 render(){
     return (
         <div>
-        <canvas ref = {this.canvasRef} onMouseMove={this.onMouseMove} onClick={this.onMouseClick} width={window.innerWidth} height={window.innerHeight}/>
+        <canvas ref = {this.canvasRef} onMouseMove={this.onMouseMove} onClick={this.onMouseClick} width = {window.innerWidth} height = {window.innerHeight}/>
         </div>
     );
 }

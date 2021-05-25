@@ -1,3 +1,3 @@
-var specialdeck = ["bodyguard","resurrection"];
+var specialdeck = ["!G","!R"];
 
 export default specialdeck;
