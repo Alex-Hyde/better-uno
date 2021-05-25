@@ -12,6 +12,11 @@ var blueButton = new CanvasButtonCircle(window.innerWidth/2 - 2, window.innerHei
 var yellowButton = new CanvasButtonCircle(window.innerWidth/2 - 2, window.innerHeight/2 - 2, 100, 3, "yellow");
 var greenButton = new CanvasButtonCircle(window.innerWidth/2 + 2, window.innerHeight/2 - 2, 100, 4, "green");
 
+var sRedButton = new CanvasButton("RedB", 900, 50, 100, 100);
+var sBlueButton = new CanvasButton("BlueB", 1010, 50, 100, 100);
+var sYellowButton = new CanvasButton("YellowB", 900, 210, 100, 100);
+var sGreenButton = new CanvasButton("GreenB", 1010, 210, 100, 100);
+
 var returnbutton = new CanvasButton("returnbutton",(window.innerWidth/2)-160,230,155,70);
 var leavebutton = new CanvasButton("leavebutton",(window.innerWidth/2)+5,230,155,70);
 
@@ -44,12 +49,12 @@ class GameCanvas extends React.Component {
         this.player = new Player();
         this.canvasRef = React.createRef();
         this.playerKey = "Player " + props.turnnumber.toString();
-        this.data = {currentcard: "none"};
+        this.data = {currentcard:"none"};
         this.playernum = props.players.length;
         this.players = props.players;
         this.winner = -1;
         this.sparehand = [];
-        this.guessing = false;
+        //this.guessing = false;
         this.sparecard = null;
         this.placedCards = [];
         this.playedCardsBefore = 0;
@@ -62,6 +67,7 @@ class GameCanvas extends React.Component {
         this.renderOthers = this.renderOthers.bind(this)
         this.renderWinner = this.renderWinner.bind(this)
         this.renderWildOptions = this.renderWildOptions.bind(this)
+        this.renderSpecial = this.renderSpecial.bind(this)
 
         this.onMouseMove = this.onMouseMove.bind(this)
         this.onMouseClick = this.onMouseClick.bind(this)
@@ -183,6 +189,13 @@ listentodoc(){
                 this.playedCardsBefore = this.data.playedCards;
                 this.placedCards[this.placedCards.length-1][0] = this.data.currentcard;
             }
+            this.player.cardsInHand = []
+            if (this.data.currentplayer != this.player.turnNum || !this.data.guessing) {
+                this.player.loadCards(this.data.hands[this.playerKey])
+                this.data.hands[this.playerKey] = this.player.cardsInHand.map(card => card.strvalue)
+            } else {
+                this.player.loadCards(this.data.guessHand)
+            }
             this.updateCanvas()
         }
     })
@@ -211,6 +224,7 @@ componentDidMount(){
         if (snapshot.data()){
             this.data = snapshot.data()
             this.player.loadCards(this.data.hands[this.playerKey]);
+            this.placedCards = [[this.data.currentcard, Math.random()*Math.PI-Math.PI/2]]
             this.updateCanvas();
             this.listentodoc();
             unsub();
@@ -224,7 +238,7 @@ cardCanPlay(card){
             return true;
         } if (!this.options.chaining) {
             return false;
-        } else if (card.strvalue === "!!") {
+        } else if (card.strvalue === "!!" && this.data.chainCard === "4") {
             return true;
         } else if (this.data.chainCard === "2" && card.strvalue[1] === "+") {
             return true;
@@ -297,6 +311,7 @@ onMouseMove(e){
 pullSpecialCard(){
     this.data.gameAction = true;
     this.data.turn += 1;
+    this.data.guessing = true;
     var newCard = this.data.specialdeck.splice(0,1);
     this.data.hands[this.playerKey] = this.data.hands[this.playerKey].concat(newCard)
     this.player.loadCards(newCard);
@@ -304,6 +319,7 @@ pullSpecialCard(){
         this.shuffleArray(specialdeck)
         this.data.specialdeck = specialdeck.slice()
     }
+    this.data.guessing = false;
     this.updateCanvas()
     firebase.firestore().doc("Games/Game " + this.props.Game_Key).update(this.data)
 }
@@ -331,16 +347,21 @@ pullCard() {
         }
     }
     this.data.chain = 0
+    this.data.guessing = false;
     this.updateCanvas()
     firebase.firestore().doc("Games/Game " + this.props.Game_Key).update(this.data)
 }
 
 guess() {
+    this.data.gameAction = true;
+    this.data.turn += 1;
+    //this.guessing = true;
+    this.data.guessing = true;
     var guesshand = [];
     var potentialcards = ["W1","W2","W3","W4","W5","W6","W7","W8","W9","W+","!D","!!","WS","WR"];
     guesshand[0] = "W" + this.data.Deck[0][1];
     potentialcards.splice(potentialcards.indexOf(guesshand[0]),1);
-    console.log(guesshand)
+    // console.log(guesshand)
    // console.log(potentialcards)
     for(var i = 1; i < 4; i++){
         var ri = Math.floor(Math.random() * potentialcards.length)
@@ -350,59 +371,60 @@ guess() {
    // console.log(guesshand)
     this.sparehand = this.player.cardsInHand 
     this.player.cardsInHand = [];
-    this.player.loadCards(guesshand)
-    this.guessing = true; 
+    this.player.loadCards(guesshand);
+    this.data.guessHand = guesshand;
+    firebase.firestore().doc("Games/Game " + this.props.Game_Key).update(this.data);
     this.updateCanvas();
     }
-
-/*forcedPull(n, deck) {
-    console.log(deck, n)
-    if (n === 0) {
-        return
-    }
-    
-    var stringHand = player.cardsInHand.map(x => x.strvalue)
-    firebase.firestore().doc("Games/Game " + this.props.Game_Key + "/Players/Player " + (player.turnNum + 1)).update({
-        Hand: stringHand
-    })
-    firebase.firestore().collection("Games").doc("Game " + this.props.Game_Key).update({
-        Deck: deck,
-        gameAction: false
-    })
-}*/
 
 playCard(index) {
     this.data.turn += 1;
     this.data.playedCards += 1;
     this.data.currentcard = this.player.cardsInHand[index].strvalue;
+    this.player.cardsInHand.splice(index,1);
+    this.data.hands[this.playerKey].splice(index,1);
     this.gameAction = true;
-    if (this.player.cardsInHand[index].strvalue[0] === "!") {
+    if (this.data.currentcard[0] === "!") { // any wild card
         this.data.currentplayer = this.player.turnNum;
     } else {
         this.data.currentplayer = (this.player.turnNum - (this.data.reversed*2) + 1 + this.playernum) % this.playernum;
     }
-    if (this.player.cardsInHand[index].strvalue[1] === "R") {
+    if (this.data.currentcard[1] === "R") { // any reverse card
         this.data.reversed = !this.data.reversed
         this.data.currentplayer = (this.player.turnNum - (this.data.reversed*2) + 1 + this.playernum) % this.playernum
-    } else if (this.player.cardsInHand[index].strvalue[1] === "+") {
+    } else if (this.data.currentcard[1] === "+") { // any +2 card
         if (this.options.chaining) {
             this.data.chain = this.data.chain + 2
             this.data.chainCard = "2"
         } else {
             this.data.chain = 2
         }
-    } else if (this.player.cardsInHand[index].strvalue === "!!") {
+    } else if (this.data.currentcard === "!!") { // +4 card
         if (this.options.chaining) {
             this.data.chain += 4
             this.data.chainCard = "4"
         } else {
             this.data.chain = 4
         }
-    } else if (this.player.cardsInHand[index].strvalue[1] === "S") {
+    } else if (this.data.currentcard === "!P") { // paradigm shift special card
+        if (!this.data.reversed) {
+            var temp = this.data.hands["Player " + (this.playernum - 1)]
+            for (var i = this.playernum - 1; i > 0; i--) {
+                this.data.hands["Player " + i] = this.data.hands["Player " + (i - 1)]
+            }
+            this.data.hands["Player 0"] = temp
+        } else {
+            var temp = this.data.hands["Player 0"]
+            for (var i = 0; i < this.playernum - 1; i++) {
+                this.data.hands["Player " + i] = this.data.hands["Player " + (i + 1)]
+            }
+            this.data.hands["Player " + (this.playernum - 1)] = temp
+        }
+        this.player.cardsInHand = [];
+        this.player.loadCards(this.data.hands[this.playerKey]);
+    } else if (this.data.currentcard[1] === "S") { // any skip card
         this.data.currentplayer = (this.player.turnNum - (this.data.reversed * 4) + 2 + this.playernum) % this.playernum
     }
-    this.player.cardsInHand.splice(index,1);
-    this.data.hands[this.playerKey].splice(index,1);
     this.updateCanvas()
     firebase.firestore().doc("Games/Game " + this.props.Game_Key).update(this.data)
 }
@@ -431,7 +453,6 @@ leaveLobby() {
 resetGuess(){
     this.player.cardsInHand = this.sparehand;
     this.pullSpecialCard();
-    this.guessing = false;
     this.updateCanvas()
 }
 
@@ -440,7 +461,6 @@ resetwrongGuess(){
     for(var i = 0; i < 3; i++){
         this.pullCard();
     }
-    this.guessing = false;
     this.updateCanvas()
 }
 
@@ -450,13 +470,13 @@ checkguess(card){
     this.sparecard.x = (window.innerWidth/2) - 81;
     this.sparecard.y = 150;
     if(card.strvalue[1] === this.sparecard.strvalue[1]){
-        this.guessing = "correct";
+        this.data.guessing = "correct";
         this.updateCanvas()
         setTimeout(this.resetGuess, 2000)
         
     }
-    else{
-        this.guessing = "incorrect";
+    else {
+        this.data.guessing = "incorrect";
         this.updateCanvas()
         setTimeout(this.resetwrongGuess, 2000)
     }
@@ -466,13 +486,13 @@ onMouseClick(e){
     var rect = this.canvasRef.current.getBoundingClientRect();
     var ex = e.clientX - rect.left
     var ey = e.clientY - rect.top
-    if ((this.winner === -1) && (this.guessing === false)){
-        for(var i = 0; i < this.player.cardsInHand.length; i++){
-            if( this.player.cardsInHand[i]){
+    if ((this.winner === -1) && (this.data.guessing === false)){
+        for(var i = 0; i < this.player.cardsInHand.length; i++) {
+            if(this.player.cardsInHand[i]) {
                 if ( this.player.cardsInHand[i].hovered && this.data.currentcard[0] != "!" && (
-                ( this.player.turnNum === this.data.currentplayer && this.cardCanPlay( this.player.cardsInHand[i])) ||
+                ( this.player.turnNum === this.data.currentplayer && this.cardCanPlay(this.player.cardsInHand[i])) ||
                 (this.options.jumpin && (this.data.currentcard === this.player.cardsInHand[i].strvalue || 
-                    (this.data.currentcard[1] === this.player.cardsInHand[i].strvalue[1] && this.player.cardsInHand[i].strvalue[0] === "!"))) )) { // add "and jump ins enabled" to this conditional later
+                    (this.data.currentcard[1] === this.player.cardsInHand[i].strvalue[1] && this.player.cardsInHand[i].strvalue[0] === "!"))) )) {
                     this.playCard(i); 
                 }
             }
@@ -480,7 +500,7 @@ onMouseClick(e){
         if (this.deck.onCard(ex,ey) && (this.player.turnNum === this.data.currentplayer)){
             this.pullCard();
         }
-        if (this.specialdeck.onCard(ex,ey) && (this.player.turnNum === this.data.currentplayer)){
+        if (this.specialdeck.onCard(ex,ey) && (this.player.turnNum === this.data.currentplayer) && this.data.chain === 0){
             this.guess()
         }    
         if (redButton.on) {
@@ -505,7 +525,7 @@ onMouseClick(e){
             }
         }
     }
-    else if ((this.winner === -1) && (this.guessing === true)){
+    else if ( (this.winner === -1) && (this.data.guessing === true) && (this.data.currentplayer === this.player.turnNum) ){
         for(var i = 0; i < this.player.cardsInHand.length; i++){
             if(this.player.cardsInHand[i].hovered){
                 this.checkguess(this.player.cardsInHand[i])
@@ -527,7 +547,7 @@ componentDidUpdate(){
 }
 
 componentWillUnmount(){
-    this.unsubscribe();
+    //this.unsubscribe();
     window.removeEventListener("resize", this.handleResize);
 }
 
@@ -622,7 +642,7 @@ renderHand(ctx){
 }
 
 renderWildOptions(ctx) {
-    if (this.data.currentcard[0] === "!" && this.data.currentplayer === this.player.turnNum) {
+    if (this.data.currentcard[0] === "!" && this.data.currentplayer === this.player.turnNum && !this.data.special) {
         var grdSize = 160;
         var grd = ctx.createRadialGradient(window.innerWidth/2, window.innerHeight/2, 100, window.innerWidth/2, window.innerHeight/2, grdSize);
         grd.addColorStop(0, "#000000");
@@ -643,6 +663,26 @@ renderWildOptions(ctx) {
         blueButton.on = false;
         greenButton.on = false;
         yellowButton.on = false;
+    }
+}
+
+renderSpecial(ctx) {
+    if (!this.data.special) return;
+
+    if (this.data.currentcard === "!C") {
+        sRedButton.draw(ctx);
+        sBlueButton.draw(ctx);
+        sYellowButton.draw(ctx);
+        sGreenButton.draw(ctx);
+        sRedButton.on = true;
+        sBlueButton.on = true;
+        sGreenButton.on = true;
+        sYellowButton.on = true;
+    } else {
+        sRedButton.on = false;
+        sBlueButton.on = false;
+        sGreenButton.on = false;
+        sYellowButton.on = false;
     }
 }
 
@@ -691,23 +731,24 @@ renderWinner(ctx){
 updateCanvas(){
     this.ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
     this.ctx.drawImage(document.getElementById(this.background), 0, 0, window.innerWidth, window.innerHeight);
-    if (this.guessing === false){
+    if (this.data.guessing === false || this.data.currentplayer != this.player.turnNum){
         this.renderBoard(this.ctx)
         this.renderHand(this.ctx)
         this.renderWildOptions(this.ctx)
+        this.renderSpecial(this.ctx)
         if (this.winner !== -1){
             this.renderWinner(this.ctx)
         }
     }
-    else if (this.guessing === true){
+    else if (this.data.guessing === true && this.data.currentplayer === this.player.turnNum){
         this.renderHand(this.ctx) 
         this.renderGuess(this.ctx)   
     }
-    else if (this.guessing === "correct"){
+    else if (this.data.guessing === "correct" && this.data.currentplayer === this.player.turnNum){
         //this.renderHand(this.ctx);
         this.renderCorrect(this.ctx);    
     }
-    else if (this.guessing === "incorrect"){
+    else if (this.data.guessing === "incorrect" && this.data.currentplayer === this.player.turnNum){
         this.renderIncorrect(this.ctx);
     }
 }
