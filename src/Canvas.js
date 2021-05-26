@@ -7,6 +7,8 @@ import specialdeck from "./SpecialDeck.js";
 
 import { CanvasButton, CanvasButtonCircle } from "./Canvasbutton.js";
 
+const godRandom = false; // whether hand of got discards random cards or you get to choose (I'm not sure)
+
 var redButton = new CanvasButtonCircle(window.innerWidth/2 + 2, window.innerHeight/2 + 2, 100, 1, "red");
 var blueButton = new CanvasButtonCircle(window.innerWidth/2 - 2, window.innerHeight/2 + 2, 100, 2, "blue");
 var yellowButton = new CanvasButtonCircle(window.innerWidth/2 - 2, window.innerHeight/2 - 2, 100, 3, "yellow");
@@ -76,6 +78,7 @@ class GameCanvas extends React.Component {
         this.onMouseClick = this.onMouseClick.bind(this)
 
         this.playCard = this.playCard.bind(this)
+        this.discard = this.discard.bind(this)
         this.cardCanPlay = this.cardCanPlay.bind(this)
         this.shuffleArray = this.shuffleArray.bind(this)
         this.checkguess = this.checkguess.bind(this)
@@ -308,6 +311,7 @@ onMouseMove(e){
 }
 
 pullSpecialCard(){
+    //this.data.breakaway = false;
     this.data.gameAction = true;
     this.data.turn += 1;
     this.data.guessing = true;
@@ -324,6 +328,7 @@ pullSpecialCard(){
 }
 
 pullCard() {
+    //this.data.breakaway = false;
     this.data.gameAction = true;
     this.data.turn += 1;
     if (this.data.chain > 0) {
@@ -432,9 +437,29 @@ playCard(index) {
         this.data.hands[this.playerKey].push(prevCard)
         this.player.loadCards([prevCard])
         this.data.playedCards -= 1;
+    } else if (this.data.currentcard === "!H") { // hand of god card
+        var discards = Math.floor(this.data.hands[this.playerKey].length / 2)
+        if (godRandom) {
+            for (var i = 0; i < discards; i++) {
+                var len = this.data.hands[this.playerKey].length
+                this.data.hands[this.playerKey].splice(Math.floor(Math.random() * len), 1)
+            }
+        } else {
+            this.data.discards = discards
+        }
     } else if (this.data.currentcard[1] === "S") { // any skip card
         this.data.currentplayer = (this.player.turnNum - (this.data.reversed * 4) + 2 + this.playernum) % this.playernum
     }
+    this.updateCanvas()
+    firebase.firestore().doc("Games/Game " + this.props.Game_Key).update(this.data)
+}
+
+discard(index) {
+    this.data.turn += 1;
+    this.data.discards -= 1;
+    this.player.cardsInHand.splice(index,1);
+    this.data.hands[this.playerKey].splice(index,1);
+    this.gameAction = true;
     this.updateCanvas()
     firebase.firestore().doc("Games/Game " + this.props.Game_Key).update(this.data)
 }
@@ -494,11 +519,36 @@ checkguess(card){
 onMouseClick(e){
     var rect = this.canvasRef.current.getBoundingClientRect();
     var ex = e.clientX - rect.left
-    var ey = e.clientY - rect.top
-    if ((this.winner === -1) && (this.data.guessing === false)){
+    var ey = e.clientY - rect.top 
+    if (this.winner !== -1){
+        if(returnbutton.clicked(ex,ey)){
+            this.props.setInLobby(true,this.props.Game_Key,this.players[this.props.turnnumber])
+        }
+        else if(leavebutton.clicked(ex,ey)){
+            this.leaveLobby();
+        }     
+    } else if (this.data.discards > 0) {
+        if (this.data.currentplayer === this.player.turnNum) {
+            for(var i = 0; i < this.player.cardsInHand.length; i++) {
+                if (this.player.cardsInHand[i]) {
+                    if (this.player.cardsInHand[i].hovered) {
+                        this.discard(i); 
+                    }
+                }
+            }   
+        }
+    } else if (this.data.guessing) {
+        if (this.data.currentplayer === this.player.turnNum){
+            for(var i = 0; i < this.player.cardsInHand.length; i++){
+                if(this.player.cardsInHand[i].hovered){
+                    this.checkguess(this.player.cardsInHand[i])
+                }
+            }    
+        }
+    } else {
         for(var i = 0; i < this.player.cardsInHand.length; i++) {
-            if(this.player.cardsInHand[i]) {
-                if ( this.player.cardsInHand[i].hovered && this.data.currentcard[0] != "!" && (
+            if (this.player.cardsInHand[i]) {
+                if (this.player.cardsInHand[i].hovered && this.data.currentcard[0] != "!" && (
                 ( this.player.turnNum === this.data.currentplayer && this.cardCanPlay(this.player.cardsInHand[i])) ||
                 (this.options.jumpin && (this.data.currentcard === this.player.cardsInHand[i].strvalue || 
                     (this.data.currentcard[1] === this.player.cardsInHand[i].strvalue[1] && this.player.cardsInHand[i].strvalue[0] === "!"))) )) {
@@ -536,21 +586,6 @@ onMouseClick(e){
                 firebase.firestore().doc("Games/Game " + this.props.Game_Key).update(this.data)
             }
         }
-    }
-    else if ( (this.winner === -1) && (this.data.guessing === true) && (this.data.currentplayer === this.player.turnNum) ){
-        for(var i = 0; i < this.player.cardsInHand.length; i++){
-            if(this.player.cardsInHand[i].hovered){
-                this.checkguess(this.player.cardsInHand[i])
-            }
-        }    
-    } 
-    else if (this.winner !== -1){
-        if(returnbutton.clicked(ex,ey)){
-            this.props.setInLobby(true,this.props.Game_Key,this.players[this.props.turnnumber])
-        }
-        else if(leavebutton.clicked(ex,ey)){
-            this.leaveLobby();
-        }     
     }
 }
 
@@ -654,7 +689,7 @@ renderHand(ctx){
 }
 
 renderWildOptions(ctx) {
-    if (this.data.currentcard[0] === "!" && this.data.currentplayer === this.player.turnNum && !this.data.special) {
+    if (this.data.currentcard[0] === "!" && this.data.currentplayer === this.player.turnNum && !this.data.special && this.data.discards === 0) {
         var grdSize = 160;
         var grd = ctx.createRadialGradient(window.innerWidth/2, window.innerHeight/2, 100, window.innerWidth/2, window.innerHeight/2, grdSize);
         grd.addColorStop(0, "#000000");

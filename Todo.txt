@@ -7,8 +7,6 @@
 
 -Find a way to play the special cards in a noticable way
 
--I'm getting a bug where the lobby won't always update, but it only happens like a third of the time. -Kevin
-
 -Special Card ideas
     -Colorblind: Chose 1 colour, all cards of that colour are discarded from your hand
     -Unseeing eye: Allows you to view the hand of a single player of your choice
@@ -19,7 +17,6 @@
     -Breakaway: You keep playing until you must pick up a card or win
     -Sleight of hand: Swap hands with a person of your choice
     -Redirect: Deflect any incoming effects to a player of your choice
-    -Hand of God: Discard 50% of your cards
 
 -Stop drawing if they can play a card
 
@@ -51,3 +48,4 @@ DONE
     -Gravedigger: Copies the card at the top of the played pile
     -Bodyguard: Removes all +2 and +4 cards from the players directly to the left and right of you
     -Paradigm shift: All hands are shifted once in the direction of play (required reworking some parts of Canvas.js)
+    -Hand of God: Discard 50% of your cards
