@@ -105,7 +105,7 @@ class GamePage extends React.Component {
         }
         var startCard = Cards.splice(0,1);
 
-        while (startCard[0] === "!") {
+        while (startCard[0][0] === "!") {
             Cards.push(startCard);
             startCard = Cards.splice(0,1);
         }

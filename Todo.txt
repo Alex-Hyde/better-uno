@@ -18,7 +18,6 @@
     -Duel: Chose a player to duel. Whoever's cards add up to the lowest value must draw 3
     -Lifeline: If a player wins the game while this card is in someones hand, 
                the winning player is delt 4 cards and this card is discarded. (Normal wildcard if played)
-    -Breakaway: You keep playing until you must pick up a card or win
     -Sleight of hand: Swap hands with a person of your choice
     -Redirect: Deflect any incoming effects to a player of your choice
 
@@ -44,3 +43,4 @@ DONE
     -Bodyguard: Removes all +2 and +4 cards from the players directly to the left and right of you
     -Paradigm shift: All hands are shifted once in the direction of play (required reworking some parts of Canvas.js)
     -Hand of God: Discard 50% of your cards
+    -Breakaway: You keep playing until you must pick up a card or win
