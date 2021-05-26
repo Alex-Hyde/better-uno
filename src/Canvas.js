@@ -47,6 +47,8 @@ class GameCanvas extends React.Component {
         this.player = new Player();
         this.specialdeck.y = 175;
         this.canvasRef = React.createRef()
+        this.hasdrawnplayablecard = false;
+        this.hasguessed = false
         this.player = new Player();
         this.canvasRef = React.createRef();
         this.playerKey = "Player " + props.turnnumber.toString();
@@ -501,14 +503,17 @@ onMouseClick(e){
                 (this.options.jumpin && (this.data.currentcard === this.player.cardsInHand[i].strvalue || 
                     (this.data.currentcard[1] === this.player.cardsInHand[i].strvalue[1] && this.player.cardsInHand[i].strvalue[0] === "!"))) )) {
                     this.playCard(i); 
+                    this.hasguessed = false;
+                    this.hasdrawnplayablecard = false
                 }
             }
         }   
         if (this.deck.onCard(ex,ey) && (this.player.turnNum === this.data.currentplayer)){
             this.pullCard();
         }
-        if (this.specialdeck.onCard(ex,ey) && (this.player.turnNum === this.data.currentplayer) && this.data.chain === 0){
+        if (this.specialdeck.onCard(ex,ey) && (this.player.turnNum === this.data.currentplayer) && this.data.chain === 0&& (this.hasguessed === false)){
             this.guess()
+            this.hasguessed = true;
         }    
         if (redButton.on) {
             var pressed = false;

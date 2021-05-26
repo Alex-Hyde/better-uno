@@ -5,11 +5,7 @@
 
 -Make info pop up
 
--Implement betting for special cards. When you draw one of two things can occur:
-    -Guess the colour of the next card to be drawn
-    -Guess the type of the next card to be drawn
-    
-    if you guess it correctly, draw from special cards, if not, draw 2
+-Find a way to play the special cards in a noticable way
 
 -I'm getting a bug where the lobby won't always update, but it only happens like a third of the time. -Kevin
 
@@ -36,9 +32,18 @@
 -Optional: Highlight deck when it is your turn and you need to draw (or continue chain)
 
 DONE
+
+-Implement betting for special cards. When you draw one of two things can occur:
+    -Guess the colour of the next card to be drawn
+    -Guess the type of the next card to be drawn
+    
+    if you guess it correctly, draw from special cards, if not, draw 2
+
 -Prevent players from jumping in when a player is guessing for a special card
 
 -fix +2 on +4
+
+-Can only draw from special cards once per turn
 
 - Implement the shield card (allows you to deflect +2 and +4 to the next person)
 
