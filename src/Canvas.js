@@ -309,7 +309,7 @@ onMouseMove(e){
 }
 
 pullSpecialCard(){
-    //this.data.breakaway = false;
+    this.data.breakaway = false;
     this.data.gameAction = true;
     this.data.turn += 1;
     this.data.guessing = true;
@@ -326,7 +326,7 @@ pullSpecialCard(){
 }
 
 pullCard() {
-    //this.data.breakaway = false;
+    this.data.breakaway = false;
     this.data.gameAction = true;
     this.data.turn += 1;
     if (this.data.chain > 0) {
@@ -392,7 +392,9 @@ playCard(index) {
     } else {
         this.data.currentplayer = (this.player.turnNum - (this.data.reversed*2) + 1 + this.playernum) % this.playernum;
     }
-    if (this.data.currentcard[1] === "R") { // any reverse card
+    if (this.data.breakaway) { // currently in breakaway phase
+        this.data.currentplayer = this.player.turnNum;
+    } else if (this.data.currentcard[1] === "R") { // any reverse card
         this.data.reversed = !this.data.reversed
         this.data.currentplayer = (this.player.turnNum - (this.data.reversed*2) + 1 + this.playernum) % this.playernum
     } else if (this.data.currentcard[1] === "+") { // any +2 card
@@ -445,6 +447,8 @@ playCard(index) {
         } else {
             this.data.discards = discards
         }
+    } else if (this.data.currentcard === "!Y") { // breakaway card
+        this.data.breakaway = true;
     } else if (this.data.currentcard[1] === "S") { // any skip card
         this.data.currentplayer = (this.player.turnNum - (this.data.reversed * 4) + 2 + this.playernum) % this.playernum
     }
@@ -576,8 +580,11 @@ onMouseClick(e){
                 this.data.currentcard = "Y" + this.data.currentcard[1];
             }
             if (pressed) {
+                
                 this.data.turn += 1;
-                this.data.currentplayer = ( this.player.turnNum - (this.data.reversed*2) + 1 + this.playernum) % this.playernum;
+                if (!this.data.breakaway) {
+                    this.data.currentplayer = (this.player.turnNum - (this.data.reversed*2) + 1 + this.playernum) % this.playernum;
+                }
                 firebase.firestore().doc("Games/Game " + this.props.Game_Key).update(this.data)
             }
         }

@@ -1,3 +1,3 @@
-var specialdeck = ["!B", "!P", "!G", "!H"];
+var specialdeck = ["!Y", "!B", "!P", "!G", "!H"];
 
 export default specialdeck;
