@@ -21,7 +21,7 @@ var sGreenButton = new CanvasButton("GreenB", 1010, 210, 100, 100);
 
 var returnbutton = new CanvasButton("returnbutton",(window.innerWidth/2)-160,230,155,70);
 var leavebutton = new CanvasButton("leavebutton",(window.innerWidth/2)+5,230,155,70);
-var skipbutton = new CanvasButton("SkipButton",(window.innerWidth/8) * 7,230,155,70);
+var skipbutton = new CanvasButton("SkipButton",(window.innerWidth/8) * 7, (window.innerHeight/8) * 7,155,70);
 
 const CARD_WIDTH = 100;
 const CARD_HEIGHT = 151;
@@ -334,20 +334,30 @@ pullCard() {
     if (this.data.chain > 0) {
         for (var i = 0; i < this.data.chain; i++) {
             var newCard = this.data.Deck.splice(0,1);
+            var testCard = new Card(0,0,newCard[0]);
             this.data.hands[this.playerKey] = this.data.hands[this.playerKey].concat(newCard)
             this.player.loadCards(newCard);
             if (this.data.Deck.length === 5) {
                 this.shuffleArray(MasterDeck)
                 this.data.Deck = this.data.Deck.concat(MasterDeck.slice())
             }
+            console.log(testCard.strvalue,this.cardCanPlay(testCard),this.data.currentcard)
+            if (this.cardCanPlay(testCard)){
+                this.hasdrawnplayablecard = true;
+            }
         }
     } else {
         var newCard = this.data.Deck.splice(0,1);
+        var testCard = new Card(0,0,newCard[0]);
         this.data.hands[this.playerKey] = this.data.hands[this.playerKey].concat(newCard)
         this.player.loadCards(newCard);
         if (this.data.Deck.length === 5) {
             this.shuffleArray(MasterDeck)
             this.data.Deck = this.data.Deck.concat(MasterDeck.slice())
+        }
+        console.log(testCard.strvalue,this.cardCanPlay(testCard),this.data.currentcard)
+        if (this.cardCanPlay(testCard)){
+            this.hasdrawnplayablecard = true;
         }
     }
     this.data.chain = 0
@@ -486,16 +496,20 @@ leaveLobby() {
 }
 
 resetGuess(){
-    this.player.cardsInHand = this.sparehand;
-    this.pullSpecialCard();
-    this.updateCanvas()
+    if (this.data.guessing === "correct"){
+        this.player.cardsInHand = this.sparehand;
+        this.pullSpecialCard();
+        this.updateCanvas()
+    }
 }
 
 resetwrongGuess(){
-    this.player.cardsInHand = this.sparehand;
-    this.data.chain = 3;
-    this.pullCard();
-    this.updateCanvas()
+    if (this.data.guessing === "incorrect"){
+        this.player.cardsInHand = this.sparehand;
+        this.data.chain = 3;
+        this.pullCard();
+        this.updateCanvas()
+    }
 }
 
 checkguess(card){
@@ -517,6 +531,12 @@ checkguess(card){
 }
 
 onMouseClick(e){
+    if (this.data.guessing === "correct" && this.data.currentplayer === this.player.turnNum){
+        this.resetGuess();
+    }
+    if (this.data.guessing === "incorrect" && this.data.currentplayer === this.player.turnNum){
+        this.resetwrongGuess();
+    }
     var rect = this.canvasRef.current.getBoundingClientRect();
     var ex = e.clientX - rect.left
     var ey = e.clientY - rect.top 
@@ -553,12 +573,18 @@ onMouseClick(e){
                 (this.options.jumpin && (this.data.currentcard === this.player.cardsInHand[i].strvalue || 
                     (this.data.currentcard[1] === this.player.cardsInHand[i].strvalue[1] && this.player.cardsInHand[i].strvalue[0] === "!"))) )) {
                     this.playCard(i); 
-                    this.hasguessed = false;
-                    this.hasdrawnplayablecard = false
                 }
             }
+        }
+        if (skipbutton.clicked(ex,ey) && this.hasdrawnplayablecard){
+            this.data.currentplayer = (this.player.turnNum - (this.data.reversed*2) + 1 + this.playernum) % this.playernum
+            this.data.turn += 1;
+            this.hasguessed = false;
+            this.hasdrawnplayablecard = false
+            firebase.firestore().doc("Games/Game " + this.props.Game_Key).update(this.data)
+
         }   
-        if (this.deck.onCard(ex,ey) && (this.player.turnNum === this.data.currentplayer)){
+        if (this.deck.onCard(ex,ey) && (this.player.turnNum === this.data.currentplayer) && (this.hasdrawnplayablecard === false)){
             this.pullCard();
         }
         if (this.specialdeck.onCard(ex,ey) && (this.player.turnNum === this.data.currentplayer) && this.data.chain === 0&& (this.hasguessed === false)){
@@ -785,6 +811,9 @@ updateCanvas(){
         this.renderSpecial(this.ctx)
         if (this.winner !== -1){
             this.renderWinner(this.ctx)
+        }
+        if (this.hasdrawnplayablecard){
+            skipbutton.draw(this.ctx);
         }
     }
     else if (this.data.guessing === true && this.data.currentplayer === this.player.turnNum){

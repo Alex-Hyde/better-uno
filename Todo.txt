@@ -5,6 +5,14 @@
 
 -Make info pop up
 
+-implement 0 card
+
+-Fix auto dealing a wildcard
+
+-implement wild cards
+
+-hand of god cannot remove last cards
+
 -Find a way to play the special cards in a noticable way
 
 -Special Card ideas
@@ -14,21 +22,24 @@
     -Duel: Chose a player to duel. Whoever's cards add up to the lowest value must draw 3
     -Lifeline: If a player wins the game while this card is in someones hand, 
                the winning player is delt 4 cards and this card is discarded. (Normal wildcard if played)
-    -Breakaway: You keep playing until you must pick up a card or win
+    -Breakaway: You keep playing until you must pick up a card or win, but they all loser their special value
+        -Make sure breakaway card doesn't reset the variables that only let you draw from special deck once or draw until you have to play
     -Sleight of hand: Swap hands with a person of your choice
     -Redirect: Deflect any incoming effects to a player of your choice
 
--Stop drawing if they can play a card
-
--Make pop ups again
+-Make pop up messages again
 
 -Add profile pic selection
-
--implement skip turn
 
 -Optional: Highlight deck when it is your turn and you need to draw (or continue chain)
 
 DONE
+
+-implement skip button
+
+-Clicking takes you out of guess screens
+
+-Stop drawing if they can play a card
 
 -Implement betting for special cards. When you draw one of two things can occur:
     -Guess the colour of the next card to be drawn
