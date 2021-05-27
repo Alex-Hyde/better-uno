@@ -8,6 +8,7 @@ import specialdeck from "./SpecialDeck.js";
 import { CanvasButton, CanvasButtonCircle } from "./Canvasbutton.js";
 
 const godRandom = false; // whether hand of got discards random cards or you get to choose (I'm not sure)
+const digits = ["0","1","2","3","4","5","6","7","8","9"]
 
 var redButton = new CanvasButtonCircle(window.innerWidth/2 + 2, window.innerHeight/2 + 2, 100, 1, "red");
 var blueButton = new CanvasButtonCircle(window.innerWidth/2 - 2, window.innerHeight/2 + 2, 100, 2, "blue");
@@ -387,14 +388,18 @@ playCard(index) {
     this.player.cardsInHand.splice(index,1);
     this.data.hands[this.playerKey].splice(index,1);
     this.gameAction = true;
-    if (this.data.currentcard[0] === "!") { // any wild card
+    
+    if (this.data.currentcard[0] === "!" || (digits.includes(this.data.currentcard[1]) && this.data.breakaway)) { // any wild card, or in breakaway
         this.data.currentplayer = this.player.turnNum;
     } else {
         this.data.currentplayer = (this.player.turnNum - (this.data.reversed*2) + 1 + this.playernum) % this.playernum;
     }
-    if (this.data.breakaway) { // currently in breakaway phase
-        this.data.currentplayer = this.player.turnNum;
-    } else if (this.data.currentcard[1] === "R") { // any reverse card
+
+    if (!digits.includes(this.data.currentcard[1]) && this.data.breakaway) {
+        this.data.breakaway = false;
+    }
+
+    if (this.data.currentcard[1] === "R") { // any reverse card
         this.data.reversed = !this.data.reversed
         this.data.currentplayer = (this.player.turnNum - (this.data.reversed*2) + 1 + this.playernum) % this.playernum
     } else if (this.data.currentcard[1] === "+") { // any +2 card
@@ -580,7 +585,6 @@ onMouseClick(e){
                 this.data.currentcard = "Y" + this.data.currentcard[1];
             }
             if (pressed) {
-                
                 this.data.turn += 1;
                 if (!this.data.breakaway) {
                     this.data.currentplayer = (this.player.turnNum - (this.data.reversed*2) + 1 + this.playernum) % this.playernum;
