@@ -9,6 +9,12 @@
 
 -Fix auto dealing a wildcard
 
+-powercard drawing Bug 
+
+-fix host leaving first bug
+
+-draw on a chain, play grave digger during chain
+
 -implement wild cards
 
 -hand of god cannot remove last cards
@@ -60,4 +66,4 @@ DONE
     -Bodyguard: Removes all +2 and +4 cards from the players directly to the left and right of you
     -Paradigm shift: All hands are shifted once in the direction of play (required reworking some parts of Canvas.js)
     -Hand of God: Discard 50% of your cards
-    -Breakaway: You keep playing until you must pick up a card or win
+    -Breakaway: You keep playing until you must pick up a card or win 

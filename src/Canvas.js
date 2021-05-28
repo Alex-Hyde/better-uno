@@ -581,6 +581,8 @@ onMouseClick(e){
                 ( this.player.turnNum === this.data.currentplayer && this.cardCanPlay(this.player.cardsInHand[i])) ||
                 (this.options.jumpin && (this.data.currentcard === this.player.cardsInHand[i].strvalue || 
                     (this.data.currentcard[1] === this.player.cardsInHand[i].strvalue[1] && this.player.cardsInHand[i].strvalue[0] === "!"))) )) {
+                    this.hasguessed = false;
+                    this.hasdrawnplayablecard = false
                     this.playCard(i); 
                 }
             }

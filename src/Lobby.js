@@ -4,6 +4,8 @@ import Lobbylist from "./lobbylist";
 import HostLobbylist from "./hostlobbylist";
 import MenuButton from "./Buttons.js";
 import firebase from "./firebase.js";
+import "./LobbyStyle.css";
+import ImgRow from "./Iconselect.js"
 
 class Lobby extends React.Component {
 
@@ -52,15 +54,26 @@ class Lobby extends React.Component {
         if (!this.props.ishost){
             return(
                 <div>
-                    <div style = {{display: "flex", justifyContent: "center"}}>
+                    <div className = "titleBar" style = {{display: "flex", justifyContent: "center"}}>
                     <Banner lobby_num = {this.props.Lobbycode}/>
                     </div>
+                    <div className = "split left">
                     <Lobbylist players={this.props.playerlist}/>  
                     <MenuButton 
                         style={{fontSize: "30px"}} 
                         text="Leave"
                         onClick={this.leaveLobby}
                     />
+                    </div>
+                    <div className = "split right">
+                        <h1>Pick a Profile Picture</h1>
+                        <div className = "centered">
+                        <ImgRow onClick = {function(){console.log("wow")}} images = {["pfp1.png","../public/Textures/pfp2.png","../public/Textures/pfp3.png"]}/>
+                        <ImgRow onClick = {function(){console.log("wow")}} images = {["../public/Textures/pfp4.png","../public/Textures/pfp5.png","../public/Textures/pfp6.png"]}/>
+                        <ImgRow onClick = {function(){console.log("wow")}} images = {["../public/Textures/pfp7.png","../public/Textures/pfp8.png","../public/Textures/pfp9.png"]}/>
+                        <ImgRow onClick = {function(){console.log("wow")}} images = {["../public/Textures/pfp7.png","../public/Textures/pfp8.png","../public/Textures/pfp9.png"]}/>
+                        </div>
+                    </div>
                 </div>
             ) 
         }
