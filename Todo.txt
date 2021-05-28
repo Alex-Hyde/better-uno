@@ -7,17 +7,15 @@
 
 -implement 0 card
 
+-replace black cards with right colour
+
 -Fix auto dealing a wildcard
 
 -powercard drawing Bug 
 
 -fix host leaving first bug
 
--draw on a chain, play grave digger during chain
-
 -implement wild cards
-
--hand of god cannot remove last cards
 
 -Find a way to play the special cards in a noticable way
 

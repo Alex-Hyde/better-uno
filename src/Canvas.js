@@ -515,7 +515,7 @@ resetGuess(){
 resetwrongGuess(){
     if (this.data.guessing === "incorrect"){
         this.player.cardsInHand = this.sparehand;
-        this.data.chain = 3;
+        this.data.chain += 3;
         this.pullCard();
         this.updateCanvas()
     }
@@ -598,7 +598,7 @@ onMouseClick(e){
         if (this.deck.onCard(ex,ey) && (this.player.turnNum === this.data.currentplayer) && (this.hasdrawnplayablecard === false)){
             this.pullCard();
         }
-        if (this.specialdeck.onCard(ex,ey) && (this.player.turnNum === this.data.currentplayer) && this.data.chain === 0&& (this.hasguessed === false)){
+        if (this.specialdeck.onCard(ex,ey) && (this.player.turnNum === this.data.currentplayer) && (this.hasguessed === false)){
             this.guess()
             this.hasguessed = true;
         }    
