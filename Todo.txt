@@ -7,29 +7,20 @@
 
 -implement 0 card
 
--Fix auto dealing a wildcard
-
--powercard drawing Bug 
-
 -fix host leaving first bug
 
--draw on a chain, play grave digger during chain
+-draw on a chain
 
 -implement wild cards
-
--hand of god cannot remove last cards
 
 -Find a way to play the special cards in a noticable way
 
 -Special Card ideas
-    -Colorblind: Chose 1 colour, all cards of that colour are discarded from your hand
     -Unseeing eye: Allows you to view the hand of a single player of your choice
     -Act of Kindness: Give 2 of your cards to the player of your choice
     -Duel: Chose a player to duel. Whoever's cards add up to the lowest value must draw 3
     -Lifeline: If a player wins the game while this card is in someones hand, 
                the winning player is delt 4 cards and this card is discarded. (Normal wildcard if played)
-    -Breakaway: You keep playing until you must pick up a card or win, but they all loser their special value
-        -Make sure breakaway card doesn't reset the variables that only let you draw from special deck once or draw until you have to play
     -Sleight of hand: Swap hands with a person of your choice
     -Redirect: Deflect any incoming effects to a player of your choice
 
@@ -62,8 +53,10 @@ DONE
 - Implement the shield card (allows you to deflect +2 and +4 to the next person)
 
 -Special Card ideas
+    -Colorblind: Chose 1 colour, all cards of that colour are discarded from your hand
     -Gravedigger: Copies the card at the top of the played pile
     -Bodyguard: Removes all +2 and +4 cards from the players directly to the left and right of you
     -Paradigm shift: All hands are shifted once in the direction of play (required reworking some parts of Canvas.js)
     -Hand of God: Discard 50% of your cards
-    -Breakaway: You keep playing until you must pick up a card or win 
+    -Breakaway: You keep playing until you must pick up a card or win, but they all loser their special value
+        -Make sure breakaway card doesn't reset the variables that only let you draw from special deck once or draw until you have to play

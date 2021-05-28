@@ -241,7 +241,7 @@ componentDidMount(){
 
 cardCanPlay(card){
     if (this.data.chain > 0) {
-        if (card.strvalue === "!D") {
+        if (card.strvalue === "!D" || card.strvalue === "!G") {
             return true;
         } if (!this.options.chaining) {
             return false;
@@ -373,7 +373,7 @@ guess() {
     //this.guessing = true;
     this.data.guessing = true;
     var guesshand = [];
-    var potentialcards = ["W1","W2","W3","W4","W5","W6","W7","W8","W9","W+","!D","!!","WS","WR"];
+    var potentialcards = ["W1","W2","W3","W4","W5","W6","W7","W8","W9","W+","WD","W!","WS","WR"];
     guesshand[0] = "W" + this.data.Deck[0][1];
     potentialcards.splice(potentialcards.indexOf(guesshand[0]),1);
     // console.log(guesshand)
@@ -466,6 +466,8 @@ playCard(index) {
         }
     } else if (this.data.currentcard === "!Y") { // breakaway card
         this.data.breakaway = true;
+    } else if (this.data.currentcard === "!C") {
+        this.data.special = true;
     } else if (this.data.currentcard[1] === "S") { // any skip card
         this.data.currentplayer = (this.player.turnNum - (this.data.reversed * 4) + 2 + this.playernum) % this.playernum
     }
@@ -581,9 +583,11 @@ onMouseClick(e){
                 ( this.player.turnNum === this.data.currentplayer && this.cardCanPlay(this.player.cardsInHand[i])) ||
                 (this.options.jumpin && (this.data.currentcard === this.player.cardsInHand[i].strvalue || 
                     (this.data.currentcard[1] === this.player.cardsInHand[i].strvalue[1] && this.player.cardsInHand[i].strvalue[0] === "!"))) )) {
-                    this.hasguessed = false;
-                    this.hasdrawnplayablecard = false
                     this.playCard(i); 
+                    if (this.data.currentplayer !== this.player.turnNum) {
+                        this.hasguessed = false;
+                        this.hasdrawnplayablecard = false;
+                    }
                 }
             }
         }
@@ -604,25 +608,46 @@ onMouseClick(e){
         }    
         if (redButton.on) {
             var pressed = false;
-            if (redButton.clicked(ex,ey)) {
-                pressed = true;
-                this.data.currentcard = "R" + this.data.currentcard[1];
-            } else if (blueButton.clicked(ex,ey)) {
-                pressed = true;
-                this.data.currentcard = "B" + this.data.currentcard[1];
-            } else if (greenButton.clicked(ex,ey)) {
-                pressed = true;
-                this.data.currentcard = "G" + this.data.currentcard[1];
-            } else if (yellowButton.clicked(ex,ey)) {
-                pressed = true;
-                this.data.currentcard = "Y" + this.data.currentcard[1];
-            }
-            if (pressed) {
-                this.data.turn += 1;
-                if (!this.data.breakaway) {
-                    this.data.currentplayer = (this.player.turnNum - (this.data.reversed*2) + 1 + this.playernum) % this.playernum;
+            if (this.data.special) {
+                if (redButton.clicked(ex,ey)) {
+                    pressed = true;
+                    this.data.hands[this.playerKey] = this.data.hands[this.playerKey].filter(card => (card[0] !== "R"))
+                } else if (blueButton.clicked(ex,ey)) {
+                    pressed = true;
+                    this.data.hands[this.playerKey] = this.data.hands[this.playerKey].filter(card => (card[0] !== "B"))
+                } else if (greenButton.clicked(ex,ey)) {
+                    pressed = true;
+                    this.data.hands[this.playerKey] = this.data.hands[this.playerKey].filter(card => (card[0] !== "G"))
+                } else if (yellowButton.clicked(ex,ey)) {
+                    pressed = true;
+                    this.data.hands[this.playerKey] = this.data.hands[this.playerKey].filter(card => (card[0] !== "Y"))
                 }
-                firebase.firestore().doc("Games/Game " + this.props.Game_Key).update(this.data)
+                if (pressed) {
+                    this.data.special = false;
+                    this.data.gameAction = false;
+                    firebase.firestore().doc("Games/Game " + this.props.Game_Key).update(this.data)
+                }
+            } else {
+                if (redButton.clicked(ex,ey)) {
+                    pressed = true;
+                    this.data.currentcard = "R" + this.data.currentcard[1];
+                } else if (blueButton.clicked(ex,ey)) {
+                    pressed = true;
+                    this.data.currentcard = "B" + this.data.currentcard[1];
+                } else if (greenButton.clicked(ex,ey)) {
+                    pressed = true;
+                    this.data.currentcard = "G" + this.data.currentcard[1];
+                } else if (yellowButton.clicked(ex,ey)) {
+                    pressed = true;
+                    this.data.currentcard = "Y" + this.data.currentcard[1];
+                }
+                if (pressed) {
+                    this.data.turn += 1;
+                    if (!this.data.breakaway) {
+                        this.data.currentplayer = (this.player.turnNum - (this.data.reversed*2) + 1 + this.playernum) % this.playernum;
+                    }
+                    firebase.firestore().doc("Games/Game " + this.props.Game_Key).update(this.data)
+                }
             }
         }
     }
@@ -756,19 +781,19 @@ renderSpecial(ctx) {
     if (!this.data.special) return;
 
     if (this.data.currentcard === "!C") {
-        sRedButton.draw(ctx);
-        sBlueButton.draw(ctx);
-        sYellowButton.draw(ctx);
-        sGreenButton.draw(ctx);
-        sRedButton.on = true;
-        sBlueButton.on = true;
-        sGreenButton.on = true;
-        sYellowButton.on = true;
+        redButton.draw(ctx);
+        blueButton.draw(ctx);
+        yellowButton.draw(ctx);
+        greenButton.draw(ctx);
+        redButton.on = true;
+        blueButton.on = true;
+        greenButton.on = true;
+        yellowButton.on = true;
     } else {
-        sRedButton.on = false;
-        sBlueButton.on = false;
-        sGreenButton.on = false;
-        sYellowButton.on = false;
+        redButton.on = false;
+        blueButton.on = false;
+        greenButton.on = false;
+        yellowButton.on = false;
     }
 }
 
