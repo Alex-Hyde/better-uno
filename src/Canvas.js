@@ -498,7 +498,7 @@ leaveLobby() {
                 firestore.doc("Games/Game " + this.props.Game_Key).delete();
             } else {
                 docRef.update({
-                    players : firebase.firestore.FieldValue.arrayRemove(this.players[this.props.turnnumber]),
+                    players : firebase.firestore.FieldValue.arrayRemove(this.name),
                     PlayerAmnt : firebase.firestore.FieldValue.increment(-1)
                 }) 
             }
