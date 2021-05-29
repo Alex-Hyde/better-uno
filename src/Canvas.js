@@ -41,6 +41,7 @@ class GameCanvas extends React.Component {
             chaining : true,
             jumpin : true
         }
+        this.name = props.name;
         this.deck = new Card(144,211,"back");
         this.Guessdeck = new Card(162,256,"back");
         this.Guessdeck.x = (window.innerWidth/2) - 81;
@@ -553,7 +554,7 @@ onMouseClick(e){
     var ey = e.clientY - rect.top 
     if (this.winner !== -1){
         if(returnbutton.clicked(ex,ey)){
-            this.props.setInLobby(true,this.props.Game_Key,this.players[this.props.turnnumber])
+            this.props.setInLobby(true,this.props.Game_Key,this.name)
         }
         else if(leavebutton.clicked(ex,ey)){
             this.leaveLobby();
@@ -602,7 +603,7 @@ onMouseClick(e){
         if (this.deck.onCard(ex,ey) && (this.player.turnNum === this.data.currentplayer) && (this.hasdrawnplayablecard === false)){
             this.pullCard();
         }
-        if (this.specialdeck.onCard(ex,ey) && (this.player.turnNum === this.data.currentplayer) && this.data.chain === 0&& (this.hasguessed === false)){
+        if (this.specialdeck.onCard(ex,ey) && (this.player.turnNum === this.data.currentplayer) && this.data.chain === 0 && (this.hasguessed === false)){
             this.guess()
             this.hasguessed = true;
         }    

@@ -106,7 +106,7 @@ class GamePage extends React.Component {
         var startCard = Cards.splice(0,1);
 
         while (startCard[0][0] === "!") {
-            Cards.push(startCard);
+            Cards.push(startCard[0]);
             startCard = Cards.splice(0,1);
         }
 
@@ -144,7 +144,7 @@ class GamePage extends React.Component {
                 <Lobby ishost = {!this.state.turnnum} Lobbycode = {this.state.Game_Key} playerlist={this.state.players} setInGame = {this.setInGame} name= {this.state.name} setInLobby = {this.setInLobby}/>
              )}
              {this.state.inLobby === false && (<MenuPage setInLobby = {this.setInLobby}/>)}
-             {this.state.inLobby === "In Game" && (<GameCanvas players = {this.state.players} turnnumber ={this.state.turnnum} Game_Key={this.state.Game_Key} setInLobby={this.setInLobby}/>) }
+             {this.state.inLobby === "In Game" && (<GameCanvas name = {this.state.name} players = {this.state.players} turnnumber ={this.state.turnnum} Game_Key={this.state.Game_Key} setInLobby={this.setInLobby}/>) }
              </div>
         )
     }
