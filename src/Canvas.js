@@ -21,7 +21,6 @@ var sYellowButton = new CanvasButton("YellowB", 900, 210, 100, 100);
 var sGreenButton = new CanvasButton("GreenB", 1010, 210, 100, 100);
 
 var returnbutton = new CanvasButton("returnbutton",(window.innerWidth/2)-160,230,155,70);
-var leavebutton = new CanvasButton("leavebutton",(window.innerWidth/2)+5,230,155,70);
 var skipbutton = new CanvasButton("SkipButton",(window.innerWidth/8) * 7, (window.innerHeight/8) * 7,155,70);
 
 const CARD_WIDTH = 100;
@@ -373,15 +372,21 @@ guess() {
     //this.guessing = true;
     this.data.guessing = true;
     var guesshand = [];
-    var potentialcards = ["W1","W2","W3","W4","W5","W6","W7","W8","W9","W+","!D","!!","WS","WR"];
-    guesshand[0] = "W" + this.data.Deck[0][1];
-    potentialcards.splice(potentialcards.indexOf(guesshand[0]),1);
-    // console.log(guesshand)
-   // console.log(potentialcards)
-    for(var i = 1; i < 4; i++){
-        var ri = Math.floor(Math.random() * potentialcards.length)
-        guesshand[i] = potentialcards[ri]
-        potentialcards.splice(ri,1);
+    var potentialcards = ["1","2","3","4","5","6","7","8","9","+","!D","!!","S","R"];
+    guesshand[0] = this.data.Deck[0];
+    for (var i = 1; i < 4; i++ ){
+       var randomchoice = Math.floor(Math.random() * potentialcards.length);
+        var randomcard = potentialcards[randomchoice];
+        if(randomcard.length !== 2){
+           var randompref = ["R","Y","G","B"][Math.floor(Math.random() * 4)]
+            randomcard = randompref + randomcard;
+        }
+        if (randomcard === guesshand[0]){
+            i -= 1;
+        }
+        else{
+            guesshand[i] = randomcard
+        }
     }
    // console.log(guesshand)
     this.sparehand = this.player.cardsInHand 
@@ -552,10 +557,7 @@ onMouseClick(e){
     if (this.winner !== -1){
         if(returnbutton.clicked(ex,ey)){
             this.props.setInLobby(true,this.props.Game_Key,this.players[this.props.turnnumber])
-        }
-        else if(leavebutton.clicked(ex,ey)){
-            this.leaveLobby();
-        }     
+        }   
     } else if (this.data.discards > 0) {
         if (this.data.currentplayer === this.player.turnNum) {
             for(var i = 0; i < this.player.cardsInHand.length; i++) {
@@ -811,7 +813,6 @@ renderWinner(ctx){
     ctx.textAlign="center"
     this.ctx.fillText(this.players[this.winner] + " wins!", (window.innerWidth/2), window.innerHeight/2 -100);
     returnbutton.draw(ctx);
-    leavebutton.draw(ctx);
 }
 
 updateCanvas(){

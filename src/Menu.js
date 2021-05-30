@@ -51,18 +51,21 @@ class MenuPage extends React.Component {
         .then((docSnapshot) => {
             if ((docSnapshot.exists)){
                 if (docSnapshot.data().inGame) {
+                    window.alert("Game has already started");
                     this.setState({
                         Name: this.state.Name,
                         message: "Game has already started",
                         Game_Key: this.state.Game_Key,
                     })
                 } else if (docSnapshot.data().PlayerAmnt >= 10) {
+                    window.alert("Game is full");
                     this.setState({
                         Name: this.state.Name,
                         message: "Game full",
                         Game_Key: this.state.Game_Key,
                     })
                 } else if (docSnapshot.data().players.includes(this.state.Name)) {
+                    window.alert("Duplicate Name");
                     this.setState({
                         Name: this.state.Name,
                         message: "Duplicate Name",
@@ -76,6 +79,7 @@ class MenuPage extends React.Component {
                     this.props.setInLobby(true, parseInt(this.state.Game_Key), this.state.Name))
                 } 
             } else {
+                window.alert("Lobby Not Found");
                 this.setState({
                     Name: this.state.Name,
                     message: "Lobby Not Found"

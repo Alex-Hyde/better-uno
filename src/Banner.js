@@ -1,5 +1,4 @@
 import React from "react";
-import reactDom from "react-dom";
 import "./style.css";
 
 class LobbyBanner extends React.Component {

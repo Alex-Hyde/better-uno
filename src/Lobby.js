@@ -6,6 +6,19 @@ import MenuButton from "./Buttons.js";
 import firebase from "./firebase.js";
 import "./LobbyStyle.css";
 import ImgRow from "./Iconselect.js"
+import pfp1 from "./images/pfp1.png"
+import pfp2 from "./images/pfp2.png"
+import pfp3 from "./images/pfp3.png"
+import pfp4 from "./images/pfp4.png"
+import pfp5 from "./images/pfp5.png"
+import pfp6 from "./images/pfp6.png"
+import pfp7 from "./images/pfp7.png"
+import pfp8 from "./images/pfp8.png"
+import pfp9 from "./images/pfp9.png"
+import pfp10 from "./images/pfp10.png"
+import pfp11 from "./images/pfp11.png"
+import pfp12 from "./images/pfp12.png"
+import pfp13 from "./images/pfp13.png"
 
 class Lobby extends React.Component {
 
@@ -68,10 +81,10 @@ class Lobby extends React.Component {
                     <div className = "split right">
                         <h1>Pick a Profile Picture</h1>
                         <div className = "centered">
-                        <ImgRow onClick = {function(){console.log("wow")}} images = {["pfp1.png","../public/Textures/pfp2.png","../public/Textures/pfp3.png"]}/>
-                        <ImgRow onClick = {function(){console.log("wow")}} images = {["../public/Textures/pfp4.png","../public/Textures/pfp5.png","../public/Textures/pfp6.png"]}/>
-                        <ImgRow onClick = {function(){console.log("wow")}} images = {["../public/Textures/pfp7.png","../public/Textures/pfp8.png","../public/Textures/pfp9.png"]}/>
-                        <ImgRow onClick = {function(){console.log("wow")}} images = {["../public/Textures/pfp7.png","../public/Textures/pfp8.png","../public/Textures/pfp9.png"]}/>
+                        <ImgRow onClick = {function(){console.log("wow")}} images = {[[pfp1,pfp13,"pfp1"],[pfp2,pfp13,"pfp2"],[pfp3,pfp13,"pfp3"]]}/>
+                        <ImgRow onClick = {function(){console.log("wow")}} images = {[[pfp4,pfp13,"pfp4"],[pfp5,pfp13,"pfp5"],[pfp6,pfp13,"pfp6"]]}/>
+                        <ImgRow onClick = {function(){console.log("wow")}} images = {[[pfp7,pfp13,"pfp7"],[pfp8,pfp13,"pfp8"],[pfp9,pfp13,"pfp9"]]}/>
+                        <ImgRow onClick = {function(){console.log("wow")}} images = {[[pfp10,pfp13,"pfp10"],[pfp11,pfp13,"pfp11"],[pfp12,pfp13,"pfp12"]]}/>
                         </div>
                     </div>
                 </div>

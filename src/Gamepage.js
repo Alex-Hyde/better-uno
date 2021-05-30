@@ -17,7 +17,9 @@ class GamePage extends React.Component {
             name: "",
             players : [],
             turnnum : 0
-        }
+        } 
+        this.hasChosenpfp = false;
+        
         this.setInLobby = this.setInLobby.bind(this)
         this.onBackClick = this.onBackClick.bind(this)
         this.updatePlayers = this.updatePlayers.bind(this)
@@ -96,20 +98,23 @@ class GamePage extends React.Component {
 
     setInGame(){
         var Cards = MasterDeck.slice()
+        console.log(Cards)
         this.shuffleArray(Cards);
+        console.log(Cards)
         var specialCards = specialdeck.slice();
         this.shuffleArray(specialCards)
         var handsMap = {}
         for (var i = 0; i < this.state.players.length; i++) {
             handsMap["Player " + i.toString()] = Cards.splice(0,7);
+            console.log(Cards)
         }
         var startCard = Cards.splice(0,1);
-
+        console.log(Cards)
         while (startCard[0][0] === "!") {
-            Cards.push(startCard);
+            Cards.push(startCard[0]);
             startCard = Cards.splice(0,1);
         }
-
+        console.log(startCard[0],Cards,specialCards,handsMap)
         firebase.firestore().doc("Games/Game " + this.state.Game_Key).update({
             currentcard: startCard[0],
             turn : 0,

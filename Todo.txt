@@ -5,17 +5,9 @@
 
 -Make info pop up
 
--implement 0 card
-
--replace black cards with right colour
-
--Fix auto dealing a wildcard
-
--powercard drawing Bug 
-
 -fix host leaving first bug
 
--implement wild cards
+-uno button
 
 -Find a way to play the special cards in a noticable way
 
@@ -31,13 +23,19 @@
     -Sleight of hand: Swap hands with a person of your choice
     -Redirect: Deflect any incoming effects to a player of your choice
 
--Make pop up messages again
-
 -Add profile pic selection
 
 -Optional: Highlight deck when it is your turn and you need to draw (or continue chain)
 
 DONE
+
+-Fix auto dealing a wildcard
+
+-implement 0 card
+
+-implement wild cards
+
+-Make pop up messages again
 
 -implement skip button
 
