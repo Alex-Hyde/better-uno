@@ -69,11 +69,16 @@ class MenuPage extends React.Component {
                         Game_Key: this.state.Game_Key,
                     })
                 } else {
+                    var current = 1;
+                    while (docSnapshot.data().pfps.includes("pfp" + current)) {
+                        current += 1;
+                    }
                     docRef.update({
                         players : firebase.firestore.FieldValue.arrayUnion(this.state.Name),
+                        pfps : firebase.firestore.FieldValue.arrayUnion("pfp" + current),
                         PlayerAmnt : firebase.firestore.FieldValue.increment(1)
                     }).then(
-                    this.props.setInLobby(true, parseInt(this.state.Game_Key), this.state.Name))
+                    this.props.setInLobby(true, parseInt(this.state.Game_Key), this.state.Name, "pfp" + current))
                 } 
             } else {
                 this.setState({
@@ -115,6 +120,7 @@ class MenuPage extends React.Component {
                 currentcard: "none",
                 PlayerAmnt: 1,
                 players : firebase.firestore.FieldValue.arrayUnion(this.state.Name),
+                pfps: ["pfp1"],
                 hands : {},
                 turn : 0,
                 currentplayer : 0,
@@ -136,7 +142,7 @@ class MenuPage extends React.Component {
             firestore.doc("Games/Active Games").update({
                 "Active Games" : firebase.firestore.FieldValue.arrayUnion(random_num)
             })
-            this.props.setInLobby(true, random_num, this.state.Name, true);
+            this.props.setInLobby(true, random_num, this.state.Name, "pfp1");
         }).catch((error) => {
             console.log("Error getting document:", error);
         });

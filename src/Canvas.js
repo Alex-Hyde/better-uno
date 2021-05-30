@@ -42,6 +42,7 @@ class GameCanvas extends React.Component {
             jumpin : true
         }
         this.name = props.name;
+        this.pfp = props.pfp;
         this.deck = new Card(144,211,"back");
         this.Guessdeck = new Card(162,256,"back");
         this.Guessdeck.x = (window.innerWidth/2) - 81;
@@ -502,7 +503,7 @@ leaveLobby() {
                     PlayerAmnt : firebase.firestore.FieldValue.increment(-1)
                 }) 
             }
-        this.props.setInLobby(false, "", this.state.name);
+        this.props.setInLobby(false, "", this.state.name, this.state.pfp);
         })
     return
 }
@@ -554,7 +555,7 @@ onMouseClick(e){
     var ey = e.clientY - rect.top 
     if (this.winner !== -1){
         if(returnbutton.clicked(ex,ey)){
-            this.props.setInLobby(true,this.props.Game_Key,this.name)
+            this.props.setInLobby(true,this.props.Game_Key,this.name, this.pfp)
         }
         else if(leavebutton.clicked(ex,ey)){
             this.leaveLobby();
