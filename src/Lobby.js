@@ -74,7 +74,7 @@ class Lobby extends React.Component {
                     <Banner lobby_num = {this.props.Lobbycode}/>
                     </div>
                     <div className = "split left">
-                    <Lobbylist players={this.props.playerlist}/>  
+                    <Lobbylist players={this.props.playerlist} images={this.props.pfps}/>  
                     <MenuButton 
                         style={{fontSize: "30px"}} 
                         text="Leave"
@@ -84,10 +84,10 @@ class Lobby extends React.Component {
                     <div className = "split right">
                         <h1>Pick a Profile Picture</h1>
                         <div className = "centered">
-                        <ImgRow onClick = {function(){console.log("wow")}} images = {[[pfp1,pfp13,"pfp1"],[pfp2,pfp13,"pfp2"],[pfp3,pfp13,"pfp3"]]}/>
-                        <ImgRow onClick = {function(){console.log("wow")}} images = {[[pfp4,pfp13,"pfp4"],[pfp5,pfp13,"pfp5"],[pfp6,pfp13,"pfp6"]]}/>
-                        <ImgRow onClick = {function(){console.log("wow")}} images = {[[pfp7,pfp13,"pfp7"],[pfp8,pfp13,"pfp8"],[pfp9,pfp13,"pfp9"]]}/>
-                        <ImgRow onClick = {function(){console.log("wow")}} images = {[[pfp10,pfp13,"pfp10"],[pfp11,pfp13,"pfp11"],[pfp12,pfp13,"pfp12"]]}/>
+                        <ImgRow pfps = {this.props.pfps} onClick = {this.props.func} images = {[[pfp1,pfp13,"pfp1"],[pfp2,pfp13,"pfp2"],[pfp3,pfp13,"pfp3"]]}/>
+                        <ImgRow pfps = {this.props.pfps} onClick = {this.props.func} images = {[[pfp4,pfp13,"pfp4"],[pfp5,pfp13,"pfp5"],[pfp6,pfp13,"pfp6"]]}/>
+                        <ImgRow pfps = {this.props.pfps} onClick = {this.props.func} images = {[[pfp7,pfp13,"pfp7"],[pfp8,pfp13,"pfp8"],[pfp9,pfp13,"pfp9"]]}/>
+                        <ImgRow pfps = {this.props.pfps} onClick = {this.props.func} images = {[[pfp10,pfp13,"pfp10"],[pfp11,pfp13,"pfp11"],[pfp12,pfp13,"pfp12"]]}/>
                         </div>
                     </div>
                 </div>
@@ -98,19 +98,32 @@ class Lobby extends React.Component {
                 <div style = {{display: "flex", justifyContent: "center"}}>
                 <Banner lobby_num = {this.props.Lobbycode}/>
                 </div>
-                <HostLobbylist players={this.props.playerlist} Lobbycode = {this.props.Lobbycode}/>
+                <div>
+                <div className = "split left">
+                <HostLobbylist images={this.props.pfps} players={this.props.playerlist} Lobbycode = {this.props.Lobbycode}/> 
+                <MenuButton 
+                    style={{fontSize: "30px"}} 
+                    text="Leave"
+                    onClick={this.leaveLobby}
+                />
                 <div style = {{display: "flex", justifyContent: "center"}}>
                     <MenuButton 
                         style={{fontSize: "30px"}} 
                         text="Start Game"
                         onClick = {this.props.setInGame}
                     />
-                    </div>   
-                <MenuButton 
-                    style={{fontSize: "30px"}} 
-                    text="Leave"
-                    onClick={this.leaveLobby}
-                />
+                    </div> 
+                </div>
+                <div className = "split right">
+                        <h1>Pick a Profile Picture</h1>
+                        <div className = "centered">
+                        <ImgRow pfps = {this.props.pfps} onClick = {this.props.func} images = {[[pfp1,pfp13,"pfp1"],[pfp2,pfp13,"pfp2"],[pfp3,pfp13,"pfp3"]]}/>
+                        <ImgRow pfps = {this.props.pfps} onClick = {this.props.func} images = {[[pfp4,pfp13,"pfp4"],[pfp5,pfp13,"pfp5"],[pfp6,pfp13,"pfp6"]]}/>
+                        <ImgRow pfps = {this.props.pfps} onClick = {this.props.func} images = {[[pfp7,pfp13,"pfp7"],[pfp8,pfp13,"pfp8"],[pfp9,pfp13,"pfp9"]]}/>
+                        <ImgRow pfps = {this.props.pfps} onClick = {this.props.func} images = {[[pfp10,pfp13,"pfp10"],[pfp11,pfp13,"pfp11"],[pfp12,pfp13,"pfp12"]]}/>
+                        </div>
+                    </div>
+                </div>     
             </div>
         )
     }

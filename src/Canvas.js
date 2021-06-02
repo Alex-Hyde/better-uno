@@ -592,10 +592,8 @@ onMouseClick(e){
                 (this.options.jumpin && (this.data.currentcard === this.player.cardsInHand[i].strvalue || 
                     (this.data.currentcard[1] === this.player.cardsInHand[i].strvalue[1] && this.player.cardsInHand[i].strvalue[0] === "!"))) )) {
                     this.playCard(i); 
-                    if (this.data.currentplayer !== this.player.turnNum) {
-                        this.hasguessed = false;
-                        this.hasdrawnplayablecard = false;
-                    }
+                    this.hasguessed = false;
+                    this.hasdrawnplayablecard = false;
                 }
             }
         }
@@ -844,6 +842,7 @@ renderWinner(ctx){
     ctx.textAlign="center"
     this.ctx.fillText(this.players[this.winner] + " wins!", (window.innerWidth/2), window.innerHeight/2 -100);
     returnbutton.draw(ctx);
+    leavebutton.draw(ctx)
 }
 
 updateCanvas(){

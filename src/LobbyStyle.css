@@ -39,6 +39,11 @@
     border-radius: 50%;
   }
 
+  .pfpstyle{
+    border-radius: 50%;
+    padding-right: 10px;  
+  }
+
   .titleBar {
       margin-bottom: 50px;
   }

@@ -1,15 +1,7 @@
 
 -Add Alex's scrollin thing for players at the top of the screen
 
--Fix the wildcard code propt for special cards
-
 -Make info pop up
-
--[lay card makes you skip]
-
--fix host leaving first bug
-
--uno button
 
 -Find a way to play the special cards in a noticable way
 
