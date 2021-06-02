@@ -27,7 +27,9 @@ class Lobby extends React.Component {
         this.state = {
             Lobbycode: props.Lobbycode,
             players: props.players,
-            name: props.name
+            pfps: props.pfps,
+            name: props.name,
+            pfp: props.pfp
         }
         this.ishost = props.ishost;
         this.leaveLobby = this.leaveLobby.bind(this)
@@ -47,10 +49,11 @@ class Lobby extends React.Component {
                 } else {
                     docRef.update({
                         players : firebase.firestore.FieldValue.arrayRemove(this.state.name),
+                        pfps: firebase.firestore.FieldValue.arrayRemove(this.state.pfp),
                         PlayerAmnt : firebase.firestore.FieldValue.increment(-1)
                     }) 
                 }
-            this.props.setInLobby(false, "", this.state.name);
+            this.props.setInLobby(false, "", this.state.name, this.state.pfp);
             })
         return
     }

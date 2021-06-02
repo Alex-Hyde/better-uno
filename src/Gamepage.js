@@ -15,7 +15,9 @@ class GamePage extends React.Component {
             inLobby: false,
             Game_Key: "",
             name: "",
+            pfp: "",
             players : [],
+            pfps: [],
             turnnum : 0
         } 
         this.hasChosenpfp = false;
@@ -33,7 +35,9 @@ class GamePage extends React.Component {
                 inLobby : false,
                 Game_Key : this.state.Game_Key,
                 name : this.state.name,
+                pfp: this.state.pfp,
                 players : [],
+                pfps: [],
                 turnnum: this.state.turnnum
             })
     }
@@ -46,7 +50,9 @@ class GamePage extends React.Component {
                         inLobby : false,
                         Game_Key : "Kicked",
                         name : this.state.name,
+                        pfp : this.state.pfp,
                         players: [],
+                        pfps: [],
                         ishost: false
                     })
                     return;
@@ -55,7 +61,9 @@ class GamePage extends React.Component {
                     inLobby : snapshot.data().inGame ? "In Game" : this.state.inLobby,
                     Game_Key : this.state.Game_Key,
                     name : this.state.name,
+                    pfp: this.state.pfp,
                     players: snapshot.data().players,
+                    pfps: snapshot.data().pfps,
                     turnnum: this.state.turnnum
                 }, () => {
                     this.setState(
@@ -63,7 +71,9 @@ class GamePage extends React.Component {
                         inLobby : this.state.inLobby,
                         Game_Key : this.state.Game_Key,
                         name : this.state.name,
+                        pfp: this.state.pfp,
                         players : this.state.players,
+                        pfps: this.state.pfps,
                         turnnum: this.state.players.indexOf(this.state.name)
                     })
                 })
@@ -75,12 +85,14 @@ class GamePage extends React.Component {
         this.unsubscribe();
     }
 
-    setInLobby(status, gamekey, playername) {
+    setInLobby(status, gamekey, playername, playerpfp) {
         this.setState({
             inLobby : status,
             Game_Key : gamekey,
             name : playername,
+            pfp: playerpfp,
             players: this.state.players,
+            pfps: this.state.pfps,
             turnnum: this.state.turnnum
         }, () => {
         this.updatePlayers();
@@ -134,7 +146,9 @@ class GamePage extends React.Component {
             this.setState({
                 Game_Key : this.state.Game_Key,
                 name : this.state.name,
+                pfp: this.state.pfp,
                 players: this.state.players,
+                pfps: this.state.pfps,
                 turnnum: this.state.turnnum
             })
         this.unsubscribe_listener();
@@ -146,10 +160,10 @@ class GamePage extends React.Component {
             <div>
              {this.state.inLobby === true && 
              (
-                <Lobby ishost = {!this.state.turnnum} Lobbycode = {this.state.Game_Key} playerlist={this.state.players} setInGame = {this.setInGame} name= {this.state.name} setInLobby = {this.setInLobby}/>
+                <Lobby ishost = {!this.state.turnnum} Lobbycode = {this.state.Game_Key} playerlist={this.state.players} pfps = {this.state.pfps} setInGame = {this.setInGame} name= {this.state.name} pfp = {this.state.pfp} setInLobby = {this.setInLobby}/>
              )}
              {this.state.inLobby === false && (<MenuPage setInLobby = {this.setInLobby}/>)}
-             {this.state.inLobby === "In Game" && (<GameCanvas players = {this.state.players} turnnumber ={this.state.turnnum} Game_Key={this.state.Game_Key} setInLobby={this.setInLobby}/>) }
+             {this.state.inLobby === "In Game" && (<GameCanvas name = {this.state.name} pfp = {this.state.pfp} players = {this.state.players} pfps = {this.state.pfps} turnnumber ={this.state.turnnum} Game_Key={this.state.Game_Key} setInLobby={this.setInLobby}/>) }
              </div>
         )
     }
