@@ -67,13 +67,14 @@ class Lobby extends React.Component {
     }
 
     render(props){
+        console.log(this.props.pfp)
         if (!this.props.ishost){
             return(
                 <div>
-                    <div className = "titleBar" style = {{display: "flex", justifyContent: "center"}}>
+                    <div className = "split left">
+                    <div style = {{display: "flex", justifyContent: "center"}}>
                     <Banner lobby_num = {this.props.Lobbycode}/>
                     </div>
-                    <div className = "split left">
                     <Lobbylist players={this.props.playerlist} images={this.props.pfps}/>  
                     <MenuButton 
                         style={{fontSize: "30px"}} 
@@ -84,10 +85,10 @@ class Lobby extends React.Component {
                     <div className = "split right">
                         <h1>Pick a Profile Picture</h1>
                         <div className = "centered">
-                        <ImgRow pfps = {this.props.pfps} onClick = {this.props.func} images = {[[pfp1,pfp13,"pfp1"],[pfp2,pfp13,"pfp2"],[pfp3,pfp13,"pfp3"]]}/>
-                        <ImgRow pfps = {this.props.pfps} onClick = {this.props.func} images = {[[pfp4,pfp13,"pfp4"],[pfp5,pfp13,"pfp5"],[pfp6,pfp13,"pfp6"]]}/>
-                        <ImgRow pfps = {this.props.pfps} onClick = {this.props.func} images = {[[pfp7,pfp13,"pfp7"],[pfp8,pfp13,"pfp8"],[pfp9,pfp13,"pfp9"]]}/>
-                        <ImgRow pfps = {this.props.pfps} onClick = {this.props.func} images = {[[pfp10,pfp13,"pfp10"],[pfp11,pfp13,"pfp11"],[pfp12,pfp13,"pfp12"]]}/>
+                        <ImgRow pfp = {this.props.pfp} pfps = {this.props.pfps} onClick = {this.props.func} images = {[[pfp1,pfp13,"pfp1"],[pfp2,pfp13,"pfp2"],[pfp3,pfp13,"pfp3"]]}/>
+                        <ImgRow pfp = {this.props.pfp} pfps = {this.props.pfps} onClick = {this.props.func} images = {[[pfp4,pfp13,"pfp4"],[pfp5,pfp13,"pfp5"],[pfp6,pfp13,"pfp6"]]}/>
+                        <ImgRow pfp = {this.props.pfp} pfps = {this.props.pfps} onClick = {this.props.func} images = {[[pfp7,pfp13,"pfp7"],[pfp8,pfp13,"pfp8"],[pfp9,pfp13,"pfp9"]]}/>
+                        <ImgRow pfp = {this.props.pfp} pfps = {this.props.pfps} onClick = {this.props.func} images = {[[pfp10,pfp13,"pfp10"],[pfp11,pfp13,"pfp11"],[pfp12,pfp13,"pfp12"]]}/>
                         </div>
                     </div>
                 </div>
@@ -95,11 +96,11 @@ class Lobby extends React.Component {
         }
         return(
             <div>
+                <div>
+                <div className = "split left">
                 <div style = {{display: "flex", justifyContent: "center"}}>
                 <Banner lobby_num = {this.props.Lobbycode}/>
                 </div>
-                <div>
-                <div className = "split left">
                 <HostLobbylist images={this.props.pfps} players={this.props.playerlist} Lobbycode = {this.props.Lobbycode}/> 
                 <MenuButton 
                     style={{fontSize: "30px"}} 
@@ -117,10 +118,10 @@ class Lobby extends React.Component {
                 <div className = "split right">
                         <h1>Pick a Profile Picture</h1>
                         <div className = "centered">
-                        <ImgRow pfps = {this.props.pfps} onClick = {this.props.func} images = {[[pfp1,pfp13,"pfp1"],[pfp2,pfp13,"pfp2"],[pfp3,pfp13,"pfp3"]]}/>
-                        <ImgRow pfps = {this.props.pfps} onClick = {this.props.func} images = {[[pfp4,pfp13,"pfp4"],[pfp5,pfp13,"pfp5"],[pfp6,pfp13,"pfp6"]]}/>
-                        <ImgRow pfps = {this.props.pfps} onClick = {this.props.func} images = {[[pfp7,pfp13,"pfp7"],[pfp8,pfp13,"pfp8"],[pfp9,pfp13,"pfp9"]]}/>
-                        <ImgRow pfps = {this.props.pfps} onClick = {this.props.func} images = {[[pfp10,pfp13,"pfp10"],[pfp11,pfp13,"pfp11"],[pfp12,pfp13,"pfp12"]]}/>
+                        <ImgRow pfp = {this.props.pfp} pfps = {this.props.pfps} onClick = {this.props.func} images = {[[pfp1,pfp13,"pfp1"],[pfp2,pfp13,"pfp2"],[pfp3,pfp13,"pfp3"]]}/>
+                        <ImgRow pfp = {this.props.pfp} pfps = {this.props.pfps} onClick = {this.props.func} images = {[[pfp4,pfp13,"pfp4"],[pfp5,pfp13,"pfp5"],[pfp6,pfp13,"pfp6"]]}/>
+                        <ImgRow pfp = {this.props.pfp} pfps = {this.props.pfps} onClick = {this.props.func} images = {[[pfp7,pfp13,"pfp7"],[pfp8,pfp13,"pfp8"],[pfp9,pfp13,"pfp9"]]}/>
+                        <ImgRow pfp = {this.props.pfp} pfps = {this.props.pfps} onClick = {this.props.func} images = {[[pfp10,pfp13,"pfp10"],[pfp11,pfp13,"pfp11"],[pfp12,pfp13,"pfp12"]]}/>
                         </div>
                     </div>
                 </div>     

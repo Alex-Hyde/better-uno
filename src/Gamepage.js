@@ -179,7 +179,7 @@ class GamePage extends React.Component {
             <div>
              {this.state.inLobby === true && 
              (
-                <Lobby func = {this.setPfp} ishost = {!this.state.turnnum} Lobbycode = {this.state.Game_Key} playerlist={this.state.players} pfps = {this.state.pfps} setInGame = {this.setInGame} name= {this.state.name} pfp = {this.state.pfp} setInLobby = {this.setInLobby}/>
+                <Lobby func = {this.setPfp} ishost = {!this.state.turnnum} Lobbycode = {this.state.Game_Key} playerlist={this.state.players} pfp ={this.state.pfp} pfps = {this.state.pfps} setInGame = {this.setInGame} name= {this.state.name} pfp = {this.state.pfp} setInLobby = {this.setInLobby}/>
              )}
              {this.state.inLobby === false && (<MenuPage setInLobby = {this.setInLobby}/>)}
              {this.state.inLobby === "In Game" && (<GameCanvas name = {this.state.name} pfp = {this.state.pfp} players = {this.state.players} pfps = {this.state.pfps} turnnumber ={this.state.turnnum} Game_Key={this.state.Game_Key} setInLobby={this.setInLobby}/>) }

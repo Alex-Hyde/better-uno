@@ -14,11 +14,11 @@
     -Sleight of hand: Swap hands with a person of your choice
     -Redirect: Deflect any incoming effects to a player of your choice
 
--Add profile pic selection
-
 -Optional: Highlight deck when it is your turn and you need to draw (or continue chain)
 
 DONE
+
+-Add profile pic selection
 
 -Fix auto dealing a wildcard
 

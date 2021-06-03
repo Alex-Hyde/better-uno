@@ -15,11 +15,15 @@ class ImgButton extends React.Component {
     }
 
     render(){
+        console.log(this.props.pfp,this.text)
         if (this.props.pfps.includes(this.text) === false){
             return (<button style = {{backgroundColor : "rgba(0,0,0,0)", borderColor: "rgba(0,0,0,0)"}}><img src = {this.active} onClick = {this.setpfp}/></button>)
         }
+        else if (this.props.pfp === this.text){
+            return(<button style = {{backgroundColor : "rgba(0,0,0,0)", borderColor: "rgba(0,0,0,0)"}}><img style={{border: "#6dfc87 thick solid"}} src = {this.alt} /></button>)
+        }
         else{
-            return(<button style = {{backgroundColor : "rgba(0,0,0,0)", borderColor: "rgba(0,0,0,0)"}}><img src = {this.alt} /></button>)
+            return(<button style = {{backgroundColor : "rgba(0,0,0,0)", borderColor: "rgba(0,0,0,0)"}}><img  src = {this.alt} /></button>)
         }
     }
     
@@ -31,11 +35,12 @@ class ImgButton extends React.Component {
 class ImgRow extends React.Component {
 
     render(){
+        console.log(this.props.pfp)
         return(
             <div style={{display: "flex"}}>
-                <ImgButton pfps = {this.props.pfps} onClick = {this.props.onClick} things = {this.props.images[0]}/>
-                <ImgButton pfps = {this.props.pfps} onClick = {this.props.onClick} things = {this.props.images[1]}/>
-                <ImgButton pfps = {this.props.pfps} onClick = {this.props.onClick} things = {this.props.images[2]}/>    
+                <ImgButton pfp = {this.props.pfp} pfps = {this.props.pfps} onClick = {this.props.onClick} things = {this.props.images[0]}/>
+                <ImgButton pfp = {this.props.pfp} pfps = {this.props.pfps} onClick = {this.props.onClick} things = {this.props.images[1]}/>
+                <ImgButton pfp = {this.props.pfp} pfps = {this.props.pfps} onClick = {this.props.onClick} things = {this.props.images[2]}/>    
             </div>
         )
     }
