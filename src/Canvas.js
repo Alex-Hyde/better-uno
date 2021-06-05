@@ -4,6 +4,7 @@ import Card from "./Card.js"
 import Player from "./player.js";
 import MasterDeck from "./Deck.js";
 import specialdeck from "./SpecialDeck.js";
+import PlayerIcons from "./PlayerIcons.js";
 
 import { CanvasButton, CanvasButtonCircle } from "./Canvasbutton.js";
 
@@ -123,6 +124,7 @@ class GameCanvas extends React.Component {
 
         this.deck = new Card(CARD_WIDTH*this.sizeMult, CARD_HEIGHT*this.sizeMult,"back");
         this.specialdeck = new Card(CARD_WIDTH*this.sizeMult, CARD_HEIGHT*this.sizeMult,"SpecialDBack");
+        this.playerIcons = null;
     }
 
     handleResize = () => {
@@ -164,6 +166,11 @@ class GameCanvas extends React.Component {
         yellowButton.x = window.innerWidth/2 - 2;
         yellowButton.y = window.innerHeight/2 - 2;
         yellowButton.radius = 70 * this.sizeMult;
+
+        returnbutton.x = (window.innerWidth/2)-160;
+        leavebutton.x = (window.innerWidth/2)+5;
+        
+        this.playerIcons.setIcons(this.playernum, this.data.reversed, this.data.currentplayer, CARD_HEIGHT, this.sizeMult);
     
         this.setState({ width: window.innerWidth, height: window.innerHeight });
     };
@@ -236,6 +243,8 @@ componentDidMount(){
             //this.placedCards = [[this.data.currentcard, Math.random()*Math.PI-Math.PI/2]]
             this.updateCanvas();
             this.listentodoc();
+            this.playerIcons = new PlayerIcons(this.data.pfps, this.player.turnNum);
+            this.playerIcons.setIcons(this.playernum, this.data.reversed, this.data.currentplayer, CARD_HEIGHT, this.sizeMult);
             unsub();
         }
     })
@@ -657,6 +666,17 @@ onMouseClick(e){
             }
         }
     }
+    if (this.playerIcons.active) {
+        var clickedIcon = -1;
+        for (let i = 0; i < this.playerIcons.icons.length; i++) {
+            if (this.playerIcons.icons[i].clicked(ex, ey)) {
+                clickedIcon = i;
+                break;
+            }
+        }
+        console.log(clickedIcon);
+        // DO CLICK STUFF HERE
+    }
 }
 
 componentDidUpdate(){
@@ -761,12 +781,12 @@ renderHand(ctx){
 renderWildOptions(ctx) {
     if (this.data.currentcard[0] === "!" && this.data.currentplayer === this.player.turnNum && !this.data.special && this.data.discards === 0) {
         var grdSize = 160;
-        var grd = ctx.createRadialGradient(window.innerWidth/2, window.innerHeight/2, 100, window.innerWidth/2, window.innerHeight/2, grdSize);
+        var grd = ctx.createRadialGradient(window.innerWidth/2, window.innerHeight/2, grdSize/4, window.innerWidth/2, window.innerHeight/2, grdSize/2);
         grd.addColorStop(0, "#000000");
         grd.addColorStop(1, "#00000000");
 
         ctx.fillStyle = grd;
-        ctx.fillRect(window.innerWidth/2 - grdSize/2*this.sizeMult, window.innerHeight/2 - grdSize/2*this.sizeMult, grdSize*this.sizeMult, grdSize*this.sizeMult);
+        ctx.fillRect(window.innerWidth/2 - grdSize/2, window.innerHeight/2 - grdSize/2, grdSize, grdSize);
         redButton.draw(ctx);
         blueButton.draw(ctx);
         yellowButton.draw(ctx);
@@ -853,6 +873,10 @@ updateCanvas(){
         this.renderHand(this.ctx)
         this.renderWildOptions(this.ctx)
         this.renderSpecial(this.ctx)
+        if (this.playerIcons != null) {
+            this.playerIcons.setIcons(this.playernum, this.data.reversed, this.data.currentplayer, CARD_HEIGHT, this.sizeMult);
+            this.playerIcons.draw(this.ctx, [10, 9, 8, 7, 6, 5, 4, 3, 2, 1], this.data.currentplayer, this.sizeMult);
+        }
         if (this.winner !== -1){
             this.renderWinner(this.ctx)
         }

@@ -178,17 +178,26 @@ class MenuPage extends React.Component {
                             />
                         </div>
                         <div style={{flex: "50%", paddingLeft: "8px"}}>
-                            <MenuButton id="hostLobby"
-                                style={{
-                                        fontSize: "30px", 
+                            <div style={{
                                         height: "100%", 
                                         width: "100%" ,
                                         borderRadius: "10px",
-                                        backgroundImage: "linear-gradient(20deg, #999999 0%, #FFFFFF 100%)"
-                                    }} 
-                                text="Host Game"
-                                onClick={this.createLobby}
-                            />
+                                        backgroundImage: "linear-gradient(45deg, #999999 0%, #FFFFFF 100%)",
+                                        padding: "5px"
+                                    }} >
+                                <MenuButton id="hostLobby"
+                                    style={{
+                                            border: "none",
+                                            fontSize: "30px", 
+                                            height: "100%", 
+                                            width: "100%" ,
+                                            borderRadius: "8px",
+                                            backgroundImage: "linear-gradient(200deg, #999999 0%, #FFFFFF 100%)"
+                                        }} 
+                                    text="Host Game"
+                                    onClick={this.createLobby}
+                                />
+                            </div>
                         </div>
                     </div>
                 </form>

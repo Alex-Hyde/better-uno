@@ -44,3 +44,9 @@
     font-size: 35px;
     margin-bottom: 10px;
 }
+
+#codeInput:focus {
+    border: 2px solid black;
+    outline: none;
+    background-color: #FFFFFF99;
+}
