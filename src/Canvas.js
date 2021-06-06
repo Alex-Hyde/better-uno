@@ -226,6 +226,14 @@ shuffleArray(array) {
     }
 }
 
+getPlayerCardNumbers() {
+    var cardNums = [];
+    for (let i = 0; i < this.playernum; i++) {
+          cardNums.push(this.data.hands["Player " + i.toString()].length);
+    }
+    return cardNums;
+}
+
 componentDidMount(){
     window.addEventListener("resize", this.handleResize);
     this.ctx = this.canvasRef.current.getContext("2d");
@@ -771,30 +779,61 @@ renderHand(ctx){
     for (let i = 0; i < this.player.cardsInHand.length; i++) {
         this.player.cardsInHand[i].draw(ctx, (i > hoveredIndex && hoveredIndex != -1) ? Math.max(0, CARD_WIDTH*this.sizeMult*0.7 - this.maxWidth/this.player.cardsInHand.length) : 0);
     }
+}
 
-    /*
-    var cardsnum = (Math.min(7, player.cardsInHand.length) - 1);
-    var currentx = 550 - 81* Math.floor(cardsnum / 2)
-    for(var i = 7*player.handindex; i < 7 * (player.handindex + 1); i++ ){
-        if(player.cardsInHand[i]){
-            player.cardsInHand[i].x = currentx;
-            player.cardsInHand[i].y = 450; 
-            player.cardsInHand[i].width = 81
-            player.cardsInHand[i].height = 126     
-            if (player.cardsInHand[i].onCard(this.x,this.y)){
-                player.cardsInHand[i].y = 387;
-                player.cardsInHand[i].width = 121
-                player.cardsInHand[i].height = 189
-                player.cardsInHand[i].enlarged = true;
-            }
-            else{
-                player.cardsInHand[i].enlarged = false;
-            }
-            currentx += player.cardsInHand[i].width
-            player.cardsInHand[i].draw(ctx);
-        } 
+renderOpponentHands(ctx, cardNums) {
+    cardNums[0] = cardNums[0] != -1 ? this.data.hands["Player " + cardNums[0].toString()].length : 0;
+    cardNums[1] = cardNums[1] != -1 ? this.data.hands["Player " + cardNums[1].toString()].length : 0;
+    cardNums[2] = cardNums[2] != -1 ? this.data.hands["Player " + cardNums[2].toString()].length : 0;
+    var maxHeight = window.innerHeight - 2*CARD_HEIGHT*this.sizeMult - 80;
+    for (let i = 0; i < cardNums[0]; i++) {
+        var x = 20;
+        var y = window.innerHeight/2 + (i-cardNums[0]/2)*(Math.min(CARD_WIDTH*this.sizeMult*0.7, maxHeight/cardNums[0])) + CARD_WIDTH*this.sizeMult/2;
+        var w = CARD_WIDTH*this.sizeMult;
+        var h = CARD_HEIGHT*this.sizeMult;
+        var angle = (window.innerHeight/2-y)/10000 - Math.PI/2;
+
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(angle);
+        ctx.translate(-x, -y);
+        ctx.fillStyle = "#100910";
+        ctx.fillRect(x-1,y-1,w+2,h+2);
+        ctx.drawImage(document.getElementById("back"),x,y,w,h);
+        ctx.restore(); 
     }
-    */
+    for (let i = 0; i < cardNums[1]; i++) {
+        var x = window.innerWidth/2 + (i-cardNums[1]/2)*(Math.min(CARD_WIDTH*this.sizeMult*0.7, this.maxWidth/cardNums[1])) - CARD_WIDTH*this.sizeMult/2;
+        var y = 20;
+        var w = CARD_WIDTH*this.sizeMult;
+        var h = CARD_HEIGHT*this.sizeMult;
+        var angle = -(window.innerWidth/2-x)/10000;
+
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(angle);
+        ctx.translate(-x, -y);
+        ctx.fillStyle = "#100910";
+        ctx.fillRect(x-1,y-1,w+2,h+2);
+        ctx.drawImage(document.getElementById("back"),x,y,w,h);
+        ctx.restore(); 
+    }
+    for (let i = 0; i < cardNums[2]; i++) {
+        var x = window.innerWidth - 20;
+        var y = window.innerHeight/2 + (i-cardNums[2]/2)*(Math.min(CARD_WIDTH*this.sizeMult*0.7, maxHeight/cardNums[2])) - CARD_WIDTH*this.sizeMult/2;
+        var w = CARD_WIDTH*this.sizeMult;
+        var h = CARD_HEIGHT*this.sizeMult;
+        var angle = -(window.innerHeight/2-y)/10000 + Math.PI/2;
+
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(angle);
+        ctx.translate(-x, -y);
+        ctx.fillStyle = "#100910";
+        ctx.fillRect(x-1,y-1,w+2,h+2);
+        ctx.drawImage(document.getElementById("back"),x,y,w,h);
+        ctx.restore(); 
+    }
 }
 
 renderWildOptions(ctx) {
@@ -894,8 +933,9 @@ updateCanvas(){
         this.renderWildOptions(this.ctx)
         this.renderSpecial(this.ctx)
         if (this.playerIcons != null) {
-            this.playerIcons.setIcons(this.playernum, this.data.reversed, this.data.currentplayer, CARD_HEIGHT, this.sizeMult);
-            this.playerIcons.draw(this.ctx, [10, 9, 8, 7, 6, 5, 4, 3, 2, 1], this.data.currentplayer, this.sizeMult);
+            var cardNums = this.playerIcons.setIcons(this.playernum, this.data.reversed, this.data.currentplayer, CARD_HEIGHT, this.sizeMult);
+            this.renderOpponentHands(this.ctx, cardNums);
+            this.playerIcons.draw(this.ctx, this.getPlayerCardNumbers(), this.data.currentplayer, this.sizeMult);
         }
         if (this.winner !== -1){
             this.renderWinner(this.ctx)
