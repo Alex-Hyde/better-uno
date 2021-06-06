@@ -17,6 +17,7 @@ function PlayerIcons(icons, selfInd){
     }
 
     this.setIcons = function(numPlayers, reversed, current, cardHeight, sizeMult) {
+        var cardNums = [-1, -1, -1];
         var top = current;
         if (numPlayers > 3) {
             if (current == this.selfInd || current == index(this.selfInd - 1, numPlayers) || current == index(this.selfInd + 1, numPlayers)) {
@@ -39,6 +40,7 @@ function PlayerIcons(icons, selfInd){
             this.icons[top].y = (cardHeight + 30)*sizeMult;
             this.icons[top].w = 50*sizeMult;
             this.icons[top].h = 50*sizeMult;
+            cardNums[1] = top;
         }
         this.icons[this.selfInd].x = 10*sizeMult;
         this.icons[this.selfInd].y = window.innerHeight - 80*sizeMult;
@@ -51,12 +53,14 @@ function PlayerIcons(icons, selfInd){
             this.icons[ind].y = window.innerHeight/2 - 25 * sizeMult;
             this.icons[ind].w = 50*sizeMult;
             this.icons[ind].h = 50*sizeMult;
+            cardNums[0] = ind;
             
             ind = index(this.selfInd - 1, numPlayers);
-            this.icons[ind].x = window.innerWidth - (cardHeight + 30) * sizeMult;
+            this.icons[ind].x = window.innerWidth - (cardHeight + 30) * sizeMult - 50*sizeMult;
             this.icons[ind].y = window.innerHeight/2 - 25 * sizeMult;
             this.icons[ind].w = 50*sizeMult;
             this.icons[ind].h = 50*sizeMult;
+            cardNums[2] = ind;
         }
 
         if (numPlayers > 4) {
@@ -88,6 +92,7 @@ function PlayerIcons(icons, selfInd){
             icon.w = 50*sizeMult;
             icon.h = 50*sizeMult;
         }
+        return cardNums;
     }
 }
 
