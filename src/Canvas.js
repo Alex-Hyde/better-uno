@@ -353,7 +353,7 @@ pullCard() {
                 this.shuffleArray(MasterDeck)
                 this.data.Deck = this.data.Deck.concat(MasterDeck.slice())
             }
-            console.log(testCard.strvalue,this.cardCanPlay(testCard),this.data.currentcard)
+            //console.log(testCard.strvalue,this.cardCanPlay(testCard),this.data.currentcard)
             if (this.cardCanPlay(testCard)){
                 this.hasdrawnplayablecard = true;
             }
@@ -367,7 +367,7 @@ pullCard() {
             this.shuffleArray(MasterDeck)
             this.data.Deck = this.data.Deck.concat(MasterDeck.slice())
         }
-        console.log(testCard.strvalue,this.cardCanPlay(testCard),this.data.currentcard)
+        //console.log(testCard.strvalue,this.cardCanPlay(testCard),this.data.currentcard)
         if (this.cardCanPlay(testCard)){
             this.hasdrawnplayablecard = true;
         }
@@ -483,7 +483,7 @@ playCard(index) {
         }
     } else if (this.data.currentcard === "!Y") { // breakaway card
         this.data.breakaway = true;
-    } else if (this.data.currentcard === "!C") {
+    } else if (this.data.currentcard === "!C" || this.data.currentcard === "!~" || this.data.currentcard === "!K") {
         this.data.special = true;
     } else if (this.data.currentcard[1] === "S") { // any skip card
         this.data.currentplayer = (this.player.turnNum - (this.data.reversed * 4) + 2 + this.playernum) % this.playernum
@@ -674,8 +674,27 @@ onMouseClick(e){
                 break;
             }
         }
-        console.log(clickedIcon);
-        // DO CLICK STUFF HERE
+        console.log("Clicked icon: ", clickedIcon);
+        if (clickedIcon != -1) {
+            this.playerIcons.active = false
+            this.data.special = false
+            this.data.gameAction = false
+            if (this.data.currentcard === "!~") {
+                var temp = this.data.hands[this.playerKey]
+                this.data.hands[this.playerKey] = this.data.hands["Player " + clickedIcon]
+                this.data.hands["Player " + clickedIcon] = temp
+            } else if (this.data.currentcard === "!K") {
+                for (var i = 0; i < 2; i++) {
+                    var newCard = this.data.Deck.splice(0,1);
+                    this.data.hands["Player " + clickedIcon] = this.data.hands["Player " + clickedIcon].concat(newCard)
+                    if (this.data.Deck.length === 5) {
+                        this.shuffleArray(MasterDeck)
+                        this.data.Deck = this.data.Deck.concat(MasterDeck.slice())
+                    }
+                }
+            }
+            firebase.firestore().doc("Games/Game " + this.props.Game_Key).update(this.data)
+        }
     }
 }
 
@@ -820,6 +839,7 @@ renderSpecial(ctx) {
         blueButton.on = false;
         greenButton.on = false;
         yellowButton.on = false;
+        this.playerIcons.active = true
     }
 }
 
@@ -868,7 +888,7 @@ renderWinner(ctx){
 updateCanvas(){
     this.ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
     this.ctx.drawImage(document.getElementById(this.background), 0, 0, window.innerWidth, window.innerHeight);
-    if (this.data.guessing === false || this.data.currentplayer != this.player.turnNum){
+    if (this.data.guessing === false || this.data.currentplayer != this.player.turnNum) {
         this.renderBoard(this.ctx)
         this.renderHand(this.ctx)
         this.renderWildOptions(this.ctx)
