@@ -16,10 +16,10 @@ var blueButton = new CanvasButtonCircle(window.innerWidth/2 - 2, window.innerHei
 var yellowButton = new CanvasButtonCircle(window.innerWidth/2 - 2, window.innerHeight/2 - 2, 100, 3, "yellow");
 var greenButton = new CanvasButtonCircle(window.innerWidth/2 + 2, window.innerHeight/2 - 2, 100, 4, "green");
 
-var sRedButton = new CanvasButton("RedB", 900, 50, 100, 100);
-var sBlueButton = new CanvasButton("BlueB", 1010, 50, 100, 100);
-var sYellowButton = new CanvasButton("YellowB", 900, 210, 100, 100);
-var sGreenButton = new CanvasButton("GreenB", 1010, 210, 100, 100);
+//var sRedButton = new CanvasButton("RedB", 900, 50, 100, 100);
+//var sBlueButton = new CanvasButton("BlueB", 1010, 50, 100, 100);
+//var sYellowButton = new CanvasButton("YellowB", 900, 210, 100, 100);
+//var sGreenButton = new CanvasButton("GreenB", 1010, 210, 100, 100);
 
 var returnbutton = new CanvasButton("returnbutton",(window.innerWidth/2)-160,230,155,70);
 var skipbutton = new CanvasButton("SkipButton",(window.innerWidth/8) * 7, (window.innerHeight/8) * 7,155,70);
@@ -89,6 +89,7 @@ class GameCanvas extends React.Component {
         this.renderCorrect = this.renderCorrect.bind(this)
         this.resetGuess = this.resetGuess.bind(this)
         this.resetwrongGuess = this.resetwrongGuess.bind(this)
+        this.duel = this.duel.bind(this)
         //this.forcedPull = this.forcedPull.bind(this)
 
         this.maxWidth = 1000;
@@ -252,7 +253,7 @@ componentDidMount(){
 
 cardCanPlay(card){
     if (this.data.chain > 0) {
-        if (card.strvalue === "!D" || card.strvalue === "!G") {
+        if (card.strvalue === "!D" || card.strvalue === "!G" || card.strvalue === "!T") {
             return true;
         } if (!this.options.chaining) {
             return false;
@@ -418,6 +419,10 @@ playCard(index) {
     this.data.hands[this.playerKey].splice(index,1);
     this.gameAction = true;
     
+    if (specialdeck.includes(this.data.currentcard)) {
+        this.data.lastSpecial = [this.data.currentcard, this.player.turnNum]
+    }
+
     if (this.data.currentcard[0] === "!" || (digits.includes(this.data.currentcard[1]) && this.data.breakaway)) { // any wild card, or in breakaway
         this.data.currentplayer = this.player.turnNum;
     } else {
@@ -483,13 +488,51 @@ playCard(index) {
         }
     } else if (this.data.currentcard === "!Y") { // breakaway card
         this.data.breakaway = true;
-    } else if (this.data.currentcard === "!C" || this.data.currentcard === "!~" || this.data.currentcard === "!K") {
+    } else if (["!C", "!~", "!K", "!T", "!X"].includes(this.data.currentcard)) { // certain special cards
         this.data.special = true;
     } else if (this.data.currentcard[1] === "S") { // any skip card
         this.data.currentplayer = (this.player.turnNum - (this.data.reversed * 4) + 2 + this.playernum) % this.playernum
     }
     this.updateCanvas()
     firebase.firestore().doc("Games/Game " + this.props.Game_Key).update(this.data)
+}
+
+duel(duelers) {
+    var sums = [0, 0]
+    for (var i = 0; i < this.data.hands["Player " + duelers[0]].length; i++) {
+        if (digits.includes(this.data.hands["Player " + duelers[0]][i][1])) {
+            sums[0] += parseInt(this.data.hands["Player " + duelers[0]][i][1])
+        }
+    }
+    for (var i = 0; i < this.data.hands["Player " + duelers[1]].length; i++) {
+        if (digits.includes(this.data.hands["Player " + duelers[1]][i][1])) {
+            sums[1] += parseInt(this.data.hands["Player " + duelers[1]][i][1])
+        }
+    }
+    if (this.player.turnNum === duelers[0]) {
+        if (sums[0] < sums[1]) {
+            for (var i = 0; i < 3; i++) {
+                var newCard = this.data.Deck.splice(0,1);
+                this.data.hands[this.playerKey] = this.data.hands[this.playerKey].concat(newCard)
+                if (this.data.Deck.length === 5) {
+                    this.shuffleArray(MasterDeck)
+                    this.data.Deck = this.data.Deck.concat(MasterDeck.slice())
+                }
+            }
+        } else if (sums[1] < sums[0]) {
+            for (var i = 0; i < 3; i++) {
+                var newCard = this.data.Deck.splice(0,1);
+                this.data.hands["Player " + duelers[1]] = this.data.hands["Player " + duelers[1]].concat(newCard)
+                if (this.data.Deck.length === 5) {
+                    this.shuffleArray(MasterDeck)
+                    this.data.Deck = this.data.Deck.concat(MasterDeck.slice())
+                }
+            }
+        }
+        this.data.dueling = false
+        this.data.gameAction = false
+        firebase.firestore().doc("Games/Game " + this.props.Game_Key).update(this.data)
+    }
 }
 
 discard(index) {
@@ -659,7 +702,11 @@ onMouseClick(e){
                 if (pressed) {
                     this.data.turn += 1;
                     if (!this.data.breakaway) {
-                        this.data.currentplayer = (this.player.turnNum - (this.data.reversed*2) + 1 + this.playernum) % this.playernum;
+                        if (this.data.currentcard[1] != "T") {
+                            this.data.currentplayer = (this.player.turnNum - (this.data.reversed*2) + 1 + this.playernum) % this.playernum;
+                        } else {
+                            this.data.currentplayer = this.data.specialNext
+                        }
                     }
                     firebase.firestore().doc("Games/Game " + this.props.Game_Key).update(this.data)
                 }
@@ -692,6 +739,11 @@ onMouseClick(e){
                         this.data.Deck = this.data.Deck.concat(MasterDeck.slice())
                     }
                 }
+            } else if (this.data.currentcard === "!T") {
+                this.data.specialNext = clickedIcon;
+            } else if (this.data.currentcard === "!X") {
+                this.data.dueling = true;
+                this.data.duelers = [this.player.turnNum, clickedIcon]
             }
             firebase.firestore().doc("Games/Game " + this.props.Game_Key).update(this.data)
         }
@@ -888,6 +940,10 @@ renderWinner(ctx){
 updateCanvas(){
     this.ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
     this.ctx.drawImage(document.getElementById(this.background), 0, 0, window.innerWidth, window.innerHeight);
+    if (this.data.dueling) {
+        this.duel(this.data.duelers);
+        return;
+    }
     if (this.data.guessing === false || this.data.currentplayer != this.player.turnNum) {
         this.renderBoard(this.ctx)
         this.renderHand(this.ctx)
@@ -895,7 +951,11 @@ updateCanvas(){
         this.renderSpecial(this.ctx)
         if (this.playerIcons != null) {
             this.playerIcons.setIcons(this.playernum, this.data.reversed, this.data.currentplayer, CARD_HEIGHT, this.sizeMult);
-            this.playerIcons.draw(this.ctx, [10, 9, 8, 7, 6, 5, 4, 3, 2, 1], this.data.currentplayer, this.sizeMult);
+            var cardNums = []
+            for (var i = 0; i < this.playernum; i++) {
+                cardNums.push(this.data.hands["Player " + i].length)
+            }
+            this.playerIcons.draw(this.ctx, cardNums, this.data.currentplayer, this.sizeMult);
         }
         if (this.winner !== -1){
             this.renderWinner(this.ctx)
