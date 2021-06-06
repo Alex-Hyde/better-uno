@@ -4,11 +4,14 @@ import Card from "./Card.js"
 import Player from "./player.js";
 import MasterDeck from "./Deck.js";
 import specialdeck from "./SpecialDeck.js";
+import PlayerIcons from "./PlayerIcons.js";
 
 import { CanvasButton, CanvasButtonCircle } from "./Canvasbutton.js";
+import messages from "./messages.js";
 
 const godRandom = false; // whether hand of got discards random cards or you get to choose (I'm not sure)
 const digits = ["0","1","2","3","4","5","6","7","8","9"]
+const specialcodes = ["K","~","P","Y","H","B","C","G"]
 
 var redButton = new CanvasButtonCircle(window.innerWidth/2 + 2, window.innerHeight/2 + 2, 100, 1, "red");
 var blueButton = new CanvasButtonCircle(window.innerWidth/2 - 2, window.innerHeight/2 + 2, 100, 2, "blue");
@@ -87,6 +90,7 @@ class GameCanvas extends React.Component {
         this.renderCorrect = this.renderCorrect.bind(this)
         this.resetGuess = this.resetGuess.bind(this)
         this.resetwrongGuess = this.resetwrongGuess.bind(this)
+        this.onContextMenu = this.onContextMenu.bind(this)
         //this.forcedPull = this.forcedPull.bind(this)
 
         this.maxWidth = 1000;
@@ -122,6 +126,7 @@ class GameCanvas extends React.Component {
 
         this.deck = new Card(CARD_WIDTH*this.sizeMult, CARD_HEIGHT*this.sizeMult,"back");
         this.specialdeck = new Card(CARD_WIDTH*this.sizeMult, CARD_HEIGHT*this.sizeMult,"SpecialDBack");
+        this.playerIcons = null;
     }
 
     handleResize = () => {
@@ -163,6 +168,11 @@ class GameCanvas extends React.Component {
         yellowButton.x = window.innerWidth/2 - 2;
         yellowButton.y = window.innerHeight/2 - 2;
         yellowButton.radius = 70 * this.sizeMult;
+
+        returnbutton.x = (window.innerWidth/2)-160;
+        leavebutton.x = (window.innerWidth/2)+5;
+        
+        this.playerIcons.setIcons(this.playernum, this.data.reversed, this.data.currentplayer, CARD_HEIGHT, this.sizeMult);
     
         this.setState({ width: window.innerWidth, height: window.innerHeight });
     };
@@ -235,6 +245,8 @@ componentDidMount(){
             //this.placedCards = [[this.data.currentcard, Math.random()*Math.PI-Math.PI/2]]
             this.updateCanvas();
             this.listentodoc();
+            this.playerIcons = new PlayerIcons(this.data.pfps, this.player.turnNum);
+            this.playerIcons.setIcons(this.playernum, this.data.reversed, this.data.currentplayer, CARD_HEIGHT, this.sizeMult);
             unsub();
         }
     })
@@ -343,7 +355,7 @@ pullCard() {
                 this.shuffleArray(MasterDeck)
                 this.data.Deck = this.data.Deck.concat(MasterDeck.slice())
             }
-            console.log(testCard.strvalue,this.cardCanPlay(testCard),this.data.currentcard)
+            //console.log(testCard.strvalue,this.cardCanPlay(testCard),this.data.currentcard)
             if (this.cardCanPlay(testCard)){
                 this.hasdrawnplayablecard = true;
             }
@@ -357,7 +369,7 @@ pullCard() {
             this.shuffleArray(MasterDeck)
             this.data.Deck = this.data.Deck.concat(MasterDeck.slice())
         }
-        console.log(testCard.strvalue,this.cardCanPlay(testCard),this.data.currentcard)
+        //console.log(testCard.strvalue,this.cardCanPlay(testCard),this.data.currentcard)
         if (this.cardCanPlay(testCard)){
             this.hasdrawnplayablecard = true;
         }
@@ -473,7 +485,7 @@ playCard(index) {
         }
     } else if (this.data.currentcard === "!Y") { // breakaway card
         this.data.breakaway = true;
-    } else if (this.data.currentcard === "!C") {
+    } else if (this.data.currentcard === "!C" || this.data.currentcard === "!~" || this.data.currentcard === "!K") {
         this.data.special = true;
     } else if (this.data.currentcard[1] === "S") { // any skip card
         this.data.currentplayer = (this.player.turnNum - (this.data.reversed * 4) + 2 + this.playernum) % this.playernum
@@ -545,6 +557,20 @@ checkguess(card){
         this.data.guessing = "incorrect";
         this.updateCanvas()
         setTimeout(this.resetwrongGuess, 2000)
+    }
+}
+
+onContextMenu(e){
+    e.preventDefault()
+    var rect = this.canvasRef.current.getBoundingClientRect();
+    var ex = e.clientX - rect.left
+    var ey = e.clientY - rect.top  
+    for(var i = 0; i < this.player.cardsInHand.length; i++) {
+        if (this.player.cardsInHand[i]) {
+            if (this.player.cardsInHand[i].hovered && specialcodes.includes(this.player.cardsInHand[i].strvalue[1])){
+            window.alert(messages[this.player.cardsInHand[i].strvalue[1]])
+            }   
+       }
     }
 }
 
@@ -656,6 +682,36 @@ onMouseClick(e){
             }
         }
     }
+    if (this.playerIcons.active) {
+        var clickedIcon = -1;
+        for (let i = 0; i < this.playerIcons.icons.length; i++) {
+            if (this.playerIcons.icons[i].clicked(ex, ey)) {
+                clickedIcon = i;
+                break;
+            }
+        }
+        console.log("Clicked icon: ", clickedIcon);
+        if (clickedIcon != -1) {
+            this.playerIcons.active = false
+            this.data.special = false
+            this.data.gameAction = false
+            if (this.data.currentcard === "!~") {
+                var temp = this.data.hands[this.playerKey]
+                this.data.hands[this.playerKey] = this.data.hands["Player " + clickedIcon]
+                this.data.hands["Player " + clickedIcon] = temp
+            } else if (this.data.currentcard === "!K") {
+                for (var i = 0; i < 2; i++) {
+                    var newCard = this.data.Deck.splice(0,1);
+                    this.data.hands["Player " + clickedIcon] = this.data.hands["Player " + clickedIcon].concat(newCard)
+                    if (this.data.Deck.length === 5) {
+                        this.shuffleArray(MasterDeck)
+                        this.data.Deck = this.data.Deck.concat(MasterDeck.slice())
+                    }
+                }
+            }
+            firebase.firestore().doc("Games/Game " + this.props.Game_Key).update(this.data)
+        }
+    }
 }
 
 componentDidUpdate(){
@@ -760,12 +816,12 @@ renderHand(ctx){
 renderWildOptions(ctx) {
     if (this.data.currentcard[0] === "!" && this.data.currentplayer === this.player.turnNum && !this.data.special && this.data.discards === 0) {
         var grdSize = 160;
-        var grd = ctx.createRadialGradient(window.innerWidth/2, window.innerHeight/2, 100, window.innerWidth/2, window.innerHeight/2, grdSize);
+        var grd = ctx.createRadialGradient(window.innerWidth/2, window.innerHeight/2, grdSize/4, window.innerWidth/2, window.innerHeight/2, grdSize/2);
         grd.addColorStop(0, "#000000");
         grd.addColorStop(1, "#00000000");
 
         ctx.fillStyle = grd;
-        ctx.fillRect(window.innerWidth/2 - grdSize/2*this.sizeMult, window.innerHeight/2 - grdSize/2*this.sizeMult, grdSize*this.sizeMult, grdSize*this.sizeMult);
+        ctx.fillRect(window.innerWidth/2 - grdSize/2, window.innerHeight/2 - grdSize/2, grdSize, grdSize);
         redButton.draw(ctx);
         blueButton.draw(ctx);
         yellowButton.draw(ctx);
@@ -799,6 +855,7 @@ renderSpecial(ctx) {
         blueButton.on = false;
         greenButton.on = false;
         yellowButton.on = false;
+        this.playerIcons.active = true
     }
 }
 
@@ -847,11 +904,15 @@ renderWinner(ctx){
 updateCanvas(){
     this.ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
     this.ctx.drawImage(document.getElementById(this.background), 0, 0, window.innerWidth, window.innerHeight);
-    if (this.data.guessing === false || this.data.currentplayer != this.player.turnNum){
+    if (this.data.guessing === false || this.data.currentplayer != this.player.turnNum) {
         this.renderBoard(this.ctx)
         this.renderHand(this.ctx)
         this.renderWildOptions(this.ctx)
         this.renderSpecial(this.ctx)
+        if (this.playerIcons != null) {
+            this.playerIcons.setIcons(this.playernum, this.data.reversed, this.data.currentplayer, CARD_HEIGHT, this.sizeMult);
+            this.playerIcons.draw(this.ctx, [10, 9, 8, 7, 6, 5, 4, 3, 2, 1], this.data.currentplayer, this.sizeMult);
+        }
         if (this.winner !== -1){
             this.renderWinner(this.ctx)
         }
@@ -875,7 +936,7 @@ updateCanvas(){
 render(){
     return (
         <div>
-        <canvas ref = {this.canvasRef} onMouseMove={this.onMouseMove} onClick={this.onMouseClick} width = {window.innerWidth} height = {window.innerHeight}/>
+        <canvas ref = {this.canvasRef} onMouseMove={this.onMouseMove} onClick={this.onMouseClick} onContextMenu = {this.onContextMenu} width = {window.innerWidth} height = {window.innerHeight}/>
         </div>
     );
 }

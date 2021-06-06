@@ -18,6 +18,7 @@ function Card(width,height, img){
     this.height = height;
     this.img = document.getElementById(img);
     this.hovered = false;
+    this.offset = 0;
 
     // dot product helper function
     function dot([x1,y1],[x2,y2]) {
@@ -25,7 +26,7 @@ function Card(width,height, img){
     }
 
     this.onCard = function(x, y, cardx = this.x, cardy = this.y){
-        return (this.x < x && x < this.x+this.width && this.y < y && y < this.y+this.height);
+        return (this.x + this.offset < x && x < this.x + this.offset + this.width && this.y < y && y < this.y+this.height);
 
         // var cos = Math.cos(this.angle);
         // var sin = Math.sin(this.angle);
@@ -36,10 +37,13 @@ function Card(width,height, img){
     }
 
     this.draw = function(ctx, offset=0){
+        this.offset = offset;
         ctx.save();
         ctx.translate(this.x, this.y);
         ctx.rotate(this.angle);
         ctx.translate(-this.x, -this.y);
+        ctx.fillStyle = "#100910";
+        ctx.fillRect(this.x + offset-1,this.y - ((this.hovered) ? this.height/4 : 0)-1,this.width+2,this.height+2);
         ctx.drawImage(this.img,this.x + offset,this.y - ((this.hovered) ? this.height/4 : 0),this.width,this.height);
         ctx.restore(); 
     }   
