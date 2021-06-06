@@ -54,7 +54,6 @@ class GameCanvas extends React.Component {
         this.canvasRef = React.createRef()
         this.hasdrawnplayablecard = false;
         this.hasguessed = false
-        this.player = new Player();
         this.canvasRef = React.createRef();
         this.playerKey = "Player " + props.turnnumber.toString();
         this.data = {currentcard:"none"};
@@ -377,7 +376,7 @@ guess() {
     var guesshand = [];
     var potentialcards = ["1","2","3","4","5","6","7","8","9","+","!D","!!","S","R"];
     guesshand[0] = this.data.Deck[0];
-    for (var i = 1; i < 4; i++ ){
+    for (var i = 1; i < 2; i++ ){
        var randomchoice = Math.floor(Math.random() * potentialcards.length);
         var randomcard = potentialcards[randomchoice];
         if(randomcard.length !== 2){

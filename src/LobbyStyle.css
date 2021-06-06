@@ -6,14 +6,12 @@
     z-index: 1;
     top: 0;
     overflow-x: hidden;
-    padding-top: 20px;
   }
   
   /* Control the left side */
   .left {
     left: 0;
-    padding-left: 30px;
-    padding-top: 60px;
+    margin-top: 60px;
   }
   
   /* Control the right side */
@@ -21,7 +19,7 @@
     right: 0;
     text-align: center;
     justify-content: center;
-    padding-top: 60px;
+    margin-top: 60px;
   }
   
   /* If you want the content centered horizontally and vertically */
@@ -41,9 +39,18 @@
 
   .pfpstyle{
     border-radius: 50%;
-    padding-right: 10px;  
+    margin-right: 10px;  
   }
 
   .titleBar {
       margin-bottom: 50px;
+  }
+
+  #banner {
+    pointer-events: all;
+  }
+
+  body::-webkit-scrollbar-thumb {
+    background-color: rgba(109, 2, 136, 0.986);
+    outline: 1px solid slategrey;
   }

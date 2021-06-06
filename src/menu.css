@@ -44,3 +44,12 @@
     font-size: 35px;
     margin-bottom: 10px;
 }
+
+.parent {
+    overflow: auto;
+    transform: scaleX(-1); 
+  }
+  
+  .sleeve {
+    transform: scaleX(-1);
+  }

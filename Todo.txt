@@ -16,6 +16,14 @@
 
 -Optional: Highlight deck when it is your turn and you need to draw (or continue chain)
 
+-Name ideas 
+    -cero
+    -dos
+    -card battles
+
+
+
+
 DONE
 
 -Add profile pic selection
@@ -51,7 +59,7 @@ DONE
 -Special Card ideas
     -Colorblind: Chose 1 colour, all cards of that colour are discarded from your hand
     -Gravedigger: Copies the card at the top of the played pile
-    -Bodyguard: Removes all +2 and +4 cards from the players directly to the left and right of you
+    -Bodyguard: Removes all +2 and +4 cards from the players directly to the left and right of you/////////////////////////////////////////////
     -Paradigm shift: All hands are shifted once in the direction of play (required reworking some parts of Canvas.js)
     -Hand of God: Discard 50% of your cards
     -Breakaway: You keep playing until you must pick up a card or win, but they all loser their special value
