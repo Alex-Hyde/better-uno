@@ -368,6 +368,11 @@ pullCard() {
                 this.hasdrawnplayablecard = true;
             }
         }
+        this.data.currentplayer = (this.player.turnNum - (this.data.reversed*2) + 1 + this.playernum) % this.playernum
+        this.data.turn += 1;
+        this.hasguessed = false;
+        this.hasdrawnplayablecard = false
+        firebase.firestore().doc("Games/Game " + this.props.Game_Key).update(this.data)
     } else {
         var newCard = this.data.Deck.splice(0,1);
         var testCard = new Card(0,0,newCard[0]);

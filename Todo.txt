@@ -3,9 +3,6 @@
 
 -Make info pop up
 
--cannot play after draw
-
-
 -Find a way to play the special cards in a noticable way
 
 -Special Card ideas

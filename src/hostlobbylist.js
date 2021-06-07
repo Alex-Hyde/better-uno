@@ -63,7 +63,7 @@ class HostLobbylist extends React.Component {
         <MenuButton 
                     style={{fontSize: "20px", height : "30px", verticalAlign: "middle", margin:"25px"}} 
                     text="Leave"
-                    onClick={this.leaveLobby}
+                    onClick={this.props.leavefunc}
                 />
                 </div>].concat(
             this.props.players.slice(1).map( (player,index) => 
