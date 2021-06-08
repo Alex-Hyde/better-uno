@@ -1,6 +1,7 @@
 import React from "react";
 import reactDom from "react-dom";
 import "./style.css";
+import "./Button.css";
 
 class MenuButton extends React.Component {
     constructor(props){
@@ -12,7 +13,7 @@ class MenuButton extends React.Component {
     }
 
     render(props) {
-        return <button onClick = {this.props.onClick} style = {this.state.style}>{this.state.answer}</button>
+        return <button className="reactButton" onClick = {this.props.onClick} style = {this.state.style}>{this.state.answer}</button>
     }
 }
 

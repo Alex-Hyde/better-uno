@@ -67,7 +67,7 @@ class GameCanvas extends React.Component {
         this.sparecard = null;
         this.placedCards = [];
         this.playedCardsBefore = -1;
-        this.background = "gameBG_" + (Math.floor(Math.random() * NUM_BACKGROUNDS) + 1).toString(10);
+        this.background = "gameBG_2"; // + (Math.floor(Math.random() * NUM_BACKGROUNDS) + 1).toString(10);
 
         this.listentodoc = this.listentodoc.bind(this)
         this.updateCanvas = this.updateCanvas.bind(this)
@@ -810,7 +810,7 @@ renderHand(ctx){
    // console.log(this.player.cardsInHand)
     for (let i = 0; i < this.player.cardsInHand.length; i++) {
         var card = this.player.cardsInHand[i];
-        card.x = window.innerWidth/2 + (i-this.player.cardsInHand.length/2)*(Math.min(CARD_WIDTH*this.sizeMult*0.7, this.maxWidth/this.player.cardsInHand.length)) - CARD_WIDTH*this.sizeMult/2;
+        card.x = window.innerWidth/2 + (i-this.player.cardsInHand.length/2)*(Math.min(CARD_WIDTH*this.sizeMult*0.7, this.maxWidth/this.player.cardsInHand.length));
         card.y = window.innerHeight - CARD_HEIGHT*this.sizeMult - 20;
         card.width = CARD_WIDTH*this.sizeMult;
         card.height = CARD_HEIGHT*this.sizeMult;
@@ -855,7 +855,7 @@ renderOpponentHands(ctx, cardNums) {
         ctx.restore(); 
     }
     for (let i = 0; i < cardNums[1]; i++) {
-        var x = window.innerWidth/2 + (i-cardNums[1]/2)*(Math.min(CARD_WIDTH*this.sizeMult*0.7, this.maxWidth/cardNums[1])) - CARD_WIDTH*this.sizeMult/2;
+        var x = window.innerWidth/2 + (i-cardNums[1]/2)*(Math.min(CARD_WIDTH*this.sizeMult*0.7, this.maxWidth/cardNums[1]));
         var y = 20;
         var w = CARD_WIDTH*this.sizeMult;
         var h = CARD_HEIGHT*this.sizeMult;
@@ -979,6 +979,13 @@ renderWinner(ctx){
 updateCanvas(){
     this.ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
     this.ctx.drawImage(document.getElementById(this.background), 0, 0, window.innerWidth, window.innerHeight);
+    this.ctx.save();
+    if (!this.data.reversed) {
+        this.ctx.translate(window.innerWidth, 0);
+        this.ctx.scale(-1, 1);
+    }
+    this.ctx.drawImage(document.getElementById("gameBG_arrows"), 0, 0, window.innerWidth, window.innerHeight);
+    this.ctx.restore();
     if (this.data.dueling) {
         this.duel(this.data.duelers);
         return;

@@ -1,3 +1,9 @@
+@font-face {
+    font-family: "Eina";
+    src: local('Eina'), url(./fonts/Eina/Eina01-Bold.ttf);
+}
+
+
 #menuContainer {
     margin: auto;
     margin-top: 150px;
@@ -6,6 +12,7 @@
     width: fit-content;
     background-image: url("./menuBackground.png");
     box-shadow: 5px 10px #00000033;
+    max-width: 800px;
 }
 
 #nameInput {
@@ -14,19 +21,21 @@
     width: 100%;
     border-radius: 10px;
     padding-left: 10px;
-    /* background-color: #FFFFFF55; */
+    background-color: #f1deff;
     border: 2px solid black;
-    font-size: 35px;
+    font-size: 40px;
+    color: #4b2670;
+    font-family: Eina;
 }
 
 #nameInput:focus {
-    border: 2px solid black;
     outline: none;
-    background-color: #FFFFFF99;
+    background-color: #e0b8ff;
+    /* background-image: radial-gradient(ellipse at bottom, #bafdff, transparent); */
 }
 
-::placeholder { /* Most modern browsers support this now. */
-    color:    #444444;
+::placeholder {
+    color:    #9977ba;
 }
 
 #codeInput {
@@ -39,14 +48,14 @@
     margin-right: 5px;
     border-radius: 10px;
     padding-left: 10px;
-    /* background-color: #FFFFFF55; */
+    background-color: #f1deff;
     border: 2px solid black;
-    font-size: 35px;
+    font-size: 40px;
     margin-bottom: 10px;
+    font-family: Eina;
 }
 
 #codeInput:focus {
-    border: 2px solid black;
     outline: none;
-    background-color: #FFFFFF99;
+    background-color: #e0b8ff;
 }

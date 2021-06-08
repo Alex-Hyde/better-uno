@@ -84,12 +84,15 @@ class MenuPage extends React.Component {
                     this.props.setInLobby(true, parseInt(this.state.Game_Key), this.state.Name, "pfp" + current))
                 } 
             } else {
-                window.alert("Lobby Not Found");
+                if (this.state.Game_Key == "") {
+                    document.getElementById("codeInput").focus()
+                } else {
+                    window.alert("Lobby Not Found");
+                }
                 this.setState({
                     Name: this.state.Name,
                     message: "Lobby Not Found"
                 })
-                document.getElementById("codeInput").focus()
                 return;
             }
         });
@@ -163,42 +166,34 @@ class MenuPage extends React.Component {
                 <form>
                     <div style={{display: "flex", justifyContent: "center"}}>
                         {/* <h1 style={{fontSize: "30px"}}> Enter Your Name:</h1> */}
-                        <input id="nameInput" type="textfield" placeholder="Name" onChange={this.setName} spellCheck="false"></input>                 
+                        <input id="nameInput" type="textfield" placeholder="Name" onChange={this.setName} spellCheck="false" autoComplete="off"></input>                 
                     </div>
                     <br/>
                     <div style={{display: "flex", justifyContent: "center"}}>
                         <div style={{flex: "50%", paddingRight: "8px"}}>
-                            <input id="codeInput" type="textfield" placeholder="Game Code" onChange={this.setCode} spellCheck="false"></input>
+                            <input id="codeInput" type="textfield" placeholder="Game Code" onChange={this.setCode} spellCheck="false" autoComplete="off"></input>
                             <MenuButton id="joinLobby"
                                 style={{
-                                        fontSize: "30px", 
                                         height: "75px", 
                                         width: "100%",
-                                        borderRadius: "10px",
-                                        backgroundImage: "linear-gradient(20deg, #999999 0%, #FFFFFF 100%)"
+                                        fontSize: "45px"
                                     }} 
-                                text="Join game"
+                                text="JOIN"
                                 onClick={this.setLobby}
                             />
                         </div>
                         <div style={{flex: "50%", paddingLeft: "8px"}}>
                             <div style={{
                                         height: "100%", 
-                                        width: "100%" ,
-                                        borderRadius: "10px",
-                                        backgroundImage: "linear-gradient(45deg, #999999 0%, #FFFFFF 100%)",
-                                        padding: "5px"
+                                        width: "100%" 
                                     }} >
                                 <MenuButton id="hostLobby"
                                     style={{
-                                            border: "none",
-                                            fontSize: "30px", 
                                             height: "100%", 
-                                            width: "100%" ,
-                                            borderRadius: "8px",
-                                            backgroundImage: "linear-gradient(200deg, #999999 0%, #FFFFFF 100%)"
+                                            width: "100%",
+                                            fontSize: "60px"
                                         }} 
-                                    text="Host Game"
+                                    text="HOST"
                                     onClick={this.createLobby}
                                 />
                             </div>
