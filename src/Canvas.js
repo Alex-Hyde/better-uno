@@ -8,6 +8,7 @@ import PlayerIcons from "./PlayerIcons.js";
 
 import { CanvasButton, CanvasButtonCircle } from "./Canvasbutton.js";
 import messages from "./messages.js";
+import imgdict from "./imgdict.js";
 
 const godRandom = false; // whether hand of got discards random cards or you get to choose (I'm not sure)
 const digits = ["0","1","2","3","4","5","6","7","8","9"]
@@ -54,6 +55,8 @@ class GameCanvas extends React.Component {
         this.specialdeck.x = 350;
         this.player = new Player();
         this.specialdeck.y = 175;
+        this.dueling = false;
+        this.duelists = [];
         this.canvasRef = React.createRef()
         this.hasdrawnplayablecard = false;
         this.hasguessed = false
@@ -81,6 +84,7 @@ class GameCanvas extends React.Component {
 
         this.onMouseMove = this.onMouseMove.bind(this)
         this.onMouseClick = this.onMouseClick.bind(this)
+        this.renderDuelWin = this.renderDuelWin.bind(this)
 
         this.playCard = this.playCard.bind(this)
         this.discard = this.discard.bind(this)
@@ -402,7 +406,7 @@ guess() {
     var guesshand = [];
     var potentialcards = ["1","2","3","4","5","6","7","8","9","+","!D","!!","S","R"];
     guesshand[0] = this.data.Deck[0];
-    for (var i = 1; i < 2; i++ ){
+    for (var i = 1; i < 1; i++ ){
        var randomchoice = Math.floor(Math.random() * potentialcards.length);
         var randomcard = potentialcards[randomchoice];
         if(randomcard.length !== 2){
@@ -534,7 +538,8 @@ duel(duelers) {
                     this.data.Deck = this.data.Deck.concat(MasterDeck.slice())
                 }
             }
-        } else if (sums[1] < sums[0]) {
+        } 
+        else if (sums[1] <= sums[0]) {
             for (var i = 0; i < 3; i++) {
                 var newCard = this.data.Deck.splice(0,1);
                 this.data.hands["Player " + duelers[1]] = this.data.hands["Player " + duelers[1]].concat(newCard)
@@ -544,10 +549,27 @@ duel(duelers) {
                 }
             }
         }
+        if (sums[0] < sums[1]){
+            this.dueling = true
+            this.duelists = duelers;
+        }
+        else if (sums[1] <= sums[0]) {
+            this.dueling = true
+            this.duelists = [duelers[1],duelers[0]];
+        }
         this.data.dueling = false
         this.data.gameAction = false
         firebase.firestore().doc("Games/Game " + this.props.Game_Key).update(this.data)
     }
+}
+
+renderDuelWin(duelists){
+    this.ctx.globalAlpha = 0.4
+    this.ctx.fillStyle = "black"
+    this.ctx.fillRect(0,0,window.innerWidth,window.innerHeight);
+    console.log(duelists[0],this.data.pfps[duelists[0]])
+    this.ctx.globalAlpha = 1;
+    this.ctx.drawImage(document.getElementById(this.data.pfps[duelists[0]]),window.innerWidth/2 - 100,100,400,400);   
 }
 
 discard(index) {
@@ -583,18 +605,23 @@ leaveLobby() {
 
 resetGuess(){
     if (this.data.guessing === "correct"){
+        this.data.guessing = false
         this.player.cardsInHand = this.sparehand;
         this.pullSpecialCard();
         this.updateCanvas()
+
     }
 }
 
 resetwrongGuess(){
     if (this.data.guessing === "incorrect"){
+        this.data.guessing = false
         this.player.cardsInHand = this.sparehand;
-        this.data.chain += 3;
-        this.pullCard();
+        for (var i = 0; i < 3; i++){
+            this.pullCard();    
+        }
         this.updateCanvas()
+
     }
 }
 
@@ -998,6 +1025,10 @@ renderWinner(ctx){
 }
 
 updateCanvas(){
+    if (this.dueling === true){
+        this.renderDuelWin(this.duelists);
+        return
+    }
     this.ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
     this.ctx.drawImage(document.getElementById(this.background), 0, 0, window.innerWidth, window.innerHeight);
     if (this.data.dueling) {

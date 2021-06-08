@@ -3,6 +3,8 @@
 
 -Make info pop up
 
+-style exit screen
+
 -Find a way to play the special cards in a noticable way
 
 -Special Card ideas
