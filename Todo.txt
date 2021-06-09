@@ -8,8 +8,6 @@
 
 -Special Card ideas
     -Unseeing eye: Allows you to view the hand of a single player of your choice
-    -Lifeline: If a player wins the game while this card is in someones hand, 
-               the winning player is delt 4 cards and this card is discarded. (Normal wildcard if played)
 
 -Optional: Highlight deck when it is your turn and you need to draw (or continue chain)
 
@@ -55,6 +53,8 @@ DONE
 - Implement the shield card (allows you to deflect +2 and +4 to the next person)
 
 -Special Card ideas
+    -Lifeline: If a player wins the game while this card is in someones hand, 
+               the winning player is delt 4 cards and this card is discarded. (Normal wildcard if played)
     -Redirect: Deflect any incoming effects to a player of your choice
     -Act of Kindness: Give 2 of your cards to the player of your choice
     -Sleight of hand: Swap hands with a person of your choice
