@@ -17,7 +17,7 @@
   /* Control the right side */
   .right {
     right: 0;
-    text-align: center;
+    text-align: left;
     justify-content: center;
     margin-top: 60px;
   }

@@ -78,7 +78,7 @@ class Lobby extends React.Component {
                     <Lobbylist name = {this.props.name} leavefunc = {this.leaveLobby} players={this.props.playerlist} images={this.props.pfps}/> 
                     </div>
                     <div className = "split right">
-                        <h1>Pick a Profile Picture</h1>
+                        <h1 style = {{marginLeft:"118px"}}>Pick a Profile Picture</h1>
                         <div className = "centered" style = {{height : "85%", width : "100%"}}>
                         <ImgRow pfp = {this.props.pfp} pfps = {this.props.pfps} onClick = {this.props.func} images = {[[pfp1,pfp13,"pfp1"],[pfp2,pfp13,"pfp2"],[pfp3,pfp13,"pfp3"]]}/>
                         <ImgRow pfp = {this.props.pfp} pfps = {this.props.pfps} onClick = {this.props.func} images = {[[pfp4,pfp13,"pfp4"],[pfp5,pfp13,"pfp5"],[pfp6,pfp13,"pfp6"]]}/>
