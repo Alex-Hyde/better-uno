@@ -98,6 +98,7 @@ class GameCanvas extends React.Component {
         this.onContextMenu = this.onContextMenu.bind(this)
         this.duel = this.duel.bind(this)
         this.gift = this.gift.bind(this)
+        this.peek = this.peek.bind(this)
         this.resetDuel = this.resetDuel.bind(this)
         //this.forcedPull = this.forcedPull.bind(this)
 
@@ -509,10 +510,30 @@ playCard(index) {
         }
     } else if (this.data.currentcard === "!Y") { // breakaway card
         this.data.breakaway = true;
-    } else if (["!C", "!~", "!K", "!T", "!X"].includes(this.data.currentcard)) { // certain special cards
+    } else if (["!C", "!~", "!K", "!T", "!X", "!U"].includes(this.data.currentcard)) { // certain special cards
         this.data.special = true;
     } else if (this.data.currentcard[1] === "S") { // any skip card
         this.data.currentplayer = (this.player.turnNum - (this.data.reversed * 4) + 2 + this.playernum) % this.playernum
+    }
+
+    if (this.data.hands[this.playerKey].length === 0) {
+        for (var p = 0; p < this.playernum; p++) {
+            if (p != this.player.turnNum) {
+                if (this.data.hands["Player " + p].includes("!L")) { // lifeline check
+                    this.data.hands["Player " + p].splice(this.data.hands["Player " + p].indexOf("!L"))
+                    for (var i = 0; i < 4; i++) {
+                        var newCard = this.data.Deck.splice(0,1);
+                        this.data.hands[this.playerKey] = this.data.hands[this.playerKey].concat(newCard)
+                        if (this.data.Deck.length === 5) {
+                            this.shuffleArray(MasterDeck)
+                            this.data.Deck = this.data.Deck.concat(MasterDeck.slice())
+                        }
+                    }
+                    this.data.currentplayer = p;
+                    this.data.currentcard = "!L";
+                }
+            }
+        }
     }
     this.updateCanvas()
     firebase.firestore().doc("Games/Game " + this.props.Game_Key).update(this.data)
@@ -563,6 +584,10 @@ duel(duelers) {
         this.dueling = true
         this.duelists = [duelers[1],duelers[0]];
     }
+}
+
+peek(player) { // unseeing eye code here
+    console.log(player);
 }
 
 resetDuel(){
@@ -841,6 +866,8 @@ onMouseClick(e){
             } else if (this.data.currentcard === "!X") { // duel
                 this.data.dueling = true;
                 this.data.duelers = [this.player.turnNum, clickedIcon]
+            } else if (this.data.currentcard === "!U") { // unseeing eye
+                this.peek(clickedIcon)
             }
             firebase.firestore().doc("Games/Game " + this.props.Game_Key).update(this.data)
         }
