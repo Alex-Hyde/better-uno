@@ -5,7 +5,6 @@
 
 -Add instructions for special cards
  
--style exit screen
 
 -Special Card ideas
     -Unseeing eye: Allows you to view the hand of a single player of your choice

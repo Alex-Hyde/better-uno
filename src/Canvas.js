@@ -25,9 +25,9 @@ var greenButton = new CanvasButtonCircle(window.innerWidth/2 + 2, window.innerHe
 //var sYellowButton = new CanvasButton("YellowB", 900, 210, 100, 100);
 //var sGreenButton = new CanvasButton("GreenB", 1010, 210, 100, 100);
 
-var returnbutton = new CanvasButton("returnbutton",(window.innerWidth/2)-160,600,155,70);
-var skipbutton = new CanvasButton("SkipButton",(window.innerWidth/8) * 7, (window.innerHeight/8) * 7,155,70);
-var leavebutton = new CanvasButton("leavebutton",(window.innerWidth/2),600,155,70);
+var returnbutton = new CanvasButton("returnbutton",(window.innerWidth/2)-310,600,306,78);
+var skipbutton = new CanvasButton("SkipButton",(window.innerWidth/8) * 7, (window.innerHeight/8) * 7,205,79);
+var leavebutton = new CanvasButton("leavebutton",(window.innerWidth/2) + 4,600,306,78);
 
 const CARD_WIDTH = 100;
 const CARD_HEIGHT = 151;
