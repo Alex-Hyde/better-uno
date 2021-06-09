@@ -55,6 +55,14 @@
     font-family: Eina;
 }
 
+.parent {
+    overflow: auto;
+    transform: scaleX(-1); 
+  }
+  
+  .sleeve {
+    transform: scaleX(-1);
+  }
 #codeInput:focus {
     outline: none;
     background-color: #e0b8ff;

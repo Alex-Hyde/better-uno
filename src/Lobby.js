@@ -1,5 +1,5 @@
 import React from "react";
-import Banner from "./Banner";
+import Banner from "./Banner" ;
 import Lobbylist from "./lobbylist";
 import HostLobbylist from "./hostlobbylist";
 import MenuButton from "./Buttons.js";
@@ -67,24 +67,19 @@ class Lobby extends React.Component {
     }
 
     render(props){
-        console.log(this.props.pfp)
+        console.log(this.props.pfps)
         if (!this.props.ishost){
             return(
                 <div>
-                    <div className = "split left">
-                    <div style = {{display: "flex", justifyContent: "center"}}>
+                    <div id = "banner" style = {{textAlign: "center"}}>
                     <Banner lobby_num = {this.props.Lobbycode}/>
                     </div>
-                    <Lobbylist players={this.props.playerlist} images={this.props.pfps}/>  
-                    <MenuButton 
-                        style={{fontSize: "30px"}} 
-                        text="Leave"
-                        onClick={this.leaveLobby}
-                    />
+                    <div className = "split left" style = {{marginTop : "5%", marginLeft: "20%", width: "25%" , height : "70%", borderRadius: "2%" , backgroundColor: "#B15BF1"}}>
+                    <Lobbylist name = {this.props.name} leavefunc = {this.leaveLobby} players={this.props.playerlist} images={this.props.pfps}/> 
                     </div>
                     <div className = "split right">
-                        <h1>Pick a Profile Picture</h1>
-                        <div className = "centered">
+                        <h1 style = {{marginLeft:"118px"}}>Pick a Profile Picture</h1>
+                        <div className = "centered" style = {{height : "85%", width : "100%"}}>
                         <ImgRow pfp = {this.props.pfp} pfps = {this.props.pfps} onClick = {this.props.func} images = {[[pfp1,pfp13,"pfp1"],[pfp2,pfp13,"pfp2"],[pfp3,pfp13,"pfp3"]]}/>
                         <ImgRow pfp = {this.props.pfp} pfps = {this.props.pfps} onClick = {this.props.func} images = {[[pfp4,pfp13,"pfp4"],[pfp5,pfp13,"pfp5"],[pfp6,pfp13,"pfp6"]]}/>
                         <ImgRow pfp = {this.props.pfp} pfps = {this.props.pfps} onClick = {this.props.func} images = {[[pfp7,pfp13,"pfp7"],[pfp8,pfp13,"pfp8"],[pfp9,pfp13,"pfp9"]]}/>
@@ -97,20 +92,23 @@ class Lobby extends React.Component {
         return(
             <div>
                 <div>
-                <div className = "split left">
                 <div style = {{display: "flex", justifyContent: "center"}}>
                 <Banner lobby_num = {this.props.Lobbycode}/>
                 </div>
-                <HostLobbylist images={this.props.pfps} players={this.props.playerlist} Lobbycode = {this.props.Lobbycode}/> 
-                <MenuButton 
-                    style={{fontSize: "30px"}} 
-                    text="Leave"
-                    onClick={this.leaveLobby}
-                />
+                <div className = "split left">
+                <HostLobbylist name = {this.props.name} leavefunc = {this.leaveLobby} images={this.props.pfps} players={this.props.playerlist} Lobbycode = {this.props.Lobbycode}/> 
                 <div style = {{display: "flex", justifyContent: "center"}}>
                     <MenuButton 
                         style={{fontSize: "30px"}} 
                         text="Start Game"
+                        style={{
+                            fontSize: "30px", 
+                            height: "25%", 
+                            width: "25%" ,
+                            borderRadius: "10px",
+                            border: "0px solid white",
+                            backgroundImage: "linear-gradient(20deg, #730C99 0%, #9F05C5 100%)"
+                        }} 
                         onClick = {this.props.setInGame}
                     />
                     </div> 

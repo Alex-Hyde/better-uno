@@ -2,6 +2,7 @@ import React from 'react';
 import firebase from "./firebase.js";
 import "./LobbyStyle.css";
 import imgdict from "./imgdict.js"
+import MenuButton from "./Buttons.js";
 
 class PlayerIcon extends React.Component{
 
@@ -58,7 +59,13 @@ class HostLobbylist extends React.Component {
 
     render() {
         if (this.props.players.length > 0){
-        var playerstorender = [<div key={this.props.players[0]} style={{display: "flex"}}><PlayerIcon name={this.props.players[0]} src={imgdict[this.props.images[0]]} /></div>].concat(
+        var playerstorender = [<div key={this.props.players[0]} style={{display: "flex"}}><PlayerIcon name={this.props.players[0]} src={imgdict[this.props.images[0]]} />
+        <MenuButton 
+                    style={{fontSize: "20px", height : "30px", verticalAlign: "middle", margin:"25px"}} 
+                    text="Leave"
+                    onClick={this.props.leavefunc}
+                />
+                </div>].concat(
             this.props.players.slice(1).map( (player,index) => 
                 <div key={player} style={{display: "flex"}}>
                 <PlayerIcon src={imgdict[this.props.images[index + 1]]} name={player}/><KickButton kicked={player} style={{fontSize: "20px", height: "30px", verticalAlign: "middle", margin:"25px"}} Lobbycode={this.props.Lobbycode}/>

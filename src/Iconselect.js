@@ -17,13 +17,13 @@ class ImgButton extends React.Component {
     render(){
         console.log(this.props.pfp,this.text)
         if (this.props.pfps.includes(this.text) === false){
-            return (<button style = {{backgroundColor : "rgba(0,0,0,0)", borderColor: "rgba(0,0,0,0)"}}><img src = {this.active} onClick = {this.setpfp}/></button>)
+            return (<button style = {{backgroundColor : "rgba(0,0,0,0)", borderColor: "rgba(0,0,0,0)", margin : "3px"}}><img width={75} height = {125} src = {this.active} onClick = {this.setpfp}/></button>)
         }
         else if (this.props.pfp === this.text){
-            return(<button style = {{backgroundColor : "rgba(0,0,0,0)", borderColor: "rgba(0,0,0,0)"}}><img style={{border: "#6dfc87 thick solid"}} src = {this.alt} /></button>)
+            return(<button style = {{backgroundColor : "rgba(0,0,0,0)", borderColor: "rgba(0,0,0,0)"}}><img width={75} height = {125} style={{border: "3px solid #7C40A9 "}} src = {this.alt} /></button>)
         }
         else{
-            return(<button style = {{backgroundColor : "rgba(0,0,0,0)", borderColor: "rgba(0,0,0,0)"}}><img  src = {this.alt} /></button>)
+            return(<button style = {{backgroundColor : "rgba(0,0,0,0)", borderColor: "rgba(0,0,0,0)", margin : "3px"}}><img  width={75} height = {125} src = {this.alt} /></button>)
         }
     }
     
