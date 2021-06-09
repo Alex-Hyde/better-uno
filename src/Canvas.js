@@ -517,10 +517,12 @@ playCard(index) {
     }
 
     if (this.data.hands[this.playerKey].length === 0) {
-        for (var p = 0; p < this.playernum; p++) {
-            if (p != this.player.turnNum) {
-                if (this.data.hands["Player " + p].includes("!L")) { // lifeline check
-                    this.data.hands["Player " + p].splice(this.data.hands["Player " + p].indexOf("!L"))
+        for (var p = (this.player.turnNum + 1 - (this.data.reversed * 2) + this.playernum) % this.playernum;
+         p != this.player.turnNum; 
+         p = (p + 1 - (this.data.reversed * 2) + this.playernum) % this.playernum) {
+            for (var x = this.data.hands["Player " + p].length - 1; x >= 0; x--) {
+                if (this.data.hands["Player " + p][x] === "!L") { // lifeline check
+                    this.data.hands["Player " + p].splice(x, 1)
                     for (var i = 0; i < 4; i++) {
                         var newCard = this.data.Deck.splice(0,1);
                         this.data.hands[this.playerKey] = this.data.hands[this.playerKey].concat(newCard)
