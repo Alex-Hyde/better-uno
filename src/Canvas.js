@@ -5,6 +5,7 @@ import Player from "./player.js";
 import MasterDeck from "./Deck.js";
 import specialdeck from "./SpecialDeck.js";
 import PlayerIcons from "./PlayerIcons.js";
+import "./Button.css";
 
 import { CanvasButton, CanvasButtonCircle } from "./Canvasbutton.js";
 import messages from "./messages.js";
@@ -24,9 +25,9 @@ var greenButton = new CanvasButtonCircle(window.innerWidth/2 + 2, window.innerHe
 //var sYellowButton = new CanvasButton("YellowB", 900, 210, 100, 100);
 //var sGreenButton = new CanvasButton("GreenB", 1010, 210, 100, 100);
 
-var returnbutton = new CanvasButton("returnbutton",(window.innerWidth/2)-160,230,155,70);
+var returnbutton = new CanvasButton("returnbutton",(window.innerWidth/2)-160,600,155,70);
 var skipbutton = new CanvasButton("SkipButton",(window.innerWidth/8) * 7, (window.innerHeight/8) * 7,155,70);
-var leavebutton = new CanvasButton("leavebutton",(window.innerWidth/2),230,155,70);
+var leavebutton = new CanvasButton("leavebutton",(window.innerWidth/2),600,155,70);
 
 const CARD_WIDTH = 100;
 const CARD_HEIGHT = 151;
@@ -71,7 +72,7 @@ class GameCanvas extends React.Component {
         this.sparecard = null;
         this.placedCards = [];
         this.playedCardsBefore = -1;
-        this.background = "gameBG_" + (Math.floor(Math.random() * NUM_BACKGROUNDS) + 1).toString(10);
+        this.background = "gameBG_2"; // + (Math.floor(Math.random() * NUM_BACKGROUNDS) + 1).toString(10);
 
         this.listentodoc = this.listentodoc.bind(this)
         this.updateCanvas = this.updateCanvas.bind(this)
@@ -96,6 +97,7 @@ class GameCanvas extends React.Component {
         this.resetwrongGuess = this.resetwrongGuess.bind(this)
         this.onContextMenu = this.onContextMenu.bind(this)
         this.duel = this.duel.bind(this)
+        this.resetDuel = this.resetDuel.bind(this)
         //this.forcedPull = this.forcedPull.bind(this)
 
         this.maxWidth = 1000;
@@ -287,7 +289,7 @@ cardCanPlay(card){
 }
 
 onMouseMove(e){
-    if (this.winner === -1){
+    if (this.winner === -1 && this.dueling === false){
         var rect = this.canvasRef.current.getBoundingClientRect();
         var rerender = false;
         this.x = e.clientX - rect.left
@@ -374,10 +376,9 @@ pullCard() {
             }
         }
         this.data.currentplayer = (this.player.turnNum - (this.data.reversed*2) + 1 + this.playernum) % this.playernum
-        this.data.turn += 1;
         this.hasguessed = false;
         this.hasdrawnplayablecard = false
-        firebase.firestore().doc("Games/Game " + this.props.Game_Key).update(this.data)
+
     } else {
         var newCard = this.data.Deck.splice(0,1);
         var testCard = new Card(0,0,newCard[0]);
@@ -549,27 +550,43 @@ duel(duelers) {
                 }
             }
         }
-        if (sums[0] < sums[1]){
-            this.dueling = true
-            this.duelists = duelers;
-        }
-        else if (sums[1] <= sums[0]) {
-            this.dueling = true
-            this.duelists = [duelers[1],duelers[0]];
-        }
         this.data.dueling = false
         this.data.gameAction = false
         firebase.firestore().doc("Games/Game " + this.props.Game_Key).update(this.data)
     }
+    if (sums[0] <= sums[1]){
+        this.dueling = true
+        this.duelists = duelers;
+    }
+    else if (sums[1] < sums[0]) {
+        this.dueling = true
+        this.duelists = [duelers[1],duelers[0]];
+    }
+}
+
+resetDuel(){
+    this.dueling = false
+    this.updateCanvas();
 }
 
 renderDuelWin(duelists){
-    this.ctx.globalAlpha = 0.4
+    this.ctx.save()
+    this.ctx.globalAlpha = 0.9
     this.ctx.fillStyle = "black"
     this.ctx.fillRect(0,0,window.innerWidth,window.innerHeight);
     console.log(duelists[0],this.data.pfps[duelists[0]])
-    this.ctx.globalAlpha = 1;
-    this.ctx.drawImage(document.getElementById(this.data.pfps[duelists[0]]),window.innerWidth/2 - 100,100,400,400);   
+    this.ctx.restore()
+    this.ctx.fillStyle = "black"
+    this.ctx.strokeStyle = 'white';
+    this.ctx.font = "70px Eina";
+    this.ctx.textAlign = "center";
+    this.ctx.fillText(this.data.players[duelists[0]] +" Wins!", (window.innerWidth/2), 70);
+    this.ctx.strokeText(this.data.players[duelists[0]] +" Wins!", (window.innerWidth/2), 70);
+    this.ctx.drawImage(document.getElementById(this.data.pfps[duelists[0]]),(window.innerWidth/2) - 200,100,400,400); 
+    this.ctx.fillText(this.data.players[duelists[1]] +" draws 3 cards!", (window.innerWidth/2), 600);
+    this.ctx.strokeText(this.data.players[duelists[1]] +" draws 3 cards!", (window.innerWidth/2), 600); 
+    this.ctx.strokeStyle = '#000000'; 
+    setTimeout(this.resetDuel,2000)
 }
 
 discard(index) {
@@ -858,7 +875,7 @@ renderHand(ctx){
    // console.log(this.player.cardsInHand)
     for (let i = 0; i < this.player.cardsInHand.length; i++) {
         var card = this.player.cardsInHand[i];
-        card.x = window.innerWidth/2 + (i-this.player.cardsInHand.length/2)*(Math.min(CARD_WIDTH*this.sizeMult*0.7, this.maxWidth/this.player.cardsInHand.length)) - CARD_WIDTH*this.sizeMult/2;
+        card.x = window.innerWidth/2 + (i-this.player.cardsInHand.length/2)*(Math.min(CARD_WIDTH*this.sizeMult*0.7, this.maxWidth/this.player.cardsInHand.length));
         card.y = window.innerHeight - CARD_HEIGHT*this.sizeMult - 20;
         card.width = CARD_WIDTH*this.sizeMult;
         card.height = CARD_HEIGHT*this.sizeMult;
@@ -903,7 +920,7 @@ renderOpponentHands(ctx, cardNums) {
         ctx.restore(); 
     }
     for (let i = 0; i < cardNums[1]; i++) {
-        var x = window.innerWidth/2 + (i-cardNums[1]/2)*(Math.min(CARD_WIDTH*this.sizeMult*0.7, this.maxWidth/cardNums[1])) - CARD_WIDTH*this.sizeMult/2;
+        var x = window.innerWidth/2 + (i-cardNums[1]/2)*(Math.min(CARD_WIDTH*this.sizeMult*0.7, this.maxWidth/cardNums[1]));
         var y = 20;
         var w = CARD_WIDTH*this.sizeMult;
         var h = CARD_HEIGHT*this.sizeMult;
@@ -994,13 +1011,13 @@ renderIncorrect(ctx){
     ctx.textAlign="center"
     ctx.fillStyle = "Red"
     this.ctx.fillText("Sucks to suck!", (window.innerWidth/2), 100);
-    ctx.font = "30px Comic Sans";
+    ctx.font = "30px Eina";
     this.ctx.fillText("Draw 3 Cards", (window.innerWidth/2), 140);
     this.sparecard.draw(ctx)
 }
 
 renderCorrect(ctx){
-    ctx.font = "50px Comic Sans";
+    ctx.font = "50px Eina";
     ctx.textAlign="center"
     ctx.fillStyle = "Green"
     this.ctx.fillText("Correct!", (window.innerWidth/2), 100);
@@ -1008,29 +1025,36 @@ renderCorrect(ctx){
 }
 
 renderGuess(ctx){
-    ctx.font = "50px Comic Sans";
+    ctx.font = "50px Eina";
     ctx.textAlign="center"
     this.ctx.fillText("Guess the type of card at the top of the deck", (window.innerWidth/2), 100);
     this.Guessdeck.draw(ctx)
 }
 
 renderWinner(ctx){
-    ctx.font = "50px Comic Sans";
-    ctx.fillStyle = "Red"
+    ctx.font = "50px Eina";
+    ctx.fillStyle = "Black"
+    ctx.strokeStyle = "White"
     ctx.drawImage(document.getElementById("winnerbackground"),0,0,window.innerWidth,window.innerHeight);
     ctx.textAlign="center"
-    this.ctx.fillText(this.players[this.winner] + " wins!", (window.innerWidth/2), window.innerHeight/2 -100);
+    this.ctx.fillText(this.players[this.winner] + " wins!", (window.innerWidth/2), 100);
+    this.ctx.strokeText(this.players[this.winner] + " wins!", (window.innerWidth/2), 100);
+    console.log(this.winner, this.data.players.indexOf(this.winner),this.data.pfps[this.winner])
+    this.ctx.drawImage(document.getElementById(this.data.pfps[this.winner]),(window.innerWidth/2) - 200,150,400,400); 
     returnbutton.draw(ctx);
     leavebutton.draw(ctx)
 }
 
 updateCanvas(){
-    if (this.dueling === true){
-        this.renderDuelWin(this.duelists);
-        return
-    }
     this.ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
     this.ctx.drawImage(document.getElementById(this.background), 0, 0, window.innerWidth, window.innerHeight);
+    this.ctx.save();
+    if (!this.data.reversed) {
+        this.ctx.translate(window.innerWidth, 0);
+        this.ctx.scale(-1, 1);
+    }
+    this.ctx.drawImage(document.getElementById("gameBG_arrows"), 0, 0, window.innerWidth, window.innerHeight);
+    this.ctx.restore();
     if (this.data.dueling) {
         this.duel(this.data.duelers);
         return;
@@ -1062,6 +1086,9 @@ updateCanvas(){
     }
     else if (this.data.guessing === "incorrect" && this.data.currentplayer === this.player.turnNum){
         this.renderIncorrect(this.ctx);
+    }
+    if (this.dueling === true){
+        this.renderDuelWin(this.duelists);
     }
 }
 
