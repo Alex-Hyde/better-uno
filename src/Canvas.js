@@ -59,6 +59,7 @@ class GameCanvas extends React.Component {
         this.dueling = false;
         this.duelists = [];
         this.canvasRef = React.createRef()
+        this.clickedIcon = -1
         this.hasdrawnplayablecard = false;
         this.hasguessed = false
         this.canvasRef = React.createRef();
@@ -178,8 +179,9 @@ class GameCanvas extends React.Component {
         yellowButton.y = window.innerHeight/2 - 2;
         yellowButton.radius = 70 * this.sizeMult;
 
-        returnbutton.x = (window.innerWidth/2)-160;
-        leavebutton.x = (window.innerWidth/2)+5;
+        skipbutton.x = (window.innerWidth/8) * 7
+        returnbutton.x = (window.innerWidth/2)-310;
+        leavebutton.x = (window.innerWidth/2)+4;
         
         this.playerIcons.setIcons(this.playernum, this.data.reversed, this.data.currentplayer, CARD_HEIGHT, this.sizeMult);
     
@@ -587,7 +589,12 @@ duel(duelers) {
 }
 
 peek(player) { // unseeing eye code here
-    console.log(player);
+    this.ctx.save()
+    this.ctx.globalAlpha = 0.9
+    this.ctx.fillStyle = "black"
+    this.ctx.fillRect(0,0,window.innerWidth,window.innerHeight);
+    this.ctx.restore()
+    this.ctx.drawImage(document.getElementById(this.data.pfps[player]),(window.innerWidth/2) - 200,50,100,100)
 }
 
 resetDuel(){
@@ -867,7 +874,8 @@ onMouseClick(e){
                 this.data.dueling = true;
                 this.data.duelers = [this.player.turnNum, clickedIcon]
             } else if (this.data.currentcard === "!U") { // unseeing eye
-                this.peek(clickedIcon)
+                this.clickedicon = clickedIcon
+                this.peeking = true;
             }
             firebase.firestore().doc("Games/Game " + this.props.Game_Key).update(this.data)
         }

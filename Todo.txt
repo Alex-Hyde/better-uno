@@ -1,10 +1,6 @@
-
--Add Alex's scrollin thing for players at the top of the screen
-
 -Make info pop up
 
 -Add instructions for special cards
- 
 
 -Special Card ideas
     -Unseeing eye: Allows you to view the hand of a single player of your choice

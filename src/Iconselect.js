@@ -20,10 +20,10 @@ class ImgButton extends React.Component {
             return (<button style = {{backgroundColor : "rgba(0,0,0,0)", borderColor: "rgba(0,0,0,0)", margin : "3px"}}><img width={75} height = {125} src = {this.active} onClick = {this.setpfp}/></button>)
         }
         else if (this.props.pfp === this.text){
-            return(<button style = {{backgroundColor : "rgba(0,0,0,0)", borderColor: "rgba(0,0,0,0)"}}><img width={75} height = {125} style={{border: "3px solid #7C40A9 "}} src = {this.alt} /></button>)
+            return(<button style = {{backgroundColor : "rgba(0,0,0,0)", borderColor: "rgba(0,0,0,0)"}}><img width={75} height = {125} style={{opacity: "0.3", border: "3px solid #7C40A9 "}} src = {this.active} /></button>)
         }
         else{
-            return(<button style = {{backgroundColor : "rgba(0,0,0,0)", borderColor: "rgba(0,0,0,0)", margin : "3px"}}><img  width={75} height = {125} src = {this.alt} /></button>)
+            return(<button style = {{backgroundColor : "rgba(0,0,0,0)", borderColor: "rgba(0,0,0,0)", margin : "3px", opacity: "0.3"}}><img  width={75} height = {125} src = {this.active} /></button>)
         }
     }
     
