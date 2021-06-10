@@ -136,7 +136,7 @@ class GamePage extends React.Component {
         this.shuffleArray(specialCards)
         var handsMap = {}
         for (var i = 0; i < this.state.players.length; i++) {
-            handsMap["Player " + i.toString()] = Cards.splice(0,7);
+            handsMap["Player " + i.toString()] = Cards.splice(0,7); // CHANGE BACK TO 7 IF NOT ALREADY
             console.log(Cards)
         }
         var startCard = Cards.splice(0,1);
