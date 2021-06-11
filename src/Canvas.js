@@ -10,6 +10,7 @@ import "./Button.css";
 import { CanvasButton, CanvasButtonCircle } from "./Canvasbutton.js";
 import messages from "./messages.js";
 import imgdict from "./imgdict.js";
+import bannermessages from "./bannermessages.js";
 
 const godRandom = false; // whether hand of got discards random cards or you get to choose (I'm not sure)
 const digits = ["0","1","2","3","4","5","6","7","8","9"]
@@ -33,6 +34,7 @@ const CARD_WIDTH = 100;
 const CARD_HEIGHT = 151;
 const PLACED_CARDS_DECK_SIZE = 10;
 const NUM_BACKGROUNDS = 3;
+const wildcards = ["!W","!G","!R","!B","!!","!D","!P","!H","!Y","!C","!~","!K","!T","!X","!U","!L"];
 
 
 class GameCanvas extends React.Component {
@@ -55,11 +57,14 @@ class GameCanvas extends React.Component {
         this.specialdeck = new Card(144,211,"SpecialDBack");
         this.specialdeck.x = 350;
         this.player = new Player();
+        this.popupmessage = false
         this.specialdeck.y = 175;
         this.dueling = false;
+        this.message = "";
         this.duelists = [];
+        this.peeking = false;
         this.canvasRef = React.createRef()
-        this.clickedIcon = -1
+        this.clickedIcon = 0;
         this.hasdrawnplayablecard = false;
         this.hasguessed = false
         this.canvasRef = React.createRef();
@@ -99,7 +104,9 @@ class GameCanvas extends React.Component {
         this.onContextMenu = this.onContextMenu.bind(this)
         this.duel = this.duel.bind(this)
         this.gift = this.gift.bind(this)
+        this.resetpeek = this.resetpeek.bind(this)
         this.peek = this.peek.bind(this)
+        this.renderPopUp = this.renderPopUp.bind(this)
         this.resetDuel = this.resetDuel.bind(this)
         //this.forcedPull = this.forcedPull.bind(this)
 
@@ -189,17 +196,15 @@ class GameCanvas extends React.Component {
     };
 
 
+
 listentodoc(){
     this.unsubscribe = firebase.firestore().collection("Games").doc("Game " + this.props.Game_Key).onSnapshot(snapshot => {
         if (snapshot.data()) {
             this.data = snapshot.data()
-           // console.log(this.playernum)
             for (var i = 0; i < this.playernum; i++) {
-            //    console.log(this.data.hands)
                 if(this.data.hands["Player " + i].length === 0) {
                     this.winner = i;
                     if (this.props.turnnumber === 0){
-                 //       console.log("Hi");
                         firebase.firestore().doc("Games/Game " + this.props.Game_Key).update({
                             gameAction: false,
                             inGame: false
@@ -237,6 +242,18 @@ shuffleArray(array) {
         array[i] = array[j];
         array[j] = temp;
     }
+}
+
+renderPopUp(){
+    this.ctx.drawImage(document.getElementById("Banner"),(window.innerWidth/2)-500,10 ,1000,80)
+    this.ctx.save()
+    this.ctx.fillStyle = "black"
+    this.ctx.strokeStyle = 'white';
+    this.ctx.font = "55px Eina";
+    this.ctx.textAlign = "center";
+    this.ctx.fillText(this.message, (window.innerWidth/2), 70);
+    //this.ctx.strokeText(this.message, (window.innerWidth/2), 70);
+    this.ctx.restore()
 }
 
 getPlayerCardNumbers() {
@@ -293,7 +310,7 @@ cardCanPlay(card){
 }
 
 onMouseMove(e){
-    if (this.winner === -1 && this.dueling === false){
+    if (this.winner === -1 && this.dueling === false && this.peeking === false){
         var rect = this.canvasRef.current.getBoundingClientRect();
         var rerender = false;
         this.x = e.clientX - rect.left
@@ -374,7 +391,6 @@ pullCard() {
                 this.shuffleArray(MasterDeck)
                 this.data.Deck = this.data.Deck.concat(MasterDeck.slice())
             }
-            //console.log(testCard.strvalue,this.cardCanPlay(testCard),this.data.currentcard)
             if (this.cardCanPlay(testCard)){
                 this.hasdrawnplayablecard = true;
             }
@@ -392,7 +408,6 @@ pullCard() {
             this.shuffleArray(MasterDeck)
             this.data.Deck = this.data.Deck.concat(MasterDeck.slice())
         }
-        //console.log(testCard.strvalue,this.cardCanPlay(testCard),this.data.currentcard)
         if (this.cardCanPlay(testCard)){
             this.hasdrawnplayablecard = true;
         }
@@ -425,7 +440,6 @@ guess() {
             guesshand[i] = randomcard
         }
     }
-   // console.log(guesshand)
     this.sparehand = this.player.cardsInHand 
     this.player.cardsInHand = [];
     this.player.loadCards(guesshand);
@@ -497,6 +511,11 @@ playCard(index) {
         this.data.hands[nextPlayer] = this.data.hands[nextPlayer].filter(card => (card[1] !== "+" && card !== "!!"))
     } else if (this.data.currentcard === "!G") { // gravedigger card
         this.data.currentcard = prevCard;
+        var prevcardcopy = prevCard
+        prevcardcopy = "!" + prevCard[1]
+        if (wildcards.includes(prevcardcopy)){
+            prevCard= "!" + prevCard[1]   
+        }
         this.data.hands[this.playerKey].push(prevCard)
         this.player.loadCards([prevCard])
         this.data.playedCards -= 1;
@@ -590,13 +609,32 @@ duel(duelers) {
     }
 }
 
-peek(player) { // unseeing eye code here
+resetpeek(){
+    this.peeking = false;
+    this.player.cardsInHand = this.sparehand;
+    this.updateCanvas();
+}
+
+peek() { // unseeing eye code here
     this.ctx.save()
     this.ctx.globalAlpha = 0.9
     this.ctx.fillStyle = "black"
     this.ctx.fillRect(0,0,window.innerWidth,window.innerHeight);
     this.ctx.restore()
-    this.ctx.drawImage(document.getElementById(this.data.pfps[player]),(window.innerWidth/2) - 200,50,100,100)
+    this.ctx.save()
+    this.ctx.fillStyle = "black"
+    this.ctx.strokeStyle = 'white';
+    this.ctx.font = "70px Eina";
+    this.ctx.textAlign = "center";
+    this.ctx.fillText("Peeking at " + this.data.players[this.clickedicon] + "'s cards:", (window.innerWidth/2), 70);
+    this.ctx.strokeText("Peeking at " + this.data.players[this.clickedicon] + "'s cards:", (window.innerWidth/2), 70);
+    this.sparehand = this.player.cardsInHand
+    this.player.cardsInHand = [] 
+    this.player.loadCards(this.data.hands["Player " + this.clickedicon])
+    console.log("log 1", this.player.cardsInHand)
+    this.renderHand(this.ctx)
+    setTimeout(this.resetpeek,5000)
+    this.ctx.restore()
 }
 
 resetDuel(){
@@ -609,8 +647,8 @@ renderDuelWin(duelists){
     this.ctx.globalAlpha = 0.9
     this.ctx.fillStyle = "black"
     this.ctx.fillRect(0,0,window.innerWidth,window.innerHeight);
-    console.log(duelists[0],this.data.pfps[duelists[0]])
     this.ctx.restore()
+    this.ctx.save()
     this.ctx.fillStyle = "black"
     this.ctx.strokeStyle = 'white';
     this.ctx.font = "70px Eina";
@@ -620,13 +658,16 @@ renderDuelWin(duelists){
     this.ctx.drawImage(document.getElementById(this.data.pfps[duelists[0]]),(window.innerWidth/2) - 200,100,400,400); 
     this.ctx.fillText(this.data.players[duelists[1]] +" draws 3 cards!", (window.innerWidth/2), 600);
     this.ctx.strokeText(this.data.players[duelists[1]] +" draws 3 cards!", (window.innerWidth/2), 600); 
-    this.ctx.strokeStyle = '#000000'; 
-    setTimeout(this.resetDuel,2000)
+    this.ctx.restore()
+    setTimeout(this.resetDuel,3000)
 }
 
 discard(index) {
     this.data.turn += 1;
     this.data.discards -= 1;
+    if (this.data.discards === 0){
+        this.popupmessage = false;
+    }
     this.player.cardsInHand.splice(index,1);
     this.data.hands[this.playerKey].splice(index,1);
     this.gameAction = true;
@@ -637,6 +678,9 @@ discard(index) {
 gift(index, player) {
     this.data.turn += 1;
     this.data.gifts -= 1;
+    if (this.data.gifts === 0){
+        this.popupmessage = false;
+    }
     this.player.cardsInHand.splice(index,1);
     var card = this.data.hands[this.playerKey].splice(index,1);
     this.data.hands["Player " + player].push(card[0])
@@ -812,6 +856,7 @@ onMouseClick(e){
                 if (pressed) {
                     this.data.special = false;
                     this.data.gameAction = false;
+                    this.popupmessage = false;
                     firebase.firestore().doc("Games/Game " + this.props.Game_Key).update(this.data)
                 }
             } else {
@@ -830,6 +875,7 @@ onMouseClick(e){
                 }
                 if (pressed) {
                     this.data.turn += 1;
+                    this.popupmessage = false;
                     if (!this.data.breakaway) {
                         if (this.data.currentcard[1] != "T") {
                             this.data.currentplayer = (this.player.turnNum - (this.data.reversed*2) + 1 + this.playernum) % this.playernum;
@@ -847,10 +893,10 @@ onMouseClick(e){
         for (let i = 0; i < this.playerIcons.icons.length; i++) {
             if (this.playerIcons.icons[i].clicked(ex, ey)) {
                 clickedIcon = i;
+                this.popupmessage = false;
                 break;
             }
         }
-        console.log("Clicked icon: ", clickedIcon);
         if (clickedIcon != -1) {
             this.playerIcons.active = false
             this.data.special = false
@@ -1027,6 +1073,8 @@ renderWildOptions(ctx) {
         blueButton.draw(ctx);
         yellowButton.draw(ctx);
         greenButton.draw(ctx);
+        this.message = "Chose a colour for the wildcard"
+        this.popupmessage = true
         redButton.on = true;
         blueButton.on = true;
         greenButton.on = true;
@@ -1043,6 +1091,8 @@ renderSpecial(ctx) {
     if (!this.data.special) return;
 
     if (this.data.currentcard === "!C") {
+        this.message = "Chose a colour to discard from hand"
+        this.popupmessage = true
         redButton.draw(ctx);
         blueButton.draw(ctx);
         yellowButton.draw(ctx);
@@ -1057,6 +1107,8 @@ renderSpecial(ctx) {
         greenButton.on = false;
         yellowButton.on = false;
         this.playerIcons.active = true
+        this.message = "Choose a player to " + bannermessages[this.data.currentcard]
+        this.popupmessage = true
     }
 }
 
@@ -1100,7 +1152,6 @@ renderWinner(ctx){
     ctx.textAlign="center"
     this.ctx.fillText(this.players[this.winner] + " wins!", (window.innerWidth/2), 100);
     this.ctx.strokeText(this.players[this.winner] + " wins!", (window.innerWidth/2), 100);
-    console.log(this.winner, this.data.players.indexOf(this.winner),this.data.pfps[this.winner])
     this.ctx.drawImage(document.getElementById(this.data.pfps[this.winner]),(window.innerWidth/2) - 200,150,400,400); 
     returnbutton.draw(ctx);
     leavebutton.draw(ctx)
@@ -1137,6 +1188,27 @@ updateCanvas(){
             skipbutton.draw(this.ctx);
         }
     }
+    if (this.data.currentcard === "!H" && this.data.discards){
+        if (this.data.discards > 1){
+            this.message = "select " + this.data.discards+ " cards to discard"    
+        } 
+        else{
+            this.message = "select a card to discard"     
+        }
+        this.popupmessage = true
+    }
+    if (this.data.currentcard === "!K" && this.data.gifts){
+        if (this.data.gifts > 1){
+            this.message = "select " + this.data.gifts + " cards to gift to " + this.data.players[this.data.specialNext]
+        } 
+        else{
+            this.message = "select a card to gift to " + this.data.players[this.data.specialNext]    
+        }
+        this.popupmessage = true
+    }
+    if (this.popupmessage){
+        this.renderPopUp();
+    }
     else if (this.data.guessing === true && this.data.currentplayer === this.player.turnNum){
         this.renderHand(this.ctx) 
         this.renderGuess(this.ctx)   
@@ -1150,6 +1222,9 @@ updateCanvas(){
     }
     if (this.dueling === true){
         this.renderDuelWin(this.duelists);
+    }
+    if (this.peeking){
+        this.peek()
     }
 }
 
