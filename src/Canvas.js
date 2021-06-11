@@ -783,10 +783,10 @@ onMouseClick(e){
             firebase.firestore().doc("Games/Game " + this.props.Game_Key).update(this.data)
 
         }   
-        if (this.deck.onCard(ex,ey) && (this.player.turnNum === this.data.currentplayer) && (this.hasdrawnplayablecard === false) && this.data.currentcard[0] != "!"){
+        if (!this.data.special && this.deck.onCard(ex,ey) && (this.player.turnNum === this.data.currentplayer) && (this.hasdrawnplayablecard === false) && this.data.currentcard[0] != "!"){
             this.pullCard();
         }
-        if (this.specialdeck.onCard(ex,ey) && (this.player.turnNum === this.data.currentplayer) && (this.hasguessed === false) && this.data.currentcard[0] != "!"){
+        if (!this.data.special && this.specialdeck.onCard(ex,ey) && (this.player.turnNum === this.data.currentplayer) && (this.hasguessed === false) && this.data.currentcard[0] != "!"){
             this.guess()
             this.hasguessed = true;
         }    
