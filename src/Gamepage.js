@@ -64,7 +64,7 @@ class GamePage extends React.Component {
     updatePlayers(){
         this.unsubscribe = firebase.firestore().collection("Games").doc("Game " + this.state.Game_Key).onSnapshot(snapshot => {
             if (snapshot.data()) {
-                if (!snapshot.data().players.includes(this.state.name)) {
+                if (!snapshot.data().players.includes(this.state.name) && snapshot.data().kicked === this.state.name) {
                     window.alert("Kicked");
                     this.setState({
                         inLobby : false,
