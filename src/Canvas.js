@@ -117,7 +117,7 @@ class GameCanvas extends React.Component {
             this.sizeMult = 2
             this.maxWidth = 2000;
         } else if (window.innerWidth > 1500) {
-            this.sizeMult = 1.5
+            this.sizeMult = 1.3
             this.maxWidth = 1500;
         } else if (window.innerWidth > 1000) {
             this.sizeMult = 1
@@ -154,7 +154,7 @@ class GameCanvas extends React.Component {
             this.sizeMult = 2
             this.maxWidth = 2000;
         } else if (window.innerWidth > 1500) {
-            this.sizeMult = 1.5
+            this.sizeMult = 1.3
             this.maxWidth = 1500;
         } else if (window.innerWidth > 1000) {
             this.sizeMult = 1
@@ -1175,6 +1175,7 @@ renderWinner(ctx){
 }
 
 updateCanvas(){
+    console.log(this.sizeMult);
     this.ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
     this.ctx.drawImage(document.getElementById(this.background), 0, 0, window.innerWidth, window.innerHeight);
     this.ctx.save()
