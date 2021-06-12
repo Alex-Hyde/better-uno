@@ -51,9 +51,9 @@ class GameCanvas extends React.Component {
         this.name = props.name;
         this.pfp = props.pfp;
         this.deck = new Card(144,211,"back");
-        this.Guessdeck = new Card(162,256,"back");
-        this.Guessdeck.x = (window.innerWidth/2) - 81;
-        this.Guessdeck.y = 150;
+        this.Guessdeck = new Card(324,512,"back");
+        this.Guessdeck.x = (window.innerWidth/2) - 162;
+        this.Guessdeck.y = 100;
         this.specialdeck = new Card(144,211,"SpecialDBack");
         this.specialdeck.x = 350;
         this.player = new Player();
@@ -430,7 +430,7 @@ guess() {
     var guesshand = [];
     var potentialcards = ["1","2","3","4","5","6","7","8","9","+","!D","!!","S","R"];
     guesshand[0] = this.data.Deck[0];
-    for (var i = 1; i < 1; i++ ){
+    for (var i = 1; i < 2; i++ ){
        var randomchoice = Math.floor(Math.random() * potentialcards.length);
         var randomcard = potentialcards[randomchoice];
         if(randomcard.length !== 2){
@@ -748,9 +748,9 @@ resetwrongGuess(){
 
 checkguess(card){
     this.sparecard = this.data.Deck.splice(0,1)[0];
-    this.sparecard = new Card(162,256,this.sparecard);
-    this.sparecard.x = (window.innerWidth/2) - 81;
-    this.sparecard.y = 150;
+    this.sparecard = new Card(324,512,this.sparecard);
+    this.sparecard.x = (window.innerWidth/2) - 162;
+    this.sparecard.y = 100;
     if(card.strvalue[1] === this.sparecard.strvalue[1]){
         this.data.guessing = "correct";
         this.updateCanvas()
@@ -836,9 +836,10 @@ onMouseClick(e){
                 }
             }
         }
-        if (skipbutton.clicked(ex,ey) && this.hasdrawnplayablecard){
+        if (skipbutton.clicked(ex,ey) && (this.hasdrawnplayablecard || this.data.breakaway)){
             this.data.currentplayer = (this.player.turnNum - (this.data.reversed*2) + 1 + this.playernum) % this.playernum
             this.data.turn += 1;
+            this.data.breakaway = false;
             this.hasguessed = false;
             this.hasdrawnplayablecard = false
             firebase.firestore().doc("Games/Game " + this.props.Game_Key).update(this.data)
@@ -1135,12 +1136,12 @@ renderOthers() {
 }
 
 renderIncorrect(ctx){
-    ctx.font = "50px Comic Sans";
+    ctx.font = "50px Eina";
     ctx.textAlign="center"
     ctx.fillStyle = "Red"
-    this.ctx.fillText("Sucks to suck!", (window.innerWidth/2), 100);
+    this.ctx.fillText("Sucks to suck!", (window.innerWidth/2), 50);
     ctx.font = "30px Eina";
-    this.ctx.fillText("Draw 3 Cards", (window.innerWidth/2), 140);
+    this.ctx.fillText("Draw 3 Cards", (window.innerWidth/2), 75);
     this.sparecard.draw(ctx)
 }
 
@@ -1148,14 +1149,15 @@ renderCorrect(ctx){
     ctx.font = "50px Eina";
     ctx.textAlign="center"
     ctx.fillStyle = "Green"
-    this.ctx.fillText("Correct!", (window.innerWidth/2), 100);
+    this.ctx.fillText("Correct!", (window.innerWidth/2), 50);
     this.sparecard.draw(ctx)
 }
 
 renderGuess(ctx){
     ctx.font = "50px Eina";
+    ctx.fillStyle = "#9932CC"
     ctx.textAlign="center"
-    this.ctx.fillText("Guess the type of card at the top of the deck", (window.innerWidth/2), 100);
+    this.ctx.fillText("Guess the type of card at the top of the deck", (window.innerWidth/2), 75);
     this.Guessdeck.draw(ctx)
 }
 
@@ -1198,10 +1200,14 @@ updateCanvas(){
         }
         if (this.winner !== -1){
             this.renderWinner(this.ctx)
+            this.popupmessage = false;
         }
         if (this.hasdrawnplayablecard){
             skipbutton.draw(this.ctx);
         }
+    }
+    if (this.data.breakaway && this.data.currentplayer === this.player.turnNum){
+        skipbutton.draw(this.ctx);
     }
     if (this.data.currentcard === "!H" && this.data.discards){
         if (this.data.discards > 1){
@@ -1221,7 +1227,7 @@ updateCanvas(){
         }
         this.popupmessage = true
     }
-    if (this.popupmessage){
+    if (this.popupmessage && this.winner === -1){
         this.renderPopUp();
     }
     else if (this.data.guessing === true && this.data.currentplayer === this.player.turnNum){
