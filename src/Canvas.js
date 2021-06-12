@@ -771,7 +771,7 @@ onContextMenu(e){
     var ey = e.clientY - rect.top  
     for(var i = 0; i < this.player.cardsInHand.length; i++) {
         if (this.player.cardsInHand[i]) {
-            if (this.player.cardsInHand[i].hovered && specialcodes.includes(this.player.cardsInHand[i].strvalue[1])){
+            if (this.player.cardsInHand[i].hovered && messages[this.player.cardsInHand[i].strvalue[1]]){
             window.alert(messages[this.player.cardsInHand[i].strvalue[1]])
             }   
        }
@@ -1177,6 +1177,14 @@ renderWinner(ctx){
 updateCanvas(){
     this.ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
     this.ctx.drawImage(document.getElementById(this.background), 0, 0, window.innerWidth, window.innerHeight);
+    this.ctx.save()
+    this.ctx.globalAlpha = 0.5;
+    this.ctx.textAlign = "center";
+    this.ctx.font = "30px Eina";
+    this.ctx.fillStyle = "#EE82EE"
+    this.ctx.fillText("Right click on special cards ",(window.innerWidth/8) * 7, window.innerHeight - 100)
+    this.ctx.fillText("for more info ",(window.innerWidth/8) * 7, window.innerHeight - 50)
+    this.ctx.restore()
     this.ctx.save();
     if (!this.data.reversed) {
         this.ctx.translate(window.innerWidth, 0);
@@ -1184,7 +1192,7 @@ updateCanvas(){
     }
     this.ctx.drawImage(document.getElementById("gameBG_arrows"), 0, 0, window.innerWidth, window.innerHeight);
     this.ctx.restore();
-    if (this.data.dueling) {
+    if (this.data.dueling){
         this.duel(this.data.duelers);
         return;
     }
