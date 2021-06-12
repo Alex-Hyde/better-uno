@@ -738,11 +738,12 @@ resetwrongGuess(){
     if (this.data.guessing === "incorrect"){
         this.data.guessing = false
         this.player.cardsInHand = this.sparehand;
-        for (var i = 0; i < 3; i++){
-            this.pullCard();    
-        }
+        this.data.chain = 3;
+        this.data.breakaway = false;
+        this.hasguessed = false;
+        this.hasdrawnplayablecard = false
+        this.pullCard(); 
         this.updateCanvas()
-
     }
 }
 
