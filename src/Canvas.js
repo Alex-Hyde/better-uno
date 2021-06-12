@@ -108,6 +108,7 @@ class GameCanvas extends React.Component {
         this.peek = this.peek.bind(this)
         this.renderPopUp = this.renderPopUp.bind(this)
         this.resetDuel = this.resetDuel.bind(this)
+        this.lifelineCheck = this.lifelineCheck.bind(this)
         //this.forcedPull = this.forcedPull.bind(this)
 
         this.maxWidth = 1000;
@@ -201,6 +202,9 @@ listentodoc(){
     this.unsubscribe = firebase.firestore().collection("Games").doc("Game " + this.props.Game_Key).onSnapshot(snapshot => {
         if (snapshot.data()) {
             this.data = snapshot.data()
+            if (this.data.currentplayer != this.player.turnNum) {
+                this.popupmessage = false;
+            }
             for (var i = 0; i < this.playernum; i++) {
                 if(this.data.hands["Player " + i].length === 0) {
                     this.winner = i;
@@ -537,6 +541,12 @@ playCard(index) {
         this.data.currentplayer = (this.player.turnNum - (this.data.reversed * 4) + 2 + this.playernum) % this.playernum
     }
 
+    this.lifelineCheck()
+    this.updateCanvas()
+    firebase.firestore().doc("Games/Game " + this.props.Game_Key).update(this.data)
+}
+
+lifelineCheck() {
     if (this.data.hands[this.playerKey].length === 0) {
         for (var p = (this.player.turnNum + 1 - (this.data.reversed * 2) + this.playernum) % this.playernum;
          p != this.player.turnNum; 
@@ -556,14 +566,13 @@ playCard(index) {
                     this.data.special = false;
                     this.data.discards = 0;
                     this.data.chain = 0;
+                    this.data.gifts = 0;
                     this.data.currentplayer = p;
                     this.data.currentcard = "!L";
                 }
             }
         }
     }
-    this.updateCanvas()
-    firebase.firestore().doc("Games/Game " + this.props.Game_Key).update(this.data)
 }
 
 duel(duelers) {
@@ -689,6 +698,7 @@ gift(index, player) {
     var card = this.data.hands[this.playerKey].splice(index,1);
     this.data.hands["Player " + player].push(card[0])
     this.gameAction = true;
+    this.lifelineCheck();
     this.updateCanvas()
     firebase.firestore().doc("Games/Game " + this.props.Game_Key).update(this.data)
 }
@@ -861,6 +871,7 @@ onMouseClick(e){
                     this.data.special = false;
                     this.data.gameAction = false;
                     this.popupmessage = false;
+                    this.lifelineCheck();
                     firebase.firestore().doc("Games/Game " + this.props.Game_Key).update(this.data)
                 }
             } else {
