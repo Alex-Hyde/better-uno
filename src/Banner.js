@@ -3,7 +3,7 @@ import "./style.css";
 
 class Banner extends React.Component {
     render(props) {
-        return <h1 >Game {this.props.lobby_num}</h1>
+        return <p style={{fontSize: "50px", margin: "0px"}}>{this.props.lobby_num}</p>
     }
 }
 

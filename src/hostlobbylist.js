@@ -8,10 +8,10 @@ class PlayerIcon extends React.Component{
 
     render() {
         return(
-            <div style={{display: "flex", paddingBottom: "10px", borderRadius:"50%"}}>
-            <img className="pfpstyle" width={75} height={75} src ={this.props.src}/>
-            <h1>{this.props.name}</h1>
-        </div>
+            <div style={{display: "flex", alignItems : "center", marginLeft :"1%"}}>
+                <img className="pfpstyle" width={65} height={65} src ={this.props.src}/>
+                <p className="Eina" style={{margin: "0px", fontSize: "30px"}}>{this.props.name}</p>
+            </div>
         )
     }
 }
@@ -51,7 +51,7 @@ class KickButton extends React.Component {
     }
 
     render(props) {
-        return <button onClick = {this.handleKick} style = {this.state.style}>Kick</button>
+        return <button className="reactButton" onClick = {this.handleKick} style = {this.state.style}>Kick</button>
     }
 }
 
@@ -59,16 +59,18 @@ class HostLobbylist extends React.Component {
 
     render() {
         if (this.props.players.length > 0){
-        var playerstorender = [<div key={this.props.players[0]} style={{display: "flex"}}><PlayerIcon name={this.props.players[0]} src={imgdict[this.props.images[0]]} />
-        <MenuButton 
-                    style={{fontSize: "20px", height : "30px", verticalAlign: "middle", margin:"25px"}} 
+        var playerstorender = [<div key={this.props.players[0]} style={{alignItems : "center", display: "flex", backgroundImage: "radial-gradient(ellipse at bottom, #ffbffe55, transparent)", borderRadius: "25px", margin: "5px", width: "400px", padding: "5px", boxShadow: "3px 6px 5px #00000033"}}>
+            <PlayerIcon name={this.props.players[0]} src={imgdict[this.props.images[0]]} />
+            <MenuButton 
+                    style={{fontSize: "20px", height : "50px", width: "100px", verticalAlign: "middle", marginLeft: "25px", marginBottom: "5px", marginLeft: "auto", marginRight: "15px"}} 
                     text="Leave"
                     onClick={this.props.leavefunc}
                 />
                 </div>].concat(
             this.props.players.slice(1).map( (player,index) => 
-                <div key={player} style={{display: "flex"}}>
-                <PlayerIcon src={imgdict[this.props.images[index + 1]]} name={player}/><KickButton kicked={player} style={{fontSize: "20px", height: "30px", verticalAlign: "middle", margin:"25px"}} Lobbycode={this.props.Lobbycode}/>
+                <div key={player} style={{alignItems : "center", display: "flex", backgroundImage: "radial-gradient(ellipse at bottom, #ffbffe55, transparent)", borderRadius: "25px", margin: "5px", width: "400px", padding: "5px", boxShadow: "3px 6px 5px #00000033"}}>
+                <PlayerIcon src={imgdict[this.props.images[index + 1]]} name={player}/>
+                <KickButton kicked={player} style={{fontSize: "20px", height : "50px", width: "100px", verticalAlign: "middle", marginLeft: "25px", marginBottom: "5px", marginLeft: "auto", marginRight: "15px"}} Lobbycode={this.props.Lobbycode}/>
             </div>))
 
         return(

@@ -173,7 +173,7 @@ class MenuPage extends React.Component {
                     <div style={{display: "flex", justifyContent: "center"}}>
                         <div style={{flex: "50%", paddingRight: "8px"}}>
                             <input id="codeInput" type="textfield" placeholder="Game Code" onChange={this.setCode} spellCheck="false" autoComplete="off"></input>
-                            <MenuButton id="joinLobby"
+                            <MenuButton id="joinslLobby"
                                 style={{
                                         height: "75px", 
                                         width: "100%",

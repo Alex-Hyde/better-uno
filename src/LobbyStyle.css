@@ -1,4 +1,12 @@
-/* Split the screen in half */
+@font-face {
+  font-family: "Eina";
+  src: local('Eina'), url(./fonts/Eina/Eina01-Bold.ttf);
+}
+
+.Eina {
+  font-family: "Eina";
+}
+
 .split {
     height: 100%;
     width: 50%;
@@ -6,51 +14,72 @@
     z-index: 1;
     top: 0;
     overflow-x: hidden;
-  }
-  
-  /* Control the left side */
-  .left {
+}
+
+.left {
     left: 0;
     margin-top: 60px;
-  }
-  
-  /* Control the right side */
-  .right {
+}
+
+.right {
     right: 0;
     text-align: left;
     justify-content: center;
     margin-top: 60px;
-  }
-  
-  /* If you want the content centered horizontally and vertically */
-  .centered {
+}
+
+.centered {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     text-align: center;
-  }
-  
-  /* Style the image inside the centered container, if needed */
-  .centered img {
-    width: 150px;
+}
+
+#iconSelect img {
     border-radius: 50%;
-  }
+}
 
-  .pfpstyle{
+.pfpstyle{
     border-radius: 50%;
-    margin-right: 10px;  
-  }
+    margin-right: 10px;
+    border: 2px solid #ffbffe;
+}
 
-  .titleBar {
-      margin-bottom: 50px;
-  }
+.titleBar {
+    margin-bottom: 50px;
+}
 
-  #banner {
+#banner {
     pointer-events: all;
-  }
+    font-family: "Eina";
+    background-image: linear-gradient(0deg, #a968fd 0%, #7300ff 100%);
+    border-radius: 30px;
+    width: fit-content;
+    margin: auto;
+    padding-left: 15px;
+    padding-right: 15px;
+    box-shadow: 0px 0px 25px #00000077;
+}
 
-  body::-webkit-scrollbar-thumb {
+body::-webkit-scrollbar-thumb {
     background-color: rgba(109, 2, 136, 0.986);
     outline: 1px solid slategrey;
-  }
+}
+
+#lobbyParent {
+    margin: auto;
+    margin-top: 15px;
+    padding: 50px;
+    padding-top: 15px;
+    border-radius: 20px;
+    width: fit-content;
+    background-image: linear-gradient(0deg, #a968fd 0%, #7300ff 100%);
+    box-shadow: 5px 10px #00000033;
+    max-width: 1000px;
+}
+
+#splitScreen {
+  display: flex;
+  justify-content: center;
+}

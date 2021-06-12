@@ -16,10 +16,10 @@ const godRandom = false; // whether hand of got discards random cards or you get
 const digits = ["0","1","2","3","4","5","6","7","8","9"]
 const specialcodes = ["K","~","P","Y","H","B","C","G"]
 
-var redButton = new CanvasButtonCircle(window.innerWidth/2 + 2, window.innerHeight/2 + 2, 100, 1, "red");
-var blueButton = new CanvasButtonCircle(window.innerWidth/2 - 2, window.innerHeight/2 + 2, 100, 2, "blue");
-var yellowButton = new CanvasButtonCircle(window.innerWidth/2 - 2, window.innerHeight/2 - 2, 100, 3, "yellow");
-var greenButton = new CanvasButtonCircle(window.innerWidth/2 + 2, window.innerHeight/2 - 2, 100, 4, "green");
+var redButton = new CanvasButtonCircle(window.innerWidth/2 + 2, window.innerHeight/2 + 2, 100, 1, "#e36351");
+var blueButton = new CanvasButtonCircle(window.innerWidth/2 - 2, window.innerHeight/2 + 2, 100, 2, "#559ee3");
+var yellowButton = new CanvasButtonCircle(window.innerWidth/2 - 2, window.innerHeight/2 - 2, 100, 3, "#ffe45e");
+var greenButton = new CanvasButtonCircle(window.innerWidth/2 + 2, window.innerHeight/2 - 2, 100, 4, "#6dd060");
 
 //var sRedButton = new CanvasButton("RedB", 900, 50, 100, 100);
 //var sBlueButton = new CanvasButton("BlueB", 1010, 50, 100, 100);

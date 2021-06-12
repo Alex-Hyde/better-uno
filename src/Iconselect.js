@@ -17,13 +17,13 @@ class ImgButton extends React.Component {
     render(){
         console.log(this.props.pfp,this.text)
         if (this.props.pfps.includes(this.text) === false){
-            return (<button style = {{backgroundColor : "rgba(0,0,0,0)", borderColor: "rgba(0,0,0,0)", margin : "3px"}}><img width={75} height = {125} src = {this.active} onClick = {this.setpfp}/></button>)
+            return (<button style = {{backgroundColor : "rgba(0,0,0,0)", borderColor: "rgba(0,0,0,0)", padding: "0px"}}><img width={74} height = {74} style={{border: "3px solid #00000033"}} src = {this.active} onClick = {this.setpfp}/></button>)
         }
         else if (this.props.pfp === this.text){
-            return(<button style = {{backgroundColor : "rgba(0,0,0,0)", borderColor: "rgba(0,0,0,0)"}}><img width={75} height = {125} style={{opacity: "0.3", border: "3px solid #7C40A9 "}} src = {this.active} /></button>)
+            return(<button style = {{backgroundColor : "rgba(0,0,0,0)", borderColor: "rgba(0,0,0,0)", padding: "0px"}}><img width={74} height = {74} style={{border: "3px solid #ffbffe", boxShadow: "0px 0px 10px #ffbffe"}} src = {this.active} /></button>)
         }
         else{
-            return(<button style = {{backgroundColor : "rgba(0,0,0,0)", borderColor: "rgba(0,0,0,0)", margin : "3px", opacity: "0.3"}}><img  width={75} height = {125} src = {this.active} /></button>)
+            return(<button style = {{backgroundColor : "rgba(0,0,0,0)", borderColor: "rgba(0,0,0,0)", padding: "0px"}}><img width={74} height = {74} style={{opacity: "0.5", border: "3px solid #00000033"}} src = {this.active} /></button>)
         }
     }
     

@@ -10,7 +10,7 @@
     padding: 50px;
     border-radius: 20px;
     width: fit-content;
-    background-image: url("./menuBackground.png");
+    background-image: linear-gradient(0deg, #a968fd 0%, #7300ff 100%);
     box-shadow: 5px 10px #00000033;
     max-width: 800px;
 }
@@ -59,10 +59,7 @@
     overflow: auto;
     transform: scaleX(-1); 
   }
-  
-  .sleeve {
-    transform: scaleX(-1);
-  }
+
 #codeInput:focus {
     outline: none;
     background-color: #e0b8ff;
