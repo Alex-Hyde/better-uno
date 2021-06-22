@@ -1,3 +1,6 @@
+
+DONE
+
 -Make info pop up
 
 -Add instructions for special cards
@@ -11,11 +14,6 @@
     -dos
     -card battles
     -crazy beans
-
-
-
-
-DONE
 
 -Add profile pic selection
 

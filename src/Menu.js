@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import LobbyBanner from './Banner.js';
 import MenuButton from "./Buttons.js";
 import firebase from "./firebase.js";
+import LOGO from "./images/LOGO.png"
 import "./menu.css";
 
 class MenuPage extends React.Component {
@@ -163,10 +164,13 @@ class MenuPage extends React.Component {
 
     render(){
         return (
+            <div>
             <div id="menuContainer">
+            <div style={{display: "flex", justifyContent: "center"}}>
+                <img src = {LOGO} width = "550" height = "400"/>
+                </div>
                 <form>
                     <div style={{display: "flex", justifyContent: "center"}}>
-                        {/* <h1 style={{fontSize: "30px"}}> Enter Your Name:</h1> */}
                         <input id="nameInput" type="textfield" placeholder="Name" onChange={this.setName} spellCheck="false" autoComplete="off"></input>                 
                     </div>
                     <br/>
@@ -211,6 +215,7 @@ class MenuPage extends React.Component {
                 <h1 style={{display: "none"}} >Lobby: {this.state.Game_Key}</h1>
                 </div>
             </div>
+        </div>
         )
 
     }

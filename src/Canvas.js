@@ -50,11 +50,11 @@ class GameCanvas extends React.Component {
         }
         this.name = props.name;
         this.pfp = props.pfp;
-        this.deck = new Card(144,211,"back");
+        this.deck = new Card(324,512,"back");
         this.Guessdeck = new Card(324,512,"back");
         this.Guessdeck.x = (window.innerWidth/2) - 162;
         this.Guessdeck.y = 100;
-        this.specialdeck = new Card(144,211,"SpecialDBack");
+        this.specialdeck = new Card(187,274,"SpecialDBack");
         this.specialdeck.x = 350;
         this.player = new Player();
         this.popupmessage = false
@@ -142,8 +142,8 @@ class GameCanvas extends React.Component {
         yellowButton.y = window.innerHeight/2 - 2;
         yellowButton.radius = 70 * this.sizeMult;
 
-        this.deck = new Card(CARD_WIDTH*this.sizeMult, CARD_HEIGHT*this.sizeMult,"back");
-        this.specialdeck = new Card(CARD_WIDTH*this.sizeMult, CARD_HEIGHT*this.sizeMult,"SpecialDBack");
+        this.deck = new Card(CARD_WIDTH*this.sizeMult*1.2, CARD_HEIGHT*this.sizeMult*1.2,"back");
+        this.specialdeck = new Card(CARD_WIDTH*this.sizeMult*1.2, CARD_HEIGHT*this.sizeMult*1.2,"SpecialDBack");
         this.playerIcons = null;
     }
 
@@ -958,7 +958,9 @@ componentWillUnmount(){
 
 
 renderBoard(ctx){
+    this.sizeMult *= 1.2;
     this.placedCards.forEach(card => {
+        
         //shadow
         let shadowx = 2 * this.sizeMult;
         let shadowy = 3 * this.sizeMult;
@@ -978,21 +980,21 @@ renderBoard(ctx){
         ctx.drawImage(document.getElementById(card[0]),window.innerWidth/2-CARD_WIDTH*this.sizeMult/2,window.innerHeight/2-CARD_HEIGHT*this.sizeMult/2,CARD_WIDTH*this.sizeMult, CARD_HEIGHT*this.sizeMult);
         ctx.restore(); 
     });
-
     this.deck.x = window.innerWidth/2 + CARD_WIDTH*this.sizeMult*1.5 + 18*this.sizeMult;
     this.deck.y = window.innerHeight/2 - CARD_HEIGHT*this.sizeMult/2 + 12*this.sizeMult;
     for (let i = 0; i < 5; i++) {
         this.deck.x -= 3*this.sizeMult;
         this.deck.y -= 2*this.sizeMult; 
-        this.deck.draw(ctx);    
+        this.deck.draw(ctx);  
     }
     this.specialdeck.x = window.innerWidth/2 - CARD_WIDTH*this.sizeMult*2.5 + 18*this.sizeMult;
     this.specialdeck.y = window.innerHeight/2 - CARD_HEIGHT*this.sizeMult/2 + 12*this.sizeMult;
     for (let i = 0; i < 5; i++) {
         this.specialdeck.x -= 3*this.sizeMult;
         this.specialdeck.y -= 2*this.sizeMult; 
-        this.specialdeck.draw(ctx);    
+        this.specialdeck.draw(ctx);   
     }
+    this.sizeMult /= 1.2;
 }
 
 renderHand(ctx){
