@@ -42,6 +42,7 @@ class KickButton extends React.Component {
                     } else {
                         docRef.update({
                             players : firebase.firestore.FieldValue.arrayRemove(this.state.player),
+                            kicked : this.state.player,
                             PlayerAmnt : firebase.firestore.FieldValue.increment(-1)
                         }) 
                     }
